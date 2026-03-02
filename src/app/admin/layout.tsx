@@ -57,7 +57,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <ShieldCheck size={20} color="white" />
                         </div>
                         <div>
-                            <div style={{ color: 'white', fontWeight: 900, fontSize: 16 }}>مزيدي</div>
+                            <div style={{ color: 'white', fontWeight: 900, fontSize: 16 }}>باسكت</div>
                             <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>لوحة الإدارة</div>
                         </div>
                     </div>

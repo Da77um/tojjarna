@@ -246,7 +246,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                     </div>
                 </div>
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', padding: '16px 20px', color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
-                    © 2025 {store.name} — مدعوم بمنصة مزيدي
+                    © 2025 {store.name} — مدعوم بمنصة باسكت
                 </div>
             </footer>
         </div>

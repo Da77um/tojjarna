@@ -93,7 +93,7 @@ export default function LoginPage() {
                         >
                             <Store size={20} color="white" />
                         </div>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: 'white' }}>مزيدي</span>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: 'white' }}>باسكت</span>
                     </Link>
 
                     <h1 style={{ fontSize: 28, fontWeight: 900, color: 'white', marginBottom: 8 }}>
@@ -311,7 +311,7 @@ export default function LoginPage() {
                         متجرك بانتظارك
                     </h2>
                     <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, lineHeight: 1.8, maxWidth: 320 }}>
-                        أكثر من 2500 تاجر أردني يديرون متاجرهم الآن عبر مزيدي ويحققون أرباحاً يومية
+                        أكثر من 2500 تاجر أردني يديرون متاجرهم الآن عبر باسكت ويحققون أرباحاً يومية
                     </p>
                 </div>
             </div>

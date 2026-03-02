@@ -1,5 +1,5 @@
 -- =============================================
--- Mazidi (مزيدي) - Jordanian E-Commerce Platform
+-- Basket (باسكت) - Jordanian E-Commerce Platform
 -- Full Supabase PostgreSQL Schema & RLS Policies
 -- =============================================
 
@@ -30,6 +30,33 @@ VALUES
   ('الأساسي', 'Basic', 15, 3.0, 100, '["حتى 100 منتج", "تحليلات المبيعات", "كوبونات الخصم", "إشعارات واتساب", "دعم البطاقات الائتمانية"]', 2),
   ('الاحترافي', 'Pro', 35, 2.0, NULL, '["منتجات غير محدودة", "تحليلات متقدمة", "نطاق مخصص مجاني", "ذكاء اصطناعي", "تكامل شركات الشحن"]', 3)
 ON CONFLICT DO NOTHING;
+
+-- =============================================
+-- 1.1 PLATFORM SETTINGS
+-- =============================================
+CREATE TABLE IF NOT EXISTS platform_settings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  key VARCHAR(100) NOT NULL UNIQUE,
+  value JSONB NOT NULL,
+  description TEXT,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Default settings
+INSERT INTO platform_settings (key, value, description)
+VALUES 
+  ('global_commission', '2.5', 'Default platform commission rate (percentage)'),
+  ('platform_name', '"باسكت"', 'Platform display name'),
+  ('contact_email', '"support@basket.jo"', 'Primary support email'),
+  ('is_maintenance', 'false', 'Enable maintenance mode globally')
+ON CONFLICT (key) DO NOTHING;
+
+-- RLS for settings
+ALTER TABLE platform_settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "settings_public_read" ON platform_settings;
+CREATE POLICY "settings_public_read" ON platform_settings FOR SELECT USING (true);
+DROP POLICY IF EXISTS "settings_admin_all" ON platform_settings;
+CREATE POLICY "settings_admin_all" ON platform_settings FOR ALL USING (is_admin());
 
 -- =============================================
 -- 2. USERS (extends Supabase auth.users)

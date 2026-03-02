@@ -150,7 +150,7 @@ export default function DashboardLayout({
                         </div>
                         <div>
                             <div style={{ fontWeight: 900, fontSize: 17, color: 'var(--text-primary)' }}>
-                                مزيدي
+                                باسكت
                             </div>
                             <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 1 }}>
                                 لوحة التاجر
@@ -192,7 +192,7 @@ export default function DashboardLayout({
                                 {activeStore?.name_ar || 'جاري التحميل...'}
                             </div>
                             <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                                {activeStore?.slug ? `mazidi.com/${activeStore.slug}` : 'متجر جديد'}
+                                {activeStore?.slug ? `basket.jo/${activeStore.slug}` : 'متجر جديد'}
                             </div>
                         </div>
                     </div>
@@ -319,7 +319,7 @@ export default function DashboardLayout({
                             <div className="avatar">{user?.name ? user.name[0] : 'U'}</div>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
-                                    {user?.name || 'مستخدم مزيدي'}
+                                    {user?.name || 'مستخدم باسكت'}
                                 </span>
                                 <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                                     {user?.role === 'admin' ? 'مدير المنصة' : 'تاجر'}

@@ -153,7 +153,7 @@ export default function SettingsPage() {
                                 <label className="form-label">رابط المتجر (Slug)</label>
                                 <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
                                     <span style={{ padding: '0 12px', color: 'var(--text-muted)', fontSize: 13, background: 'var(--surface-2)', height: 44, display: 'flex', alignItems: 'center', borderLeft: '1px solid var(--border)', whiteSpace: 'nowrap' }}>
-                                        mazidi.jo/store/
+                                        basket.jo/store/
                                     </span>
                                     <input style={{ flex: 1, border: 'none', outline: 'none', padding: '0 12px', fontSize: 14, background: 'transparent', fontFamily: 'inherit', direction: 'ltr' }} value={slug} onChange={(e) => setSlug(e.target.value)} />
                                 </div>

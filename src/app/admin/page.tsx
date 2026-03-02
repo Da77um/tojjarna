@@ -119,7 +119,7 @@ export default function AdminDashboard() {
                     لوحة الإدارة العليا
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
-                    نظرة شاملة على أداء منصة مزيدي
+                    نظرة شاملة على أداء منصة باسكت
                 </p>
             </div>
 

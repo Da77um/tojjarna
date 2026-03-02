@@ -83,7 +83,7 @@ export default function SetupPage() {
                     }}>
                         <Rocket color="white" size={32} />
                     </div>
-                    <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 12 }}>أهلاً بك في مزيدي! لنجهز متجرك</h1>
+                    <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 12 }}>أهلاً بك في باسكت! لنجهز متجرك</h1>
                     <p style={{ color: '#6B7280' }}>خطوات بسيطة وسيكون متجرك جاهزاً لاستقبال الطلبات</p>
                 </div>
 
@@ -140,7 +140,7 @@ export default function SetupPage() {
                                         position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
                                         color: '#9CA3AF', fontSize: 14, direction: 'ltr', pointerEvents: 'none'
                                     }}>
-                                        mazidi.com/store/
+                                        basket.jo/store/
                                     </div>
                                 </div>
                                 <p style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>هذا هو الرابط الذي سيستخدمه عملاؤك لزيارة متجرك</p>

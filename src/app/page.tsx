@@ -124,7 +124,7 @@ const testimonials = [
     role: 'صاحبة متجر ملابس عبايات',
     avatar: 'س',
     rating: 5,
-    text: 'مزيدي غيّرت حياتي! كنت أبيع من الإنستقرام فقط، الآن عندي متجر احترافي وطلباتي تضاعفت خلال شهرين.',
+    text: 'باسكت غيّرت حياتي! كنت أبيع من الإنستقرام فقط، الآن عندي متجر احترافي وطلباتي تضاعفت خلال شهرين.',
     color: '#6C3CE1',
   },
   {
@@ -201,7 +201,7 @@ export default function LandingPage() {
                 letterSpacing: '-0.5px',
               }}
             >
-              مزيدي
+              باسكت
             </span>
           </div>
 
@@ -857,7 +857,7 @@ export default function LandingPage() {
               position: 'relative',
             }}
           >
-            انضم إلى أكثر من 2500 تاجر أردني يبيعون بنجاح على مزيدي
+            انضم إلى أكثر من 2500 تاجر أردني يبيعون بنجاح على باسكت
           </p>
           <Link
             href="/register"
@@ -920,7 +920,7 @@ export default function LandingPage() {
                 >
                   <Store size={18} color="white" />
                 </div>
-                <span style={{ color: 'white', fontWeight: 800, fontSize: 18 }}>مزيدي</span>
+                <span style={{ color: 'white', fontWeight: 800, fontSize: 18 }}>باسكت</span>
               </div>
               <p style={{ fontSize: 14, lineHeight: 1.8 }}>
                 منصة التجارة الإلكترونية الأردنية الأولى. نساعدك على إطلاق متجرك وتحقيق النجاح.
@@ -962,7 +962,7 @@ export default function LandingPage() {
             }}
           >
             <span style={{ fontSize: 13 }}>
-              © 2025 مزيدي. جميع الحقوق محفوظة.
+              © 2025 باسكت. جميع الحقوق محفوظة.
             </span>
             <span style={{ fontSize: 13 }}>صُنع بـ ❤️ في الأردن</span>
           </div>

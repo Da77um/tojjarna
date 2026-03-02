@@ -153,7 +153,7 @@ export default function ResetPasswordPage() {
                         >
                             <Store size={20} color="white" />
                         </div>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: 'white' }}>مزيدي</span>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: 'white' }}>باسكت</span>
                     </Link>
 
                     <h1 style={{ fontSize: 26, fontWeight: 900, color: 'white', marginBottom: 12 }}>
