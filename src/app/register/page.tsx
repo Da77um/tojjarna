@@ -200,7 +200,7 @@ export default function RegisterPage() {
                                 </div>
                             )}
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                                 <div className="form-group">
                                     <label className="form-label" style={labelStyle}>الاسم الكامل</label>
                                     <div style={{ position: 'relative' }}>
@@ -266,7 +266,7 @@ export default function RegisterPage() {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                                 <div className="form-group">
                                     <label className="form-label" style={labelStyle}>كلمة المرور</label>
                                     <div style={{ position: 'relative' }}>

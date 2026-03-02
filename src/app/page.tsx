@@ -5,9 +5,6 @@ import {
   BarChart3,
   Globe,
   Shield,
-  Zap,
-  CheckCircle,
-  ArrowLeft,
   Star,
   Package,
   Users,
@@ -15,7 +12,13 @@ import {
   Smartphone,
   CreditCard,
   MessageCircle,
+  Menu,
+  X,
+  Zap,
+  ArrowLeft,
+  CheckCircle,
 } from 'lucide-react'
+import { useState } from 'react'
 
 const features = [
   {
@@ -153,6 +156,8 @@ const stats = [
 ]
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       {/* ===== NAVBAR ===== */}
@@ -178,7 +183,7 @@ export default function LandingPage() {
           }}
         >
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <div
               style={{
                 width: 38,
@@ -203,10 +208,11 @@ export default function LandingPage() {
             >
               باسكت
             </span>
-          </div>
+          </Link>
 
-          {/* Nav links */}
+          {/* Desktop Nav links */}
           <div
+            className="hide-on-mobile"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -216,31 +222,13 @@ export default function LandingPage() {
               fontWeight: 500,
             }}
           >
-            <a
-              href="#features"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-              className="hover:text-white transition-colors"
-            >
-              المميزات
-            </a>
-            <a
-              href="#pricing"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-              className="hover:text-white transition-colors"
-            >
-              الأسعار
-            </a>
-            <a
-              href="#testimonials"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-              className="hover:text-white transition-colors"
-            >
-              آراء العملاء
-            </a>
+            <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }} className="hover:text-white transition-colors">المميزات</a>
+            <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }} className="hover:text-white transition-colors">الأسعار</a>
+            <a href="#testimonials" style={{ color: 'inherit', textDecoration: 'none' }} className="hover:text-white transition-colors">آراء العملاء</a>
           </div>
 
-          {/* CTA buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Desktop CTA buttons */}
+          <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Link
               href="/login"
               style={{
@@ -261,7 +249,48 @@ export default function LandingPage() {
               ابدأ مجاناً
             </Link>
           </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            className="show-on-mobile"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              padding: 4,
+            }}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div
+            className="show-on-mobile"
+            style={{
+              position: 'absolute',
+              top: 68,
+              left: 0,
+              right: 0,
+              background: 'rgba(15,15,23,0.98)',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              flexDirection: 'column',
+              padding: '24px',
+              gap: 20,
+              animation: 'fadeIn 0.3s ease',
+            }}
+          >
+            <a href="#features" onClick={() => setMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none', fontSize: 16, fontWeight: 500 }}>المميزات</a>
+            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none', fontSize: 16, fontWeight: 500 }}>الأسعار</a>
+            <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none', fontSize: 16, fontWeight: 500 }}>آراء العملاء</a>
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 0' }} />
+            <Link href="/login" style={{ color: 'white', textDecoration: 'none', fontSize: 16, fontWeight: 500 }}>تسجيل الدخول</Link>
+            <Link href="/register" className="btn btn-primary" style={{ width: '100%' }}>ابدأ مجاناً</Link>
+          </div>
+        )}
       </nav>
 
       {/* ===== HERO ===== */}
@@ -332,12 +361,13 @@ export default function LandingPage() {
 
           <p
             style={{
-              fontSize: 18,
+              fontSize: 'clamp(15px, 4vw, 18px)',
               color: 'rgba(255,255,255,0.6)',
               lineHeight: 1.8,
               marginBottom: 40,
               maxWidth: 560,
               margin: '0 auto 40px',
+              padding: '0 10px',
             }}
           >
             أنشئ متجرك الإلكتروني، بيع منتجاتك، واستقبل الدفعات بسهولة. بدون خبرة تقنية، بدون تعقيدات.
@@ -388,7 +418,7 @@ export default function LandingPage() {
             maxWidth: 1000,
             margin: '0 auto',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
             gap: 24,
           }}
         >
@@ -451,7 +481,7 @@ export default function LandingPage() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: 24,
             }}
           >
@@ -605,7 +635,7 @@ export default function LandingPage() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: 24,
               alignItems: 'stretch',
             }}

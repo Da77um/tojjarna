@@ -51,6 +51,7 @@ export default function LoginPage() {
 
     return (
         <div
+            className="mobile-stack"
             style={{
                 minHeight: '100vh',
                 display: 'flex',
@@ -267,7 +268,7 @@ export default function LoginPage() {
                     position: 'relative',
                     overflow: 'hidden',
                 }}
-                className="hidden lg:flex"
+                className="hide-on-mobile"
             >
                 <div
                     style={{
