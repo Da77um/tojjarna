@@ -1,31 +1,116 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Plus, Tag, Percent, DollarSign, Trash2 } from 'lucide-react'
-
-const coupons = [
-    { id: '1', code: 'WELCOME20', type: 'percent', value: 20, minOrder: 25, usageLimit: 100, used: 34, active: true, expires: '2025-04-01' },
-    { id: '2', code: 'SHIP3', type: 'fixed', value: 3, minOrder: null, usageLimit: null, used: 12, active: true, expires: null },
-    { id: '3', code: 'SUMMER10', type: 'percent', value: 10, minOrder: 50, usageLimit: 50, used: 50, active: false, expires: '2025-03-01' },
-]
+import { createClient } from '@/lib/supabase/client'
 
 export default function CouponsPage() {
+    const supabase = createClient()
     const [search, setSearch] = useState('')
     const [showNew, setShowNew] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
+
+    // Form states
     const [code, setCode] = useState('')
-    const [type, setType] = useState<'percent' | 'fixed'>('percent')
+    const [type, setType] = useState<'percentage' | 'fixed'>('percentage')
     const [value, setValue] = useState('')
     const [minOrder, setMinOrder] = useState('')
     const [limit, setLimit] = useState('')
+    const [coupons, setCoupons] = useState<any[]>([])
+
+    async function fetchCoupons() {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+
+            const { data: stores } = await supabase
+                .from('stores')
+                .select('id')
+                .eq('user_id', user.id)
+
+            if (!stores || stores.length === 0) return
+            const storeIds = stores.map(s => s.id)
+
+            const { data, error } = await supabase
+                .from('coupons')
+                .select('*')
+                .in('store_id', storeIds)
+                .order('created_at', { ascending: false })
+
+            if (error) throw error
+            setCoupons(data || [])
+        } catch (err) {
+            console.error('Error fetching coupons:', err)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchCoupons()
+    }, [supabase])
 
     const filtered = coupons.filter((c) => c.code.toLowerCase().includes(search.toLowerCase()))
+
+    async function handleSave() {
+        if (!code || !value) return
+        setSaving(true)
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            const { data: store } = await supabase.from('stores').select('id').eq('user_id', user?.id).single()
+
+            const { error } = await supabase.from('coupons').insert({
+                store_id: store?.id,
+                code: code.toUpperCase(),
+                discount_type: type,
+                discount_value: Number(value),
+                min_order_amount: minOrder ? Number(minOrder) : null,
+                usage_limit: limit ? Number(limit) : null,
+                is_active: true
+            })
+
+            if (error) throw error
+
+            setShowNew(false)
+            setCode('')
+            setValue('')
+            setMinOrder('')
+            setLimit('')
+            fetchCoupons()
+        } catch (err) {
+            console.error('Error saving coupon:', err)
+            alert('Error saving coupon. Please try again.')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    async function handleDelete(id: string) {
+        if (!confirm('هل أنت متأكد من حذف هذا الكوبون؟')) return
+        try {
+            const { error } = await supabase.from('coupons').delete().eq('id', id)
+            if (error) throw error
+            fetchCoupons()
+        } catch (err) {
+            console.error('Error deleting coupon:', err)
+        }
+    }
+
+    if (loading) return (
+        <div style={{ padding: 100, textAlign: 'center' }}>
+            <div className="spinner" style={{ margin: '0 auto' }} />
+        </div>
+    )
 
     return (
         <div className="page-container">
             <div className="page-header">
                 <div>
                     <h1 className="page-title">الكوبونات والخصومات</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>{coupons.length} كوبونات نشطة</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>
+                        {coupons.filter(c => c.is_active).length} كوبونات نشطة
+                    </p>
                 </div>
                 <button className="btn btn-primary" onClick={() => setShowNew(true)}>
                     <Plus size={16} />
@@ -44,14 +129,14 @@ export default function CouponsPage() {
                         </div>
                         <div className="form-group">
                             <label className="form-label">نوع الخصم</label>
-                            <select className="form-control" value={type} onChange={(e) => setType(e.target.value as 'percent' | 'fixed')}>
-                                <option value="percent">نسبة مئوية (%)</option>
+                            <select className="form-control" value={type} onChange={(e) => setType(e.target.value as 'percentage' | 'fixed')}>
+                                <option value="percentage">نسبة مئوية (%)</option>
                                 <option value="fixed">مبلغ ثابت (د.أ)</option>
                             </select>
                         </div>
                         <div className="form-group">
                             <label className="form-label">قيمة الخصم *</label>
-                            <input className="form-control" type="number" value={value} onChange={(e) => setValue(e.target.value)} placeholder={type === 'percent' ? '20' : '3.000'} />
+                            <input className="form-control" type="number" value={value} onChange={(e) => setValue(e.target.value)} placeholder={type === 'percentage' ? '20' : '3.000'} />
                         </div>
                         <div className="form-group">
                             <label className="form-label">حد أدنى للطلب (د.أ)</label>
@@ -63,8 +148,10 @@ export default function CouponsPage() {
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
-                        <button className="btn btn-ghost" onClick={() => setShowNew(false)}>إلغاء</button>
-                        <button className="btn btn-primary">حفظ الكوبون</button>
+                        <button className="btn btn-ghost" onClick={() => setShowNew(false)} disabled={saving}>إلغاء</button>
+                        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                            {saving ? 'جاري الحفظ...' : 'حفظ الكوبون'}
+                        </button>
                     </div>
                 </div>
             )}
@@ -77,59 +164,68 @@ export default function CouponsPage() {
 
             {/* Coupons table */}
             <div className="card">
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr>
-                            {['الكود', 'الخصم', 'شرط', 'الاستخدام', 'الحالة', 'انتهاء الصلاحية', ''].map((h) => (
-                                <th key={h} style={{ textAlign: 'right', padding: '14px 20px', background: 'var(--surface-2)', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 700 }}>{h}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtered.map((coupon) => (
-                            <tr key={coupon.id} style={{ borderTop: '1px solid var(--border)' }}>
-                                <td style={{ padding: '14px 20px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <Tag size={14} color="var(--primary)" />
-                                        <span style={{ fontWeight: 800, fontSize: 14, letterSpacing: 0.5, color: 'var(--primary)', fontFamily: 'monospace' }}>{coupon.code}</span>
-                                    </div>
-                                </td>
-                                <td style={{ padding: '14px 20px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, fontSize: 15 }}>
-                                        {coupon.type === 'percent' ? <Percent size={14} color="#10B981" /> : <DollarSign size={14} color="#F59E0B" />}
-                                        {coupon.type === 'percent' ? `${coupon.value}%` : `${coupon.value} د.أ`}
-                                    </div>
-                                </td>
-                                <td style={{ padding: '14px 20px', fontSize: 13, color: 'var(--text-secondary)' }}>
-                                    {coupon.minOrder ? `فوق ${coupon.minOrder} د.أ` : 'بدون حد'}
-                                </td>
-                                <td style={{ padding: '14px 20px' }}>
-                                    <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                                        {coupon.used} / {coupon.usageLimit ?? '∞'}
-                                    </div>
-                                    {coupon.usageLimit && (
-                                        <div style={{ height: 4, borderRadius: 4, background: 'var(--surface-2)', marginTop: 4, overflow: 'hidden' }}>
-                                            <div style={{ height: '100%', background: coupon.used >= coupon.usageLimit ? '#EF4444' : 'var(--primary)', width: `${Math.min((coupon.used / coupon.usageLimit) * 100, 100)}%`, borderRadius: 4 }} />
-                                        </div>
-                                    )}
-                                </td>
-                                <td style={{ padding: '14px 20px' }}>
-                                    <span className={`badge ${coupon.active ? 'badge-success' : 'badge-gray'}`}>
-                                        {coupon.active ? 'نشط' : 'منتهي'}
-                                    </span>
-                                </td>
-                                <td style={{ padding: '14px 20px', color: 'var(--text-muted)', fontSize: 13 }}>
-                                    {coupon.expires ?? '—'}
-                                </td>
-                                <td style={{ padding: '14px 20px' }}>
-                                    <button style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #FEE2E2', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <Trash2 size={14} color="#EF4444" />
-                                    </button>
-                                </td>
+                {filtered.length === 0 ? (
+                    <div style={{ padding: 60, textAlign: 'center' }}>
+                        <p style={{ color: 'var(--text-secondary)' }}>لا توجد كوبونات للعرض</p>
+                    </div>
+                ) : (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr>
+                                {['الكود', 'الخصم', 'شرط', 'الاستخدام', 'الحالة', 'انتهاء الصلاحية', ''].map((h) => (
+                                    <th key={h} style={{ textAlign: 'right', padding: '14px 20px', background: 'var(--surface-2)', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 700 }}>{h}</th>
+                                ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filtered.map((coupon) => (
+                                <tr key={coupon.id} style={{ borderTop: '1px solid var(--border)' }}>
+                                    <td style={{ padding: '14px 20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <Tag size={14} color="var(--primary)" />
+                                            <span style={{ fontWeight: 800, fontSize: 14, letterSpacing: 0.5, color: 'var(--primary)', fontFamily: 'monospace' }}>{coupon.code}</span>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '14px 20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, fontSize: 15 }}>
+                                            {coupon.discount_type === 'percentage' ? <Percent size={14} color="#10B981" /> : <DollarSign size={14} color="#F59E0B" />}
+                                            {coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `${coupon.discount_value.toFixed(3)} د.أ`}
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '14px 20px', fontSize: 13, color: 'var(--text-secondary)' }}>
+                                        {coupon.min_order_amount ? `فوق ${coupon.min_order_amount} د.أ` : 'بدون حد'}
+                                    </td>
+                                    <td style={{ padding: '14px 20px' }}>
+                                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                                            {coupon.used_count || 0} / {coupon.usage_limit ?? '∞'}
+                                        </div>
+                                        {coupon.usage_limit && (
+                                            <div style={{ height: 4, borderRadius: 4, background: 'var(--surface-2)', marginTop: 4, overflow: 'hidden' }}>
+                                                <div style={{ height: '100%', background: (coupon.used_count || 0) >= coupon.usage_limit ? '#EF4444' : 'var(--primary)', width: `${Math.min(((coupon.used_count || 0) / coupon.usage_limit) * 100, 100)}%`, borderRadius: 4 }} />
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td style={{ padding: '14px 20px' }}>
+                                        <span className={`badge ${coupon.is_active ? 'badge-success' : 'badge-gray'}`}>
+                                            {coupon.is_active ? 'نشط' : 'منتهي'}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '14px 20px', color: 'var(--text-muted)', fontSize: 13 }}>
+                                        {coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString('ar-JO') : '—'}
+                                    </td>
+                                    <td style={{ padding: '14px 20px' }}>
+                                        <button
+                                            onClick={() => handleDelete(coupon.id)}
+                                            style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #FEE2E2', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        >
+                                            <Trash2 size={14} color="#EF4444" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     )

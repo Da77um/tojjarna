@@ -1,18 +1,7 @@
-'use client'
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Search, Filter, Clock, CheckCircle, Truck, XCircle, AlertCircle, Eye } from 'lucide-react'
-
-const orders = [
-    { id: '#1523', customer: 'أحمد الكيلاني', phone: '0791234567', items: 3, total: 45.5, status: 'pending', payment: 'cod', date: '2025-03-02', city: 'عمّان' },
-    { id: '#1522', customer: 'ريم النابلسي', phone: '0795678901', items: 1, total: 18.0, status: 'processing', payment: 'card', date: '2025-03-02', city: 'الزرقاء' },
-    { id: '#1521', customer: 'خالد الزيادين', phone: '0798765432', items: 5, total: 112.0, status: 'shipped', payment: 'cod', date: '2025-03-01', city: 'إربد' },
-    { id: '#1520', customer: 'سمر القطارنة', phone: '0792468135', items: 2, total: 32.5, status: 'delivered', payment: 'card', date: '2025-03-01', city: 'عمّان' },
-    { id: '#1519', customer: 'فارس الدمور', phone: '0797531246', items: 1, total: 22.0, status: 'cancelled', payment: 'cod', date: '2025-02-28', city: 'العقبة' },
-    { id: '#1518', customer: 'منى البشير', phone: '0793214569', items: 4, total: 78.5, status: 'delivered', payment: 'cod', date: '2025-02-28', city: 'عمّان' },
-    { id: '#1517', customer: 'عمر الشوارب', phone: '0796543217', items: 2, total: 55.0, status: 'processing', payment: 'card', date: '2025-02-27', city: 'الزرقاء' },
-]
+import { createClient } from '@/lib/supabase/client'
 
 const statusConfig = {
     pending: { label: 'قيد الانتظار', color: '#F59E0B', bg: '#FEF3C7', Icon: Clock },
@@ -20,6 +9,7 @@ const statusConfig = {
     shipped: { label: 'تم الشحن', color: '#8B5CF6', bg: '#EDE9FE', Icon: Truck },
     delivered: { label: 'تم التسليم', color: '#10B981', bg: '#D1FAE5', Icon: CheckCircle },
     cancelled: { label: 'ملغي', color: '#EF4444', bg: '#FEE2E2', Icon: XCircle },
+    refunded: { label: 'مسترجع', color: '#6B7280', bg: '#F3F4F6', Icon: XCircle },
 }
 
 const statusTabs = [
@@ -32,23 +22,79 @@ const statusTabs = [
 ]
 
 export default function OrdersPage() {
+    const supabase = createClient()
     const [search, setSearch] = useState('')
     const [activeTab, setActiveTab] = useState('all')
+    const [orders, setOrders] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        async function fetchOrders() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) return
+
+                const { data: stores } = await supabase
+                    .from('stores')
+                    .select('id')
+                    .eq('user_id', user.id)
+
+                if (!stores || stores.length === 0) return
+
+                const storeIds = stores.map(s => s.id)
+
+                const { data: ordersData, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .in('store_id', storeIds)
+                    .order('created_at', { ascending: false })
+
+                if (error) throw error
+
+                if (ordersData) {
+                    setOrders(ordersData.map(o => ({
+                        id: `#${o.order_number || o.id.slice(0, 4)}`,
+                        realId: o.id,
+                        customer: o.customer_name,
+                        phone: o.customer_phone,
+                        items: 0, // Should join with order_items count ideally
+                        total: Number(o.total),
+                        status: o.status,
+                        payment: o.payment_method,
+                        date: new Date(o.created_at).toLocaleDateString('ar-JO'),
+                        city: o.shipping_address?.city || '-'
+                    })))
+                }
+            } catch (err) {
+                console.error('Error fetching orders:', err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchOrders()
+    }, [supabase])
 
     const filtered = orders.filter((o) => {
         const matchesTab = activeTab === 'all' || o.status === activeTab
         const matchesSearch =
             o.id.includes(search) ||
-            o.customer.includes(search) ||
+            o.customer.toLowerCase().includes(search.toLowerCase()) ||
             o.phone.includes(search)
         return matchesTab && matchesSearch
     })
 
-    const counts = Object.fromEntries(
-        ['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((s) => [
-            s,
-            orders.filter((o) => o.status === s).length,
-        ])
+    const counts = {
+        pending: orders.filter(o => o.status === 'pending').length,
+        processing: orders.filter(o => o.status === 'processing').length,
+        shipped: orders.filter(o => o.status === 'shipped').length,
+        delivered: orders.filter(o => o.status === 'delivered').length,
+        cancelled: orders.filter(o => o.status === 'cancelled').length,
+    }
+
+    if (loading) return (
+        <div style={{ padding: 100, textAlign: 'center' }}>
+            <div className="spinner" style={{ margin: '0 auto' }} />
+        </div>
     )
 
     return (
@@ -76,7 +122,7 @@ export default function OrdersPage() {
                 }}
             >
                 {statusTabs.map((tab) => {
-                    const count = tab.key !== 'all' ? counts[tab.key] : orders.length
+                    const count = tab.key !== 'all' ? (counts as any)[tab.key] : orders.length
                     return (
                         <button
                             key={tab.key}
@@ -145,7 +191,7 @@ export default function OrdersPage() {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                         <tr>
-                            {['رقم الطلب', 'العميل', 'المدينة', 'المنتجات', 'الإجمالي', 'الدفع', 'الحالة', 'التاريخ', ''].map((h) => (
+                            {['رقم الطلب', 'العميل', 'المدينة', 'الإجمالي', 'الدفع', 'الحالة', 'التاريخ', ''].map((h) => (
                                 <th
                                     key={h}
                                     style={{
@@ -165,10 +211,10 @@ export default function OrdersPage() {
                     </thead>
                     <tbody>
                         {filtered.map((order) => {
-                            const s = statusConfig[order.status as keyof typeof statusConfig]
+                            const s = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
                             const StatusIcon = s.Icon
                             return (
-                                <tr key={order.id} style={{ borderTop: '1px solid var(--border)' }}>
+                                <tr key={order.realId} style={{ borderTop: '1px solid var(--border)' }}>
                                     <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14, color: 'var(--primary)' }}>
                                         {order.id}
                                     </td>
@@ -180,9 +226,6 @@ export default function OrdersPage() {
                                     </td>
                                     <td style={{ padding: '14px 16px', color: 'var(--text-secondary)', fontSize: 13 }}>
                                         {order.city}
-                                    </td>
-                                    <td style={{ padding: '14px 16px', color: 'var(--text-secondary)', fontSize: 13 }}>
-                                        {order.items} منتجات
                                     </td>
                                     <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }}>
                                         {order.total.toFixed(2)} د.أ
@@ -215,7 +258,7 @@ export default function OrdersPage() {
                                     </td>
                                     <td style={{ padding: '14px 16px' }}>
                                         <Link
-                                            href={`/dashboard/orders/${order.id}`}
+                                            href={`/dashboard/orders/${order.realId}`}
                                             style={{
                                                 width: 32,
                                                 height: 32,

@@ -26,7 +26,7 @@ const navItems = [
     { href: '/dashboard/orders', label: 'الطلبات', icon: ShoppingCart },
     { href: '/dashboard/customers', label: 'العملاء', icon: Users },
     { href: '/dashboard/analytics', label: 'التحليلات', icon: BarChart3 },
-    { href: '/dashboard/discounts', label: 'الخصومات', icon: Tag },
+    { href: '/dashboard/coupons', label: 'الخصومات', icon: Tag },
     { href: '/dashboard/settings', label: 'الإعدادات', icon: Settings },
 ]
 
