@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Store, Eye, EyeOff, ArrowLeft, Mail, Lock, User, Phone } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 export default function RegisterPage() {
     const router = useRouter()
@@ -110,7 +111,7 @@ export default function RegisterPage() {
                 email: formData.email
             })
             if (resendError) throw resendError
-            alert('تم إعادة إرسال الرمز بنجاح')
+            toast.success('تم إعادة إرسال الرمز بنجاح')
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'حدث خطأ في إعادة إرسال الرمز'
             setError(message)

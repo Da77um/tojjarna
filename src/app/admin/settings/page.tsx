@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Save, Globe, Mail, Percent, ShieldAlert, CheckCircle, Store, RefreshCw } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function AdminSettingsPage() {
     const supabase = createClient()
@@ -44,7 +45,7 @@ export default function AdminSettingsPage() {
             setSuccess(true)
             setTimeout(() => setSuccess(false), 3000)
         } catch (err: any) {
-            alert('Error saving settings: ' + err.message)
+            toast.error('حدث خطأ أثناء حفظ الإعدادات: ' + err.message)
         } finally {
             setSaving(false)
         }

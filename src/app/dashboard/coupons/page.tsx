@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Plus, Tag, Percent, DollarSign, Trash2 } from 'lucide-react'
+import { Search, Plus, Tag, Percent, DollarSign, Trash2, AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
@@ -11,6 +11,7 @@ export default function CouponsPage() {
     const [showNew, setShowNew] = useState(false)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 
     // Form states
     const [code, setCode] = useState('')
@@ -89,7 +90,6 @@ export default function CouponsPage() {
     }
 
     async function handleDelete(id: string) {
-        if (!confirm('هل أنت متأكد من حذف هذا الكوبون؟')) return
         try {
             const { error } = await supabase.from('coupons').delete().eq('id', id)
             if (error) throw error
@@ -219,7 +219,7 @@ export default function CouponsPage() {
                                     </td>
                                     <td style={{ padding: '14px 20px' }}>
                                         <button
-                                            onClick={() => handleDelete(coupon.id)}
+                                            onClick={() => setItemToDelete(coupon.id)}
                                             style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #FEE2E2', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                         >
                                             <Trash2 size={14} color="#EF4444" />
@@ -231,6 +231,36 @@ export default function CouponsPage() {
                     </table>
                 )}
             </div>
+
+            {/* Custom Delete Confirmation Modal */}
+            {itemToDelete && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: 400, padding: 24, margin: 20 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <AlertTriangle size={24} color="#EF4444" />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>تأكيد الحذف</h3>
+                                <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>هل أنت متأكد من حذف هذا الكوبون نهائياً؟ لا يمكن التراجع عن هذا الإجراء وسيتم إلغاء تفعيله للعملاء.</p>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                            <button onClick={() => setItemToDelete(null)} className="btn btn-ghost" style={{ flex: 1, border: '1px solid var(--border)' }}>إلغاء</button>
+                            <button
+                                onClick={() => {
+                                    handleDelete(itemToDelete);
+                                    setItemToDelete(null);
+                                }}
+                                className="btn btn-danger"
+                                style={{ flex: 1 }}
+                            >
+                                نعم، احذف
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

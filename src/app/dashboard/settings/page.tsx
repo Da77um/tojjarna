@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Save, Store, Palette, Share2, Truck } from 'lucide-react'
+import { toast } from 'sonner'
 
 const TABS = [
     { key: 'general', label: 'معلومات المتجر', icon: Store },
@@ -85,10 +86,10 @@ export default function SettingsPage() {
                 .eq('id', storeId)
 
             if (error) throw error
-            alert('تم حفظ الإعدادات بنجاح!')
+            toast.success('تم حفظ الإعدادات بنجاح!')
         } catch (err: any) {
             console.error('Error saving settings:', err)
-            alert('حدث خطأ أثناء حفظ الإعدادات')
+            toast.error('حدث خطأ أثناء حفظ الإعدادات')
         } finally {
             setSaving(false)
         }

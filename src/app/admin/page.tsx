@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Store, Users, ShoppingCart, DollarSign, TrendingUp, CheckCircle, Clock, XCircle } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function AdminDashboard() {
     const supabase = createClient()
@@ -91,12 +92,12 @@ export default function AdminDashboard() {
             .eq('id', id)
 
         if (error) {
-            alert('حدث خطأ أثناء المعالجة')
+            toast.error('حدث خطأ أثناء المعالجة')
             return
         }
 
         setPendingVendors(prev => prev.filter(v => v.id !== id))
-        alert(approve ? 'تمت الموافقة على المتجر!' : 'تم رفض الطلب')
+        toast.success(approve ? 'تمت الموافقة على المتجر!' : 'تم رفض الطلب')
     }
 
     if (loading) return (

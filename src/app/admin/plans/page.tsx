@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Plus, Edit2, Trash2, CheckCircle, XCircle, DollarSign, Percent, Package, ListChecks, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 export default function AdminPlansPage() {
     const supabase = createClient()
@@ -47,7 +48,7 @@ export default function AdminPlansPage() {
             setEditingPlan(null)
             fetchPlans()
         } else {
-            alert('Error updating plan: ' + error.message)
+            toast.error('حدث خطأ أثناء تحديث الخطة: ' + error.message)
         }
         setSaving(false)
     }

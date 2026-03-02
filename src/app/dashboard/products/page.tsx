@@ -30,6 +30,7 @@ export default function ProductsPage() {
     const [products, setProducts] = useState<any[]>([])
     const [categories, setCategories] = useState<string[]>(['الكل'])
     const [loading, setLoading] = useState(true)
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 
     useEffect(() => {
         async function fetchData() {
@@ -79,7 +80,6 @@ export default function ProductsPage() {
     }, [supabase])
 
     async function handleDelete(id: string) {
-        if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return
         try {
             const { error } = await supabase.from('products').delete().eq('id', id)
             if (error) throw error
@@ -302,7 +302,7 @@ export default function ProductsPage() {
                                                     <Edit size={14} color="var(--text-secondary)" />
                                                 </Link>
                                                 <button
-                                                    onClick={() => handleDelete(product.id)}
+                                                    onClick={() => setItemToDelete(product.id)}
                                                     title="حذف"
                                                     style={{
                                                         width: 32,
@@ -327,6 +327,36 @@ export default function ProductsPage() {
                     </table>
                 )}
             </div>
+
+            {/* Custom Delete Confirmation Modal */}
+            {itemToDelete && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: 400, padding: 24, margin: 20 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <AlertTriangle size={24} color="#EF4444" />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>تأكيد الحذف</h3>
+                                <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>هل أنت متأكد من حذف هذا المنتج نهائياً؟ لا يمكن التراجع عن هذا الإجراء وسيتم حذفه من متجرك.</p>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                            <button onClick={() => setItemToDelete(null)} className="btn btn-ghost" style={{ flex: 1, border: '1px solid var(--border)' }}>إلغاء</button>
+                            <button
+                                onClick={() => {
+                                    handleDelete(itemToDelete);
+                                    setItemToDelete(null);
+                                }}
+                                className="btn btn-danger"
+                                style={{ flex: 1 }}
+                            >
+                                نعم، احذف
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
