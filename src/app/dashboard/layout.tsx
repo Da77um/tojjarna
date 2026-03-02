@@ -46,14 +46,16 @@ export default function DashboardLayout({
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        async function loadData() {
-            try {
-                const { data: { user: authUser } } = await supabase.auth.getUser()
-                if (!authUser) {
-                    router.push('/login')
-                    return
-                }
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                router.push('/login')
+            } else if (session?.user) {
+                loadUserData(session.user)
+            }
+        })
 
+        async function loadUserData(authUser: any) {
+            try {
                 const { data: profile } = await supabase
                     .from('users')
                     .select('*')
@@ -70,16 +72,24 @@ export default function DashboardLayout({
                 if (vendorStores && vendorStores.length > 0) {
                     setStores(vendorStores)
                     setActiveStore(vendorStores[0])
-                } else if (!pathname.includes('/dashboard/setup')) {
-                    // router.push('/dashboard/setup')
                 }
             } catch (err) {
-                console.error('Error loading dashboard data:', err)
+                console.error('Error loading profile:', err)
             } finally {
                 setLoading(false)
             }
         }
-        loadData()
+
+        // Initial check
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            if (!user) {
+                router.push('/login')
+            } else {
+                loadUserData(user)
+            }
+        })
+
+        return () => subscription.unsubscribe()
     }, [supabase, router, pathname])
 
     const handleLogout = async () => {
