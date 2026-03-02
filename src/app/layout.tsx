@@ -36,14 +36,7 @@ export default function RootLayout({
         {children}
         <Toaster
           position="top-center"
-          toastOptions={{
-            className: 'font-arabic',
-            style: {
-              background: 'var(--normal-bg)',
-              border: '1px solid var(--normal-border)',
-              color: 'var(--normal-text)',
-            }
-          }}
+          dir="rtl"
         />
       </body>
     </html>
