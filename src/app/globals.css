@@ -602,3 +602,46 @@ tr:hover td {
   .mobile-stack { flex-direction: column !important; }
   .mobile-full-width { width: 100% !important; }
 }
+
+/* ============================
+   Sonner Toast Overrides
+   ============================ */
+[data-sonner-toaster][data-theme="light"] {
+  --normal-bg: var(--surface);
+  --normal-border: var(--border);
+  --normal-text: var(--text-primary);
+  --success-bg: #D1FAE5;
+  --success-border: #10B981;
+  --success-text: #065F46;
+  --error-bg: #FEE2E2;
+  --error-border: #EF4444;
+  --error-text: #991B1B;
+}
+
+[data-sonner-toaster][data-theme="dark"] {
+  --normal-bg: var(--surface);
+  --normal-border: var(--border);
+  --normal-text: var(--text-primary);
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --success-border: rgba(16, 185, 129, 0.2);
+  --success-text: #34D399;
+  --error-bg: rgba(239, 68, 68, 0.1);
+  --error-border: rgba(239, 68, 68, 0.2);
+  --error-text: #F87171;
+}
+
+[data-sonner-toast] {
+  font-family: 'Tajawal', 'Inter', sans-serif !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+  margin-bottom: 8px !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  margin-inline-end: 12px !important;
+  margin-inline-start: 0 !important;
+}
+
+[data-sonner-toast] [data-content] {
+  padding-inline-start: 0 !important;
+}

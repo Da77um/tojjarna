@@ -34,7 +34,17 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         {children}
-        <Toaster position="top-center" richColors />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            className: 'font-arabic',
+            style: {
+              background: 'var(--normal-bg)',
+              border: '1px solid var(--normal-border)',
+              color: 'var(--normal-text)',
+            }
+          }}
+        />
       </body>
     </html>
   )
