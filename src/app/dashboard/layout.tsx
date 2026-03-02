@@ -274,10 +274,9 @@ export default function DashboardLayout({
                             border: 'none',
                             cursor: 'pointer',
                             color: 'var(--text-primary)',
-                            display: 'none',
                             padding: 4,
                         }}
-                        className="lg:hidden"
+                        className="show-on-mobile"
                     >
                         {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
                     </button>
