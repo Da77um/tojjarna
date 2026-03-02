@@ -310,7 +310,7 @@ export default function LandingPage() {
           >
             <Zap size={14} color="#8B5CF6" />
             <span style={{ color: '#8B5CF6', fontSize: 13, fontWeight: 600 }}>
-              المنصة الأردنية رقم 1 للتجارة الإلكترونية
+              المنصة الأردنية الأولى للتجارة الإلكترونية
             </span>
           </div>
 
