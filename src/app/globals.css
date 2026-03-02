@@ -593,3 +593,12 @@ tr:hover td {
     padding: 16px;
   }
 }
+/* Response utilities */
+.show-on-mobile { display: none !important; }
+.hide-on-mobile { display: flex !important; }
+@media (max-width: 768px) {
+  .show-on-mobile { display: flex !important; }
+  .hide-on-mobile { display: none !important; }
+  .mobile-stack { flex-direction: column !important; }
+  .mobile-full-width { width: 100% !important; }
+}

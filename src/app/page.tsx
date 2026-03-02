@@ -1,4 +1,6 @@
 'use client'
+
+import Link from 'next/link'
 import {
   Store,
   ShoppingBag,
@@ -418,7 +420,7 @@ export default function LandingPage() {
             maxWidth: 1000,
             margin: '0 auto',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
             gap: 24,
           }}
         >
