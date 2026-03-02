@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Search, Filter, Clock, CheckCircle, Truck, XCircle, AlertCircle, Eye } from 'lucide-react'
