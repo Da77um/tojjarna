@@ -65,9 +65,9 @@ export default function CouponsPage() {
             const { error } = await supabase.from('coupons').insert({
                 store_id: store?.id,
                 code: code.toUpperCase(),
-                discount_type: type,
-                discount_value: Number(value),
-                min_order_amount: minOrder ? Number(minOrder) : null,
+                type: type === 'percentage' ? 'percent' : 'fixed',
+                value: Number(value),
+                min_order: minOrder ? Number(minOrder) : null,
                 usage_limit: limit ? Number(limit) : null,
                 is_active: true
             })
@@ -192,20 +192,20 @@ export default function CouponsPage() {
                                     </td>
                                     <td style={{ padding: '14px 20px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, fontSize: 15 }}>
-                                            {coupon.discount_type === 'percentage' ? <Percent size={14} color="#10B981" /> : <DollarSign size={14} color="#F59E0B" />}
-                                            {coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `${coupon.discount_value.toFixed(3)} د.أ`}
+                                            {coupon.type === 'percent' ? <Percent size={14} color="#10B981" /> : <DollarSign size={14} color="#F59E0B" />}
+                                            {coupon.type === 'percent' ? `${coupon.value}%` : `${coupon.value.toFixed(3)} د.أ`}
                                         </div>
                                     </td>
                                     <td style={{ padding: '14px 20px', fontSize: 13, color: 'var(--text-secondary)' }}>
-                                        {coupon.min_order_amount ? `فوق ${coupon.min_order_amount} د.أ` : 'بدون حد'}
+                                        {coupon.min_order ? `فوق ${coupon.min_order} د.أ` : 'بدون حد'}
                                     </td>
                                     <td style={{ padding: '14px 20px' }}>
                                         <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                                            {coupon.used_count || 0} / {coupon.usage_limit ?? '∞'}
+                                            {coupon.usage_count || 0} / {coupon.usage_limit ?? '∞'}
                                         </div>
                                         {coupon.usage_limit && (
                                             <div style={{ height: 4, borderRadius: 4, background: 'var(--surface-2)', marginTop: 4, overflow: 'hidden' }}>
-                                                <div style={{ height: '100%', background: (coupon.used_count || 0) >= coupon.usage_limit ? '#EF4444' : 'var(--primary)', width: `${Math.min(((coupon.used_count || 0) / coupon.usage_limit) * 100, 100)}%`, borderRadius: 4 }} />
+                                                <div style={{ height: '100%', background: (coupon.usage_count || 0) >= coupon.usage_limit ? '#EF4444' : 'var(--primary)', width: `${Math.min(((coupon.usage_count || 0) / coupon.usage_limit) * 100, 100)}%`, borderRadius: 4 }} />
                                             </div>
                                         )}
                                     </td>
