@@ -30,27 +30,47 @@ export default function AdminPlansPage() {
     async function handleUpdatePlan(e: React.FormEvent) {
         e.preventDefault()
         setSaving(true)
-        const { error } = await supabase
-            .from('plans')
-            .update({
-                name_ar: editingPlan.name_ar,
-                name_en: editingPlan.name_en,
-                price_jod: Number(editingPlan.price_jod),
-                commission_rate: Number(editingPlan.commission_rate),
-                max_products: editingPlan.max_products ? Number(editingPlan.max_products) : null,
-                features: typeof editingPlan.features === 'string' ? JSON.parse(editingPlan.features) : editingPlan.features,
-                is_active: editingPlan.is_active,
-                sort_order: Number(editingPlan.sort_order)
-            })
-            .eq('id', editingPlan.id)
+
+        const payload = {
+            name_ar: editingPlan.name_ar,
+            name_en: editingPlan.name_en,
+            price_jod: Number(editingPlan.price_jod),
+            commission_rate: Number(editingPlan.commission_rate),
+            max_products: editingPlan.max_products ? Number(editingPlan.max_products) : null,
+            features: typeof editingPlan.features === 'string' ? JSON.parse(editingPlan.features) : editingPlan.features,
+            is_active: editingPlan.is_active,
+            sort_order: Number(editingPlan.sort_order)
+        }
+
+        let error;
+        if (editingPlan.id) {
+            const { error: updateError } = await supabase.from('plans').update(payload).eq('id', editingPlan.id)
+            error = updateError
+        } else {
+            const { error: insertError } = await supabase.from('plans').insert(payload)
+            error = insertError
+        }
 
         if (!error) {
+            toast.success(editingPlan.id ? 'تم تحديث الخطة بنجاح' : 'تم إضافة الخطة بنجاح')
             setEditingPlan(null)
             fetchPlans()
         } else {
-            toast.error('حدث خطأ أثناء تحديث الخطة: ' + error.message)
+            toast.error('حدث خطأ أثناء حفظ الخطة: ' + error.message)
         }
         setSaving(false)
+    }
+
+    async function handleDeletePlan(id: string, name: string) {
+        if (!confirm(`هل أنت متأكد من حذف الخطة: ${name}؟`)) return
+
+        const { error } = await supabase.from('plans').delete().eq('id', id)
+        if (error) {
+            toast.error('لا يمكن حذف هذه الخطة لارتباطها بمتاجر نشطة')
+        } else {
+            toast.success('تم حذف الخطة بنجاح')
+            fetchPlans()
+        }
     }
 
     if (loading) return (
@@ -70,7 +90,11 @@ export default function AdminPlansPage() {
                         إدارة خطط الاشتراك والعمولات لمنصة باسكت
                     </p>
                 </div>
-                <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                    onClick={() => setEditingPlan({ name_ar: '', name_en: '', price_jod: 0, commission_rate: 0, max_products: null, features: '[]', is_active: true, sort_order: plans.length + 1 })}
+                    className="btn btn-primary"
+                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                >
                     <Plus size={18} />
                     إضافة خطة جديدة
                 </button>
@@ -108,23 +132,42 @@ export default function AdminPlansPage() {
                                         <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>الترتيب: {plan.sort_order}</span>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => setEditingPlan({ ...plan, features: JSON.stringify(plan.features, null, 2) })}
-                                    style={{
-                                        background: 'rgba(255,255,255,0.05)',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        borderRadius: 8,
-                                        width: 32,
-                                        height: 32,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'white',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    <Edit2 size={14} />
-                                </button>
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                    <button
+                                        onClick={() => handleDeletePlan(plan.id, plan.name_ar)}
+                                        style={{
+                                            background: 'rgba(239,68,68,0.1)',
+                                            border: '1px solid rgba(239,68,68,0.2)',
+                                            borderRadius: 8,
+                                            width: 32,
+                                            height: 32,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: '#EF4444',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                    <button
+                                        onClick={() => setEditingPlan({ ...plan, features: JSON.stringify(plan.features, null, 2) })}
+                                        style={{
+                                            background: 'rgba(255,255,255,0.05)',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            borderRadius: 8,
+                                            width: 32,
+                                            height: 32,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'white',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Edit2 size={14} />
+                                    </button>
+                                </div>
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
@@ -194,7 +237,9 @@ export default function AdminPlansPage() {
                         }}
                     >
                         <div style={{ padding: 24, borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h2 style={{ fontSize: 18, fontWeight: 800 }}>تعديل خطة {editingPlan.name_ar}</h2>
+                            <h2 style={{ fontSize: 18, fontWeight: 800 }}>
+                                {editingPlan.id ? `تعديل خطة ${editingPlan.name_ar}` : 'إنشاء خطة جديدة'}
+                            </h2>
                             <button onClick={() => setEditingPlan(null)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
                                 <XCircle size={20} />
                             </button>
