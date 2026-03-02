@@ -68,7 +68,7 @@ export default function LoginPage() {
                     padding: '48px 24px',
                 }}
             >
-                <div style={{ width: '100%', maxWidth: 420 }}>
+                <div className="mobile-full-width" style={{ width: '100%', maxWidth: 420 }}>
                     {/* Logo */}
                     <Link
                         href="/"
@@ -258,6 +258,7 @@ export default function LoginPage() {
 
             {/* Right: Decorative panel (hidden on mobile) */}
             <div
+                className="hide-on-mobile"
                 style={{
                     flex: 1,
                     background: 'linear-gradient(135deg, #6C3CE1 0%, #8B5CF6 100%)',
@@ -268,7 +269,6 @@ export default function LoginPage() {
                     position: 'relative',
                     overflow: 'hidden',
                 }}
-                className="hide-on-mobile"
             >
                 <div
                     style={{
