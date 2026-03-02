@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Search, Plus, Tag, Percent, DollarSign, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 export default function CouponsPage() {
     const supabase = createClient()
@@ -77,10 +78,11 @@ export default function CouponsPage() {
             setValue('')
             setMinOrder('')
             setLimit('')
+            toast.success('تم حفظ الكوبون بنجاح')
             fetchCoupons()
         } catch (err) {
             console.error('Error saving coupon:', err)
-            alert('Error saving coupon. Please try again.')
+            toast.error('حدث خطأ أثناء حفظ الكوبون. يرجى المحاولة مرة أخرى.')
         } finally {
             setSaving(false)
         }
@@ -91,9 +93,11 @@ export default function CouponsPage() {
         try {
             const { error } = await supabase.from('coupons').delete().eq('id', id)
             if (error) throw error
+            toast.success('تم حذف الكوبون بنجاح')
             fetchCoupons()
         } catch (err) {
             console.error('Error deleting coupon:', err)
+            toast.error('حدث خطأ أثناء حذف الكوبون')
         }
     }
 

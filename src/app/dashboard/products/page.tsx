@@ -13,6 +13,7 @@ import {
     MoreVertical,
     AlertTriangle,
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 function getStockBadge(stock: number) {
     if (stock === 0) return { label: 'نفد المخزون', bg: '#FEE2E2', color: '#EF4444' }
@@ -76,6 +77,20 @@ export default function ProductsPage() {
         }
         fetchData()
     }, [supabase])
+
+    async function handleDelete(id: string) {
+        if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return
+        try {
+            const { error } = await supabase.from('products').delete().eq('id', id)
+            if (error) throw error
+            toast.success('تم حذف المنتج بنجاح')
+            // Refresh products list by removing the deleted one
+            setProducts(prev => prev.filter(p => p.id !== id))
+        } catch (err) {
+            console.error('Error deleting product:', err)
+            toast.error('حدث خطأ أثناء حذف المنتج')
+        }
+    }
 
     const filtered = products.filter((p) => {
         const matchesCat = activeCategory === 'الكل' || p.category === activeCategory
@@ -287,6 +302,7 @@ export default function ProductsPage() {
                                                     <Edit size={14} color="var(--text-secondary)" />
                                                 </Link>
                                                 <button
+                                                    onClick={() => handleDelete(product.id)}
                                                     title="حذف"
                                                     style={{
                                                         width: 32,

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Upload, Plus, Trash2, Sparkles, Package, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 interface Variant { name: string; price: string; stock: string }
 
@@ -75,7 +76,7 @@ export default function NewProductPage() {
 
     const handleSave = async () => {
         if (!nameAr || !price || !storeId) {
-            alert('يرجى ملء جميع الحقول المطلوبة (الاسم، السعر)')
+            toast.error('يرجى ملء جميع الحقول المطلوبة (الاسم، السعر)')
             return
         }
 
@@ -100,11 +101,11 @@ export default function NewProductPage() {
 
             if (error) throw error
 
-            alert('تم حفظ المنتج بنجاح!')
+            toast.success('تم حفظ المنتج بنجاح!')
             router.push('/dashboard/products')
         } catch (err: any) {
             console.error('Error saving product:', err)
-            alert(`خطأ في حفظ المنتج: ${err.message}`)
+            toast.error(`خطأ في حفظ المنتج: ${err.message}`)
         } finally {
             setSaving(false)
         }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowRight, Printer, CheckCircle, Truck, XCircle, Clock, MapPin, Phone, User, Package, Mail } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 const statusConfig = {
     pending: { label: 'قيد الانتظار', color: '#F59E0B', bg: '#FEF3C7', Icon: Clock },
@@ -62,8 +63,10 @@ export default function OrderDetailsPage() {
 
             if (error) throw error
             setOrder({ ...order, status: newStatus })
+            toast.success('تم تحديث حالة الطلب بنجاح')
         } catch (err) {
             console.error('Error updating status:', err)
+            toast.error('حدث خطأ أثناء تحديث حالة الطلب')
         } finally {
             setUpdating(false)
         }
