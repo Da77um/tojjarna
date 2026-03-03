@@ -9,7 +9,7 @@ import {
     Plus, GripVertical, Trash2, ChevronRight, ChevronDown,
     ArrowRight, Palette, Type, Layout, Image, AlignCenter,
     LayoutGrid, Megaphone, Star, Timer, Code2, Layers,
-    X, Check, RotateCcw, Settings, ExternalLink
+    X, Check, RotateCcw, Settings, ExternalLink, Pencil
 } from 'lucide-react'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -992,6 +992,15 @@ function SectionSettingsPanel({ section, onChange, storeProducts }: { section: T
                                 <GripVertical size={13} color="#6C3CE1" style={{ flexShrink: 0 }} />
                                 <div style={{ width: 28, height: 28, borderRadius: 6, background: prod.images?.[0] ? `url(${prod.images[0]}) center/cover` : 'rgba(108,60,225,0.2)', flexShrink: 0 }} />
                                 <span style={{ flex: 1, fontSize: 12, color: '#D1D5DB', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prod.name_ar}</span>
+                                {/* Edit button */}
+                                <a href={`/dashboard/products/${prod.id}`} target="_blank" rel="noopener noreferrer"
+                                    title="تعديل المنتج"
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: 2, display: 'flex', flexShrink: 0, textDecoration: 'none' }}
+                                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#6C3CE1'}
+                                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#9CA3AF'}
+                                >
+                                    <Pencil size={12} />
+                                </a>
                                 <button onClick={() => onChange('product_ids', selectedIds.filter((id: string) => id !== prod.id))}
                                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 2, display: 'flex', flexShrink: 0 }}>
                                     <X size={13} />
