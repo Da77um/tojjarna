@@ -349,7 +349,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
     })
 
     return (
-        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: `${font}, Tajawal, Inter, sans-serif`, direction: 'rtl' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FAFAFA', fontFamily: `${font}, Tajawal, Inter, sans-serif`, direction: 'rtl' }}>
 
             {/* ── Announcement Bar (global) ─────────────────────────────── */}
             {themeGlobal?.show_announcement && themeGlobal.announcement_text_ar && (
@@ -428,7 +428,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
 
             {/* ── Theme Sections OR Fallback ────────────────────────────── */}
             {hasSections ? (
-                <main>
+                <main style={{ flex: 1 }}>
                     {sections.map(section => (
                         <SectionRenderer
                             key={section.id}
@@ -442,7 +442,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                 </main>
             ) : (
                 // ── Fallback: default storefront layout ──────────────────
-                <main style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 20px' }}>
+                <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', padding: '36px 20px', width: '100%', boxSizing: 'border-box' }}>
                     {/* Hero */}
                     <div style={{
                         background: `linear-gradient(135deg, ${primary}, ${primary}99)`,
@@ -511,8 +511,10 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                         ))}
                     </div>
                 </div>
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', padding: '16px 20px', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>
-                    © {new Date().getFullYear()} {store.name_ar || store.name} — مدعوم بمنصة تجارنا
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', padding: '16px 20px', color: 'rgba(255,255,255,0.35)', fontSize: 13, display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <span>© {new Date().getFullYear()} {store.name_ar || store.name} — جميع الحقوق محفوظة</span>
+                    <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
+                    <span>لـ منصة <span style={{ color: '#6C3CE1', fontWeight: 700 }}>تجارنا</span></span>
                 </div>
             </footer>
         </div>

@@ -125,6 +125,7 @@ export default function ThemeEditorPage() {
     const [activePanel, setActivePanel] = useState<'blocks' | 'global' | 'history'>('blocks')
     const [versions, setVersions] = useState<any[]>([])
     const [storePages, setStorePages] = useState<any[]>([])
+    const [storeProducts, setStoreProducts] = useState<any[]>([])
     const [saving, setSaving] = useState(false)
     const [publishing, setPublishing] = useState(false)
     const [loading, setLoading] = useState(true)
@@ -157,6 +158,16 @@ export default function ThemeEditorPage() {
                 .eq('is_published', true)
                 .order('created_at')
             setStorePages(pages || [])
+
+            // Load products for section picker
+            const { data: prods } = await supabase
+                .from('products')
+                .select('id, name_ar, price, images')
+                .eq('store_id', store.id)
+                .eq('is_active', true)
+                .order('created_at', { ascending: false })
+                .limit(50)
+            setStoreProducts(prods || [])
 
             // Load version history
             const { data: vers } = await supabase
@@ -619,6 +630,7 @@ export default function ThemeEditorPage() {
                             <SectionSettingsPanel
                                 section={selectedSection}
                                 onChange={(key, value) => updateSectionSetting(selectedSection.id, key, value)}
+                                storeProducts={storeProducts}
                             />
                         )}
                     </div>
@@ -839,8 +851,17 @@ function SectionPreview({ section, primaryColor, borderRadius }: { section: Them
 }
 
 // ─── Section Settings Panel ───────────────────────────────────────────────────
-function SectionSettingsPanel({ section, onChange }: { section: ThemeSection; onChange: (key: string, value: any) => void }) {
+function SectionSettingsPanel({ section, onChange, storeProducts }: { section: ThemeSection; onChange: (key: string, value: any) => void; storeProducts: any[] }) {
     const s = section.settings
+    const dragProductRef = useRef<number | null>(null)
+
+    // Product picker reorder
+    const moveProduct = (ids: string[], from: number, to: number) => {
+        const arr = [...ids]
+        const [moved] = arr.splice(from, 1)
+        arr.splice(to, 0, moved)
+        return arr
+    }
 
     const fields: Array<{ key: string; label: string; type: string; options?: string[] }> = []
 
@@ -858,12 +879,6 @@ function SectionSettingsPanel({ section, onChange }: { section: ThemeSection; on
                 { key: 'text_align', label: 'محاذاة النص', type: 'select', options: ['right', 'center', 'left'] },
             )
             break
-        case 'featured_products':
-            fields.push(
-                { key: 'title_ar', label: 'العنوان', type: 'text' },
-                { key: 'columns', label: 'عدد الأعمدة', type: 'select', options: ['2', '3', '4'] },
-            )
-            break
         case 'countdown_timer':
             fields.push(
                 { key: 'title_ar', label: 'العنوان', type: 'text' },
@@ -873,7 +888,6 @@ function SectionSettingsPanel({ section, onChange }: { section: ThemeSection; on
             )
             break
         case 'testimonials':
-        case 'product_slider':
         case 'collections_grid':
         case 'rich_text':
             fields.push({ key: 'title_ar', label: 'العنوان', type: 'text' })
@@ -895,9 +909,85 @@ function SectionSettingsPanel({ section, onChange }: { section: ThemeSection; on
             break
     }
 
+    const isProductSection = section.type === 'featured_products' || section.type === 'product_slider'
+    const selectedIds: string[] = s.product_ids || []
+    const orderedSelected = selectedIds
+        .map(id => storeProducts.find(p => p.id === id))
+        .filter(Boolean)
+    const unselected = storeProducts.filter(p => !selectedIds.includes(p.id))
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {fields.map(({ key, label, type, options }) => (
+            {/* Standard fields */}
+            {isProductSection && (
+                <>
+                    <SettingInput label="العنوان" type="text" value={s.title_ar ?? ''} onChange={v => onChange('title_ar', v)} dark />
+                    {section.type === 'featured_products' && (
+                        <SettingInput label="عدد الأعمدة" type="select" value={String(s.columns ?? 4)} options={['2', '3', '4']} onChange={v => onChange('columns', parseInt(v))} dark />
+                    )}
+
+                    {/* ── Product Picker ────────────────────────────── */}
+                    <div style={{ borderTop: '1px solid #2D2D44', paddingTop: 12, marginTop: 4 }}>
+                        <p style={{ color: '#9CA3AF', fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 10 }}>
+                            المنتجات المختارة ({selectedIds.length}) — اسحب لإعادة الترتيب
+                        </p>
+
+                        {/* Selected products — draggable to reorder */}
+                        {orderedSelected.length === 0 && (
+                            <p style={{ color: '#4B5563', fontSize: 12, textAlign: 'center', padding: '8px 0', marginBottom: 8 }}>لم تختر أي منتج بعد</p>
+                        )}
+                        {orderedSelected.map((prod: any, i: number) => (
+                            <div key={prod.id}
+                                draggable
+                                onDragStart={() => { dragProductRef.current = i }}
+                                onDragOver={e => e.preventDefault()}
+                                onDrop={() => {
+                                    if (dragProductRef.current !== null && dragProductRef.current !== i) {
+                                        onChange('product_ids', moveProduct(selectedIds, dragProductRef.current, i))
+                                        dragProductRef.current = null
+                                    }
+                                }}
+                                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'rgba(108,60,225,0.1)', borderRadius: 8, border: '1px solid rgba(108,60,225,0.3)', marginBottom: 5, cursor: 'grab' }}
+                            >
+                                <GripVertical size={13} color="#6C3CE1" style={{ flexShrink: 0 }} />
+                                <div style={{ width: 28, height: 28, borderRadius: 6, background: prod.images?.[0] ? `url(${prod.images[0]}) center/cover` : 'rgba(108,60,225,0.2)', flexShrink: 0 }} />
+                                <span style={{ flex: 1, fontSize: 12, color: '#D1D5DB', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prod.name_ar}</span>
+                                <button onClick={() => onChange('product_ids', selectedIds.filter((id: string) => id !== prod.id))}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 2, display: 'flex', flexShrink: 0 }}>
+                                    <X size={13} />
+                                </button>
+                            </div>
+                        ))}
+
+                        {/* Unselected products */}
+                        {unselected.length > 0 && (
+                            <div style={{ marginTop: 8 }}>
+                                <p style={{ color: '#4B5563', fontSize: 11, fontWeight: 600, marginBottom: 6 }}>أضف منتجات:</p>
+                                <div style={{ maxHeight: 180, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                    {unselected.map((prod: any) => (
+                                        <button key={prod.id} onClick={() => onChange('product_ids', [...selectedIds, prod.id])}
+                                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: '#0F0F17', borderRadius: 8, border: '1px solid #2D2D44', cursor: 'pointer', width: '100%', textAlign: 'right', fontFamily: 'inherit' }}
+                                            onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = '#6C3CE1'}
+                                            onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = '#2D2D44'}
+                                        >
+                                            <div style={{ width: 28, height: 28, borderRadius: 6, background: prod.images?.[0] ? `url(${prod.images[0]}) center/cover` : '#1A1A2E', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+                                                {!prod.images?.[0] && '🛍️'}
+                                            </div>
+                                            <span style={{ flex: 1, fontSize: 12, color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prod.name_ar}</span>
+                                            <Plus size={13} color="#6C3CE1" />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {storeProducts.length === 0 && (
+                            <p style={{ color: '#4B5563', fontSize: 12, textAlign: 'center', padding: '8px 0' }}>لا توجد منتجات في متجرك بعد</p>
+                        )}
+                    </div>
+                </>
+            )}
+
+            {!isProductSection && fields.map(({ key, label, type, options }) => (
                 <SettingInput
                     key={key}
                     label={label}
