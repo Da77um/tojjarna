@@ -1,22 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-    LayoutDashboard,
-    Package,
-    ShoppingCart,
-    Users,
-    BarChart3,
-    Tag,
-    Settings,
-    Store,
-    LogOut,
-    Menu,
-    X,
-    Bell,
-    ChevronDown,
+    LayoutDashboard, Package, ShoppingCart, Users, BarChart3,
+    Tag, Settings, Store, LogOut, Menu, X, Bell, ChevronDown,
+    Palette, ShoppingBag, FileText, Check,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -27,6 +17,9 @@ const navItems = [
     { href: '/dashboard/customers', label: 'العملاء', icon: Users },
     { href: '/dashboard/analytics', label: 'التحليلات', icon: BarChart3 },
     { href: '/dashboard/coupons', label: 'الخصومات', icon: Tag },
+    { href: '/dashboard/theme-editor', label: 'محرر القوالب', icon: Palette },
+    { href: '/dashboard/abandoned-carts', label: 'السلات المهجورة', icon: ShoppingBag },
+    { href: '/dashboard/pages', label: 'صفحات المتجر', icon: FileText },
     { href: '/dashboard/settings', label: 'الإعدادات', icon: Settings },
 ]
 
@@ -44,6 +37,10 @@ export default function DashboardLayout({
     const [stores, setStores] = useState<any[]>([])
     const [activeStore, setActiveStore] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [notifications, setNotifications] = useState<any[]>([])
+    const [showNotifs, setShowNotifs] = useState(false)
+    const notifsRef = useRef<HTMLDivElement>(null)
+    const unreadCount = notifications.filter(n => !n.is_read).length
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -72,6 +69,15 @@ export default function DashboardLayout({
                 if (vendorStores && vendorStores.length > 0) {
                     setStores(vendorStores)
                     setActiveStore(vendorStores[0])
+
+                    // Load notifications
+                    const { data: notifs } = await supabase
+                        .from('store_notifications')
+                        .select('*')
+                        .eq('store_id', vendorStores[0].id)
+                        .order('created_at', { ascending: false })
+                        .limit(20)
+                    setNotifications(notifs || [])
                 }
             } catch (err) {
                 console.error('Error loading profile:', err)
@@ -95,6 +101,12 @@ export default function DashboardLayout({
     const handleLogout = async () => {
         await supabase.auth.signOut()
         router.push('/login')
+    }
+
+    const markAllRead = async () => {
+        if (!activeStore) return
+        await supabase.from('store_notifications').update({ is_read: true }).eq('store_id', activeStore.id).eq('is_read', false)
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
     }
 
     if (loading) return (
@@ -160,7 +172,7 @@ export default function DashboardLayout({
                         </div>
                         <div>
                             <div style={{ fontWeight: 900, fontSize: 17, color: 'var(--text-primary)' }}>
-                                باسكت
+                                تجارنا
                             </div>
                             <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 1 }}>
                                 لوحة التاجر
@@ -202,7 +214,7 @@ export default function DashboardLayout({
                                 {activeStore?.name_ar || 'جاري التحميل...'}
                             </div>
                             <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                                {activeStore?.slug ? `basket.jo/${activeStore.slug}` : 'متجر جديد'}
+                                {activeStore?.slug ? `tojjarna.com/store/${activeStore.slug}` : 'متجر جديد'}
                             </div>
                         </div>
                     </div>
@@ -287,34 +299,62 @@ export default function DashboardLayout({
                     {/* Right actions */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         {/* Notifications */}
-                        <button
-                            style={{
-                                width: 38,
-                                height: 38,
-                                borderRadius: 10,
-                                border: '1px solid var(--border)',
-                                background: 'var(--surface)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                position: 'relative',
-                            }}
-                        >
-                            <Bell size={18} color="var(--text-secondary)" />
-                            <div
+                        <div style={{ position: 'relative' }} ref={notifsRef}>
+                            <button
+                                onClick={() => setShowNotifs(!showNotifs)}
                                 style={{
-                                    position: 'absolute',
-                                    top: 8,
-                                    right: 8,
-                                    width: 8,
-                                    height: 8,
-                                    borderRadius: '50%',
-                                    background: '#EF4444',
-                                    border: '2px solid var(--surface)',
+                                    width: 38, height: 38, borderRadius: 10,
+                                    border: '1px solid var(--border)', background: 'var(--surface)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    cursor: 'pointer', position: 'relative',
                                 }}
-                            />
-                        </button>
+                            >
+                                <Bell size={18} color="var(--text-secondary)" />
+                                {unreadCount > 0 && (
+                                    <div style={{
+                                        position: 'absolute', top: -4, right: -4, minWidth: 18, height: 18,
+                                        borderRadius: 9, background: '#EF4444', border: '2px solid var(--surface)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: 10, fontWeight: 700, color: 'white', padding: '0 4px',
+                                    }}>{unreadCount}</div>
+                                )}
+                            </button>
+                            {/* Dropdown */}
+                            {showNotifs && (
+                                <div style={{
+                                    position: 'absolute', top: 48, right: 0, width: 320, background: 'var(--surface)',
+                                    border: '1px solid var(--border)', borderRadius: 14, boxShadow: 'var(--shadow-lg)',
+                                    zIndex: 200, overflow: 'hidden',
+                                }}>
+                                    <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontWeight: 700, fontSize: 14 }}>الإشعارات</span>
+                                        {unreadCount > 0 && (
+                                            <button onClick={markAllRead} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <Check size={12} /> تعليم الكل كمقروء
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div style={{ maxHeight: 320, overflow: 'auto' }}>
+                                        {notifications.length === 0 ? (
+                                            <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>لا توجد إشعارات</div>
+                                        ) : notifications.map(n => (
+                                            <div key={n.id} style={{
+                                                padding: '12px 16px', borderBottom: '1px solid var(--border)',
+                                                background: n.is_read ? 'transparent' : 'rgba(108,60,225,0.04)',
+                                                display: 'flex', gap: 10, alignItems: 'flex-start',
+                                            }}>
+                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.is_read ? 'transparent' : '#6C3CE1', marginTop: 6, flexShrink: 0 }} />
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{n.title_ar}</div>
+                                                    {n.message_ar && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{n.message_ar}</div>}
+                                                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>{new Date(n.created_at).toLocaleString('ar-JO')}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
                         {/* User avatar */}
                         <div

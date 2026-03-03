@@ -498,3 +498,193 @@ DROP POLICY IF EXISTS "transactions_vendor_read" ON platform_transactions;
 CREATE POLICY "transactions_vendor_read" ON platform_transactions FOR SELECT USING (
   store_id = ANY(get_vendor_store_ids())
 );
+
+-- =============================================
+-- PHASE 2 TABLES
+-- =============================================
+
+-- 16. THEME VERSIONS (draft saves + version history)
+-- =============================================
+CREATE TABLE IF NOT EXISTS theme_versions (
+  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id      UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  label         VARCHAR(100),
+  theme_config  JSONB NOT NULL,
+  is_draft      BOOLEAN NOT NULL DEFAULT true,
+  created_by    UUID REFERENCES users(id),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_theme_versions_store_id ON theme_versions(store_id, created_at DESC);
+
+ALTER TABLE theme_versions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "theme_versions_vendor_manage" ON theme_versions;
+CREATE POLICY "theme_versions_vendor_manage" ON theme_versions FOR ALL USING (
+  store_id = ANY(get_vendor_store_ids()) OR is_admin()
+);
+
+-- =============================================
+-- 17. STORE SHIPPING ZONES
+-- =============================================
+CREATE TABLE IF NOT EXISTS store_shipping_zones (
+  id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id           UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  name_ar            VARCHAR(100) NOT NULL,
+  cities             TEXT[] NOT NULL DEFAULT '{}',
+  rate               DECIMAL(10,3) NOT NULL DEFAULT 0,
+  free_above         DECIMAL(10,3),
+  estimated_days_min INTEGER DEFAULT 1,
+  estimated_days_max INTEGER DEFAULT 3,
+  is_active          BOOLEAN NOT NULL DEFAULT true,
+  created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_shipping_zones_store_id ON store_shipping_zones(store_id);
+
+ALTER TABLE store_shipping_zones ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "shipping_vendor_manage" ON store_shipping_zones;
+CREATE POLICY "shipping_vendor_manage" ON store_shipping_zones FOR ALL USING (
+  store_id = ANY(get_vendor_store_ids()) OR is_admin()
+);
+DROP POLICY IF EXISTS "shipping_public_read" ON store_shipping_zones;
+CREATE POLICY "shipping_public_read" ON store_shipping_zones FOR SELECT USING (is_active = true);
+
+-- =============================================
+-- 18. STORE PAYMENT CONFIG
+-- =============================================
+CREATE TABLE IF NOT EXISTS store_payment_config (
+  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id              UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE UNIQUE,
+  cod_enabled           BOOLEAN NOT NULL DEFAULT true,
+  hyperpay_enabled      BOOLEAN NOT NULL DEFAULT false,
+  hyperpay_entity_id    TEXT,
+  paytabs_enabled       BOOLEAN NOT NULL DEFAULT false,
+  paytabs_profile_id    TEXT,
+  currencies            TEXT[] NOT NULL DEFAULT ARRAY['JOD'],
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE store_payment_config ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "payment_config_vendor_manage" ON store_payment_config;
+CREATE POLICY "payment_config_vendor_manage" ON store_payment_config FOR ALL USING (
+  store_id = ANY(get_vendor_store_ids()) OR is_admin()
+);
+
+-- =============================================
+-- 19. ABANDONED CARTS
+-- =============================================
+CREATE TABLE IF NOT EXISTS abandoned_carts (
+  id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id         UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  customer_name    VARCHAR(255),
+  customer_phone   VARCHAR(20),
+  customer_email   VARCHAR(255),
+  cart_items       JSONB NOT NULL DEFAULT '[]',
+  total            DECIMAL(10,3) NOT NULL DEFAULT 0,
+  recovery_sent    BOOLEAN NOT NULL DEFAULT false,
+  recovered        BOOLEAN NOT NULL DEFAULT false,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_abandoned_carts_store_id ON abandoned_carts(store_id, recovered, created_at DESC);
+
+ALTER TABLE abandoned_carts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "carts_vendor_manage" ON abandoned_carts;
+CREATE POLICY "carts_vendor_manage" ON abandoned_carts FOR ALL USING (
+  store_id = ANY(get_vendor_store_ids()) OR is_admin()
+);
+DROP POLICY IF EXISTS "carts_insert_anyone" ON abandoned_carts;
+CREATE POLICY "carts_insert_anyone" ON abandoned_carts FOR INSERT WITH CHECK (true);
+
+-- =============================================
+-- 20. STORE PAGES (CMS)
+-- =============================================
+CREATE TABLE IF NOT EXISTS store_pages (
+  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id              UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  slug                  VARCHAR(100) NOT NULL,
+  title_ar              VARCHAR(255) NOT NULL,
+  title_en              VARCHAR(255),
+  content_ar            TEXT,
+  content_en            TEXT,
+  meta_title_ar         VARCHAR(255),
+  meta_description_ar   TEXT,
+  is_published          BOOLEAN NOT NULL DEFAULT false,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(store_id, slug)
+);
+
+CREATE INDEX IF NOT EXISTS idx_store_pages_store_id ON store_pages(store_id);
+
+ALTER TABLE store_pages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "pages_public_read" ON store_pages;
+CREATE POLICY "pages_public_read" ON store_pages FOR SELECT USING (is_published = true);
+DROP POLICY IF EXISTS "pages_vendor_manage" ON store_pages;
+CREATE POLICY "pages_vendor_manage" ON store_pages FOR ALL USING (
+  store_id = ANY(get_vendor_store_ids()) OR is_admin()
+);
+
+-- =============================================
+-- 21. STORE NOTIFICATIONS
+-- =============================================
+CREATE TABLE IF NOT EXISTS store_notifications (
+  id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id   UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  type       VARCHAR(50) NOT NULL DEFAULT 'info',
+  title_ar   VARCHAR(255) NOT NULL,
+  message_ar TEXT,
+  link       TEXT,
+  is_read    BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_store_id ON store_notifications(store_id, is_read, created_at DESC);
+
+ALTER TABLE store_notifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "notifications_vendor_manage" ON store_notifications;
+CREATE POLICY "notifications_vendor_manage" ON store_notifications FOR ALL USING (
+  store_id = ANY(get_vendor_store_ids()) OR is_admin()
+);
+DROP POLICY IF EXISTS "notifications_insert_system" ON store_notifications;
+CREATE POLICY "notifications_insert_system" ON store_notifications FOR INSERT WITH CHECK (true);
+
+-- =============================================
+-- 22. THEME MARKETPLACE (future)
+-- =============================================
+CREATE TABLE IF NOT EXISTS theme_marketplace (
+  id             UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name_ar        VARCHAR(200) NOT NULL,
+  name_en        VARCHAR(200) NOT NULL,
+  description_ar TEXT,
+  preview_url    TEXT,
+  demo_url       TEXT,
+  price_jod      DECIMAL(10,3) NOT NULL DEFAULT 0,
+  theme_config   JSONB NOT NULL DEFAULT '{}',
+  author_id      UUID REFERENCES users(id),
+  is_approved    BOOLEAN NOT NULL DEFAULT false,
+  install_count  INTEGER NOT NULL DEFAULT 0,
+  tags           TEXT[] NOT NULL DEFAULT '{}',
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE theme_marketplace ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "marketplace_public_read" ON theme_marketplace;
+CREATE POLICY "marketplace_public_read" ON theme_marketplace FOR SELECT USING (is_approved = true);
+DROP POLICY IF EXISTS "marketplace_admin_all" ON theme_marketplace;
+CREATE POLICY "marketplace_admin_all" ON theme_marketplace FOR ALL USING (is_admin());
+
+-- updated_at triggers for new tables
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_abandoned_carts_updated_at') THEN
+    CREATE TRIGGER trg_abandoned_carts_updated_at BEFORE UPDATE ON abandoned_carts FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_store_pages_updated_at') THEN
+    CREATE TRIGGER trg_store_pages_updated_at BEFORE UPDATE ON store_pages FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_payment_config_updated_at') THEN
+    CREATE TRIGGER trg_payment_config_updated_at BEFORE UPDATE ON store_payment_config FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+END $$;
