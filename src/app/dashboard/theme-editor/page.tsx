@@ -128,10 +128,14 @@ export default function ThemeEditorPage() {
     const [storeProducts, setStoreProducts] = useState<any[]>([])
     const [saving, setSaving] = useState(false)
     const [publishing, setPublishing] = useState(false)
+    const [autoSaving, setAutoSaving] = useState(false)
+    const [autoSaved, setAutoSaved] = useState(false)
     const [loading, setLoading] = useState(true)
+    const [isFirstLoad, setIsFirstLoad] = useState(true)
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
     const dragSectionRef = useRef<number | null>(null)
     const iframeRef = useRef<HTMLIFrameElement>(null)
+    const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     // ──── Load store + theme ────────────────────────────────────────────────
     useEffect(() => {
@@ -179,9 +183,32 @@ export default function ThemeEditorPage() {
             if (vers) setVersions(vers)
 
             setLoading(false)
+            setIsFirstLoad(false)
         }
         load()
     }, [supabase, router])
+
+    // ──── Auto-save: write theme to stores.theme 1.5s after any change ────────────
+    useEffect(() => {
+        if (!storeId || isFirstLoad) return
+        // Cancel previous timer
+        if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
+        setAutoSaved(false)
+        setAutoSaving(true)
+        autoSaveTimer.current = setTimeout(async () => {
+            try {
+                await supabase.from('stores').update({ theme }).eq('id', storeId)
+                setAutoSaving(false)
+                setAutoSaved(true)
+                // Reset 'saved' badge after 3s
+                setTimeout(() => setAutoSaved(false), 3000)
+            } catch {
+                setAutoSaving(false)
+            }
+        }, 1500)
+        return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current) }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [theme, storeId])
 
     // ──── Send theme to iframe preview ──────────────────────────────────────
     useEffect(() => {
@@ -324,6 +351,19 @@ export default function ThemeEditorPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    {/* Auto-save status */}
+                    {autoSaving && (
+                        <span style={{ fontSize: 12, color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: 5 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B', display: 'inline-block', animation: 'pulse 1s infinite' }} />
+                            جاري الحفظ...
+                        </span>
+                    )}
+                    {autoSaved && !autoSaving && (
+                        <span style={{ fontSize: 12, color: '#10B981', display: 'flex', alignItems: 'center', gap: 5 }}>
+                            <Check size={13} />
+                            تم الحفظ — يظهر في المتجر
+                        </span>
+                    )}
                     {storeSlug && (
                         <a href={`/store/${storeSlug}`} target="_blank" rel="noopener noreferrer"
                             style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#9CA3AF', fontSize: 12, textDecoration: 'none', padding: '6px 10px', borderRadius: 8, border: '1px solid #2D2D44' }}>
