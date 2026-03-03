@@ -506,11 +506,10 @@ export default function ThemeEditorPage() {
                     <div style={{
                         width: previewMode === 'mobile' ? 390 : '100%',
                         maxWidth: previewMode === 'mobile' ? 390 : 1200,
-                        height: previewMode === 'mobile' ? '844px' : '100%',
-                        minHeight: 600,
+                        minHeight: previewMode === 'mobile' ? '844px' : 600,
                         background: 'white',
                         borderRadius: previewMode === 'mobile' ? 20 : 12,
-                        overflow: 'hidden',
+                        overflow: 'visible',
                         boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
                         border: previewMode === 'mobile' ? '8px solid #1A1A2E' : '1px solid #2D2D44',
                         transition: 'all 0.3s ease',

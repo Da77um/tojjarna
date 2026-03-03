@@ -246,10 +246,16 @@ export default function DashboardLayout({
 
                 {/* Bottom */}
                 <div style={{ padding: '16px 12px', borderTop: '1px solid var(--border)' }}>
-                    <Link href="/store/preview" className="nav-item" style={{ marginBottom: 4 }}>
+                    <a
+                        href={activeStore?.slug ? `/store/${activeStore.slug}` : '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="nav-item"
+                        style={{ marginBottom: 4, textDecoration: 'none' }}
+                    >
                         <Store size={18} />
                         عرض المتجر
-                    </Link>
+                    </a>
                     <button
                         onClick={handleLogout}
                         className="nav-item"
