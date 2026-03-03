@@ -20,6 +20,12 @@ export interface ThemeSection {
     mobile?: Record<string, any>
 }
 
+export interface NavLink {
+    label: string
+    url: string
+    type: 'builtin' | 'page'
+}
+
 export interface ThemeGlobal {
     primary_color: string
     secondary_color: string
@@ -29,6 +35,7 @@ export interface ThemeGlobal {
     header_sticky: boolean
     show_announcement: boolean
     announcement_text_ar: string
+    nav_links: NavLink[]
 }
 
 export interface ThemeConfig {
@@ -48,6 +55,10 @@ const DEFAULT_THEME: ThemeConfig = {
         header_sticky: true,
         show_announcement: false,
         announcement_text_ar: 'شحن مجاني على الطلبات فوق 20 د.أ',
+        nav_links: [
+            { label: 'الرئيسية', url: '/', type: 'builtin' },
+            { label: 'المنتجات', url: '/products', type: 'builtin' },
+        ],
     },
     sections: [],
 }
@@ -113,6 +124,7 @@ export default function ThemeEditorPage() {
     const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop')
     const [activePanel, setActivePanel] = useState<'blocks' | 'global' | 'history'>('blocks')
     const [versions, setVersions] = useState<any[]>([])
+    const [storePages, setStorePages] = useState<any[]>([])
     const [saving, setSaving] = useState(false)
     const [publishing, setPublishing] = useState(false)
     const [loading, setLoading] = useState(true)
@@ -134,8 +146,17 @@ export default function ThemeEditorPage() {
             setStoreSlug(store.slug)
 
             if (store.theme && store.theme.sections) {
-                setTheme({ ...DEFAULT_THEME, ...store.theme })
+                setTheme({ ...DEFAULT_THEME, ...store.theme, global: { ...DEFAULT_THEME.global, ...store.theme.global } })
             }
+
+            // Load published pages for nav
+            const { data: pages } = await supabase
+                .from('store_pages')
+                .select('id, title_ar, slug, is_published')
+                .eq('store_id', store.id)
+                .eq('is_published', true)
+                .order('created_at')
+            setStorePages(pages || [])
 
             // Load version history
             const { data: vers } = await supabase
@@ -461,6 +482,61 @@ export default function ThemeEditorPage() {
                                     <SettingInput label="نص الإعلان" type="text" value={theme.global.announcement_text_ar}
                                         onChange={(v) => updateGlobal('announcement_text_ar', v)} />
                                 )}
+
+                                {/* ── Navigation Links ─────────────────────── */}
+                                <div style={{ borderTop: '1px solid #2D2D44', paddingTop: 16 }}>
+                                    <p style={{ color: '#9CA3AF', fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 12 }}>روابط التنقل (الهيدر)</p>
+
+                                    {/* Built-in links */}
+                                    {[{ label: 'الرئيسية', url: '/' }, { label: 'المنتجات', url: '/products' }].map(link => {
+                                        const navLinks: NavLink[] = theme.global.nav_links || []
+                                        const active = navLinks.some(nl => nl.url === link.url)
+                                        return (
+                                            <div key={link.url} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: '#0F0F17', borderRadius: 8, border: '1px solid #2D2D44', marginBottom: 6 }}>
+                                                <div>
+                                                    <div style={{ fontSize: 12, color: '#D1D5DB', fontWeight: 600 }}>{link.label}</div>
+                                                    <div style={{ fontSize: 10, color: '#4B5563', marginTop: 1 }}>رابط أساسي</div>
+                                                </div>
+                                                <Toggle value={active} onChange={v => {
+                                                    const current = theme.global.nav_links || []
+                                                    if (v) {
+                                                        updateGlobal('nav_links', [...current, { label: link.label, url: link.url, type: 'builtin' as const }])
+                                                    } else {
+                                                        updateGlobal('nav_links', current.filter((nl: NavLink) => nl.url !== link.url))
+                                                    }
+                                                }} />
+                                            </div>
+                                        )
+                                    })}
+
+                                    {/* CMS Pages */}
+                                    {storePages.length === 0 ? (
+                                        <div style={{ textAlign: 'center', padding: '16px 0', color: '#4B5563', fontSize: 12 }}>
+                                            لا توجد صفحات منشورة بعد.<br />
+                                            <a href="/dashboard/pages" style={{ color: '#6C3CE1', textDecoration: 'none', fontWeight: 600 }}>أنشئ صفحة الآن</a>
+                                        </div>
+                                    ) : storePages.map((page: any) => {
+                                        const navLinks: NavLink[] = theme.global.nav_links || []
+                                        const pageUrl = `/p/${page.slug}`
+                                        const active = navLinks.some(nl => nl.url === pageUrl)
+                                        return (
+                                            <div key={page.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 12px', background: '#0F0F17', borderRadius: 8, border: '1px solid #2D2D44', marginBottom: 6 }}>
+                                                <div>
+                                                    <div style={{ fontSize: 12, color: '#D1D5DB', fontWeight: 600 }}>{page.title_ar}</div>
+                                                    <div style={{ fontSize: 10, color: '#4B5563', marginTop: 1 }}>/p/{page.slug}</div>
+                                                </div>
+                                                <Toggle value={active} onChange={v => {
+                                                    const current = theme.global.nav_links || []
+                                                    if (v) {
+                                                        updateGlobal('nav_links', [...current, { label: page.title_ar, url: pageUrl, type: 'page' as const }])
+                                                    } else {
+                                                        updateGlobal('nav_links', current.filter((nl: NavLink) => nl.url !== pageUrl))
+                                                    }
+                                                }} />
+                                            </div>
+                                        )
+                                    })}
+                                </div>
                             </div>
                         )}
 

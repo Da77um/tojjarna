@@ -20,6 +20,7 @@ interface ThemeGlobal {
     header_sticky: boolean
     show_announcement: boolean
     announcement_text_ar: string
+    nav_links?: { label: string; url: string; type: 'builtin' | 'page' }[]
 }
 interface ThemeConfig {
     version?: number
@@ -367,11 +368,34 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                     {/* Logo */}
                     <div style={{ fontWeight: 900, fontSize: 20, color: primary }}>{store.name_ar || store.name}</div>
 
+                    {/* Nav links from theme */}
+                    <nav style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                        {(themeGlobal?.nav_links?.length
+                            ? themeGlobal.nav_links
+                            : [{ label: 'الرئيسية', url: '/', type: 'builtin' }, { label: 'المنتجات', url: '/products', type: 'builtin' }]
+                        ).map((link: any) => {
+                            const href = link.type === 'page'
+                                ? `/store/${slug}/p/${link.url.replace(/^\/p\//, '')}`
+                                : link.url === '/'
+                                    ? `/store/${slug}`
+                                    : `/store/${slug}${link.url}`
+                            return (
+                                <Link key={link.url} href={href} style={{
+                                    padding: '7px 14px', borderRadius: 8, fontSize: 14, fontWeight: 500,
+                                    color: '#374151', textDecoration: 'none', transition: 'all 0.15s',
+                                }}
+                                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = `${primary}12`; (e.currentTarget as HTMLElement).style.color = primary }}
+                                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#374151' }}
+                                >{link.label}</Link>
+                            )
+                        })}
+                    </nav>
+
                     {/* Search */}
-                    <div style={{ position: 'relative', width: 320, display: 'flex' }}>
+                    <div style={{ position: 'relative', width: 260, display: 'flex' }}>
                         <Search size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
                         <input value={search} onChange={e => setSearch(e.target.value)}
-                            placeholder="ابحث في المتجر..." style={{ width: '100%', padding: '9px 38px 9px 14px', borderRadius: radius, border: '1.5px solid #E5E7EB', fontSize: 13, fontFamily: 'inherit', outline: 'none', background: '#F9FAFB' }} />
+                            placeholder="ابحث..." style={{ width: '100%', padding: '8px 36px 8px 12px', borderRadius: radius, border: '1.5px solid #E5E7EB', fontSize: 13, fontFamily: 'inherit', outline: 'none', background: '#F9FAFB' }} />
                     </div>
 
                     {/* Cart */}
