@@ -785,3 +785,153 @@ CREATE POLICY "promos_public_read" ON platform_promos FOR SELECT USING (is_activ
 CREATE POLICY "promos_admin_all" ON platform_promos FOR ALL USING (is_super_admin());
 -- Ensure status is applied to stores safely if table already exists
 ALTER TABLE stores ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'approved' CHECK (status IN ('approved', 'pending', 'suspended'));
+
+-- =============================================
+-- 18. ANALYTICS RPC FUNCTIONS
+-- =============================================
+
+-- Get Vendor Analytics
+CREATE OR REPLACE FUNCTION get_vendor_analytics(target_store_id UUID)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  total_revenue DECIMAL(10,3);
+  total_orders INTEGER;
+  total_customers INTEGER;
+  revenue_trend JSONB;
+BEGIN
+  -- Verify ownership or admin status
+  IF NOT (target_store_id = ANY(get_vendor_store_ids()) OR is_super_admin()) THEN
+    RAISE EXCEPTION 'Access denied. You must own this store or be an admin.';
+  END IF;
+
+  -- 1. Total Revenue (from non-cancelled orders)
+  SELECT COALESCE(SUM(total_jod), 0) INTO total_revenue
+  FROM orders
+  WHERE store_id = target_store_id 
+  AND status NOT IN ('cancelled', 'refunded');
+
+  -- 2. Total Orders
+  SELECT COUNT(id) INTO total_orders
+  FROM orders
+  WHERE store_id = target_store_id;
+
+  -- 3. Total Customers
+  SELECT COUNT(id) INTO total_customers
+  FROM customers
+  WHERE store_id = target_store_id;
+
+  -- 4. Revenue Trend (Last 30 days grouped by day)
+  WITH last_30_days AS (
+    SELECT generate_series(
+      CURRENT_DATE - INTERVAL '29 days',
+      CURRENT_DATE,
+      '1 day'::interval
+    )::date AS day
+  ),
+  daily_revenue AS (
+    SELECT 
+      DATE(created_at) AS order_date,
+      SUM(total_jod) AS revenue
+    FROM orders
+    WHERE store_id = target_store_id
+    AND status NOT IN ('cancelled', 'refunded')
+    AND created_at >= CURRENT_DATE - INTERVAL '29 days'
+    GROUP BY DATE(created_at)
+  )
+  SELECT jsonb_agg(
+    jsonb_build_object(
+      'date', d.day,
+      'revenue', COALESCE(r.revenue, 0)
+    ) ORDER BY d.day
+  ) INTO revenue_trend
+  FROM last_30_days d
+  LEFT JOIN daily_revenue r ON d.day = r.order_date;
+
+  RETURN jsonb_build_object(
+    'total_revenue', total_revenue,
+    'total_orders', total_orders,
+    'total_customers', total_customers,
+    'revenue_trend', COALESCE(revenue_trend, '[]'::jsonb)
+  );
+END;
+$$;
+
+-- Get Admin Analytics
+CREATE OR REPLACE FUNCTION get_admin_analytics()
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  global_gmv DECIMAL(10,3);
+  total_commission DECIMAL(10,3);
+  active_stores INTEGER;
+  total_platform_orders INTEGER;
+  revenue_trend JSONB;
+BEGIN
+  -- Verify super admin
+  IF NOT is_super_admin() THEN
+    RAISE EXCEPTION 'Access denied. Only super admins can view platform analytics.';
+  END IF;
+
+  -- 1. Global GMV (all non-cancelled orders)
+  SELECT COALESCE(SUM(total_jod), 0) INTO global_gmv
+  FROM orders
+  WHERE status NOT IN ('cancelled', 'refunded');
+
+  -- 2. Active Stores
+  SELECT COUNT(id) INTO active_stores
+  FROM stores
+  WHERE status = 'approved';
+
+  -- 3. Total Orders
+  SELECT COUNT(id) INTO total_platform_orders
+  FROM orders;
+
+  -- 4. Total Commission (summing the calculated commission for each order based on the store plan)
+  SELECT COALESCE(SUM(o.total_jod * (p.commission_rate / 100)), 0) INTO total_commission
+  FROM orders o
+  JOIN stores s ON o.store_id = s.id
+  JOIN plans p ON s.plan_id = p.id
+  WHERE o.status NOT IN ('cancelled', 'refunded');
+
+  -- 5. Revenue Trend (Last 30 days GMV)
+  WITH last_30_days AS (
+    SELECT generate_series(
+      CURRENT_DATE - INTERVAL '29 days',
+      CURRENT_DATE,
+      '1 day'::interval
+    )::date AS day
+  ),
+  daily_gmv AS (
+    SELECT 
+      DATE(created_at) AS order_date,
+      SUM(total_jod) AS total
+    FROM orders
+    WHERE status NOT IN ('cancelled', 'refunded')
+    AND created_at >= CURRENT_DATE - INTERVAL '29 days'
+    GROUP BY DATE(created_at)
+  )
+  SELECT jsonb_agg(
+    jsonb_build_object(
+      'date', d.day,
+      'gmv', COALESCE(r.total, 0)
+    ) ORDER BY d.day
+  ) INTO revenue_trend
+  FROM last_30_days d
+  LEFT JOIN daily_gmv r ON d.day = r.order_date;
+
+  RETURN jsonb_build_object(
+    'global_gmv', global_gmv,
+    'total_commission', total_commission,
+    'active_stores', active_stores,
+    'total_orders', total_platform_orders,
+    'revenue_trend', COALESCE(revenue_trend, '[]'::jsonb)
+  );
+END;
+$$;

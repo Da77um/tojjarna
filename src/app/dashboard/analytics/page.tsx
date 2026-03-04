@@ -27,41 +27,36 @@ export default function AnalyticsPage() {
                 if (!stores || stores.length === 0) return
                 const storeIds = stores.map(s => s.id)
 
-                // 1. Basic Stats
-                const { data: orders } = await supabase.from('orders').select('total, status, created_at').in('store_id', storeIds)
+                // 1. Basic Stats via RPC
+                const { data: analytics } = await supabase.rpc('get_vendor_analytics', { target_store_id: storeIds[0] })
                 const { count: productCount } = await supabase.from('products').select('*', { count: 'exact', head: true }).in('store_id', storeIds)
-                const { count: customerCount } = await supabase.from('customers').select('*', { count: 'exact', head: true }).in('store_id', storeIds)
-
-                const totalRevenue = orders?.reduce((acc, o) => acc + Number(o.total), 0) || 0
 
                 setStats([
-                    { label: 'إجمالي الإيرادات', value: totalRevenue.toLocaleString(), symbol: 'د.أ' },
-                    { label: 'إجمالي الطلبات', value: (orders?.length || 0).toString() },
+                    { label: 'إجمالي الإيرادات', value: (analytics?.total_revenue || 0).toLocaleString(), symbol: 'د.أ' },
+                    { label: 'إجمالي الطلبات', value: (analytics?.total_orders || 0).toString() },
                     { label: 'إجمالي المنتجات', value: (productCount || 0).toString() },
-                    { label: 'إجمالي العملاء', value: (customerCount || 0).toString() },
+                    { label: 'إجمالي العملاء', value: (analytics?.total_customers || 0).toString() },
                 ])
 
-                // 2. Monthly Revenue (last 6 months)
-                const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
-                const revenueByMonth: any = {}
-                orders?.forEach(o => {
-                    const d = new Date(o.created_at)
-                    const m = months[d.getMonth()]
-                    revenueByMonth[m] = (revenueByMonth[m] || 0) + Number(o.total)
+                // 2. 30-Day Revenue Trend
+                const formattedTrend = (analytics?.revenue_trend || []).map((t: any) => {
+                    const d = new Date(t.date)
+                    return { month: `${d.getDate()}/${d.getMonth() + 1}`, revenue: t.revenue }
                 })
-                setMonthlyRevenue(Object.entries(revenueByMonth).map(([month, revenue]) => ({ month, revenue })) as any)
+                setMonthlyRevenue(formattedTrend as any)
 
                 // 3. Order Status Pie
+                const { data: orders } = await supabase.from('orders').select('status').in('store_id', storeIds)
                 const statusCounts: any = {}
                 orders?.forEach(o => {
                     statusCounts[o.status] = (statusCounts[o.status] || 0) + 1
                 })
-                const statusLabels: any = { delivered: 'تم التسليم', pending: 'قيد الانتظار', processing: 'قيد المعالجة', cancelled: 'ملغي', shipped: 'قيد الشحن' }
-                const statusColors: any = { delivered: '#10B981', pending: '#F59E0B', processing: '#3B82F6', cancelled: '#EF4444', shipped: '#8B5CF6' }
+                const statusLabels: any = { delivered: 'تم التسليم', pending: 'قيد الانتظار', processing: 'قيد المعالجة', cancelled: 'ملغي', shipped: 'قيد الشحن', refunded: 'مسترجع' }
+                const statusColors: any = { delivered: '#10B981', pending: '#F59E0B', processing: '#3B82F6', cancelled: '#EF4444', shipped: '#8B5CF6', refunded: '#6B7280' }
 
                 setOrderStatuses(Object.entries(statusCounts).map(([status, count]) => ({
                     name: statusLabels[status] || status,
-                    value: Math.round(((count as number) / orders!.length) * 100),
+                    value: Math.round(((count as number) / (orders?.length || 1)) * 100),
                     color: statusColors[status] || '#6B7280'
                 })) as any)
 

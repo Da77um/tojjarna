@@ -54,49 +54,41 @@ export default function DashboardHomePage() {
 
                 const storeIds = stores.map(s => s.id)
 
-                // Fetch real stats
-                // 1. Orders count
-                const { count: ordersCount } = await supabase
-                    .from('orders')
-                    .select('*', { count: 'exact', head: true })
-                    .in('store_id', storeIds)
+                // Fetch real stats via RPC
+                const { data: analytics } = await supabase.rpc('get_vendor_analytics', { target_store_id: storeIds[0] })
 
-                // 2. Products count
+                // Products count (not in RPC)
                 const { count: productsCount } = await supabase
                     .from('products')
                     .select('*', { count: 'exact', head: true })
                     .in('store_id', storeIds)
 
-                // 3. Customers count
-                const { count: customersCount } = await supabase
-                    .from('customers')
-                    .select('*', { count: 'exact', head: true })
-                    .in('store_id', storeIds)
-
-                // 4. Today Revenue (mocked aggregation for now, or just sum from orders)
+                // Recent Orders list
                 const { data: ordersData } = await supabase
                     .from('orders')
-                    .select('total, status, created_at, customer_name')
+                    .select('id, total_jod, status, created_at, customers(id, name, phone)')
                     .in('store_id', storeIds)
                     .order('created_at', { ascending: false })
-
-                const totalRevenue = ordersData?.reduce((acc, curr) => acc + Number(curr.total), 0) || 0
+                    .limit(5)
 
                 setStats([
-                    { label: 'إجمالي الإيرادات', value: totalRevenue, suffix: 'د.أ', icon: TrendingUp, color: '#10B981', bg: '#D1FAE5' },
-                    { label: 'إجمالي الطلبات', value: ordersCount || 0, suffix: 'طلب', icon: ShoppingCart, color: '#6C3CE1', bg: '#EDE9FE' },
+                    { label: 'إجمالي الإيرادات', value: analytics?.total_revenue || 0, suffix: 'د.أ', icon: TrendingUp, color: '#10B981', bg: '#D1FAE5' },
+                    { label: 'إجمالي الطلبات', value: analytics?.total_orders || 0, suffix: 'طلب', icon: ShoppingCart, color: '#6C3CE1', bg: '#EDE9FE' },
                     { label: 'إجمالي المنتجات', value: productsCount || 0, suffix: 'منتج', icon: Package, color: '#F59E0B', bg: '#FEF3C7' },
-                    { label: 'إجمالي العملاء', value: customersCount || 0, suffix: 'عميل', icon: Users, color: '#3B82F6', bg: '#DBEAFE' },
+                    { label: 'إجمالي العملاء', value: analytics?.total_customers || 0, suffix: 'عميل', icon: Users, color: '#3B82F6', bg: '#DBEAFE' },
                 ])
 
                 if (ordersData) {
-                    setRecentOrders(ordersData.slice(0, 5).map((o, i) => ({
-                        id: `#${1000 + i}`, // Simplified
-                        customer: o.customer_name,
-                        total: Number(o.total),
-                        status: o.status,
-                        time: new Date(o.created_at).toLocaleDateString('ar-JO')
-                    })))
+                    setRecentOrders(ordersData.map((o) => {
+                        const customerInfo = Array.isArray(o.customers) ? o.customers[0] : o.customers
+                        return {
+                            id: o.id.slice(0, 8),
+                            customer: (customerInfo as any)?.name || (customerInfo as any)?.phone || 'عميل',
+                            total: Number(o.total_jod),
+                            status: o.status,
+                            time: new Date(o.created_at).toLocaleDateString('ar-JO')
+                        }
+                    }))
                 }
 
                 // Low stock

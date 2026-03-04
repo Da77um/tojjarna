@@ -15,6 +15,7 @@ export default function AdminOverviewPage() {
     const [stats, setStats] = useState({
         mrr: 0, gmv: 0, totalStores: 0, activeStores: 0
     })
+    const [chartData, setChartData] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     // Admin theme colors
     const primary = '#6C3CE1'
@@ -30,25 +31,28 @@ export default function AdminOverviewPage() {
     useEffect(() => {
         async function fetchStats() {
             try {
-                // Total Stores
+                const { data: analytics } = await supabase.rpc('get_admin_analytics')
+
+                // Total Stores (including pending/suspended)
                 const { count: totalStores } = await supabase.from('stores').select('*', { count: 'exact', head: true })
 
-                // Active Stores (approved)
-                const { count: activeStores } = await supabase.from('stores').select('*', { count: 'exact', head: true }).eq('status', 'approved')
-
-                // MRR (Mocking for now, would need a subscription tracking system or stripe webhook)
-                const mrr = (activeStores || 0) * 15 // Assuming 15 JOD avg subscription
-
-                // Total GMV (Aggregating all completed orders)
-                const { data: orders } = await supabase.from('orders').select('total_amount').neq('status', 'cancelled')
-                const gmv = orders?.reduce((sum, o) => sum + Number(o.total_amount || 0), 0) || 0
-
                 setStats({
-                    mrr: mrr,
-                    gmv: gmv,
+                    mrr: analytics?.total_commission || 0,
+                    gmv: analytics?.global_gmv || 0,
                     totalStores: totalStores || 0,
-                    activeStores: activeStores || 0
+                    activeStores: analytics?.active_stores || 0
                 })
+
+                if (analytics?.revenue_trend) {
+                    const formattedTrend = analytics.revenue_trend.map((t: any) => {
+                        const d = new Date(t.date)
+                        return {
+                            name: `${d.getDate()}/${d.getMonth() + 1}`,
+                            gmv: t.gmv
+                        }
+                    })
+                    setChartData(formattedTrend)
+                }
 
             } catch (err) {
                 console.error("Failed to load platform stats", err)
@@ -60,20 +64,10 @@ export default function AdminOverviewPage() {
     }, [supabase])
 
     const kpiData = [
-        { title: 'إجمالي التراكم (MRR التقديري)', value: `${stats.mrr.toLocaleString('ar-JO')} د.أ`, trend: '+14%', isUp: true, icon: DollarSign, color: success },
-        { title: 'حجم المعاملات (GMV المنصة)', value: `${stats.gmv.toLocaleString('ar-JO')} د.أ`, trend: '+22%', isUp: true, icon: CreditCard, color: primary },
-        { title: 'إجمالي المتاجر', value: stats.totalStores, trend: '+5%', isUp: true, icon: Store, color: warning },
-        { title: 'المتاجر النشطة', value: stats.activeStores, trend: '-2%', isUp: false, icon: Activity, color: danger },
-    ]
-
-    const chartData = [
-        { name: 'يناير', subscription: 4000, commission: 2400 },
-        { name: 'فبراير', subscription: 4500, commission: 2800 },
-        { name: 'مارس', subscription: 4800, commission: 3200 },
-        { name: 'أبريل', subscription: 5100, commission: 3900 },
-        { name: 'مايو', subscription: 5800, commission: 4800 },
-        { name: 'يونيو', subscription: 6400, commission: 6100 },
-        { name: 'يوليو', subscription: 7100, commission: 7800 },
+        { title: 'عمولات المنصة (JOD)', value: `${stats.mrr.toLocaleString('ar-JO')} د.أ`, trend: 'العمولات', isUp: true, icon: DollarSign, color: success },
+        { title: 'حجم المعاملات (GMV)', value: `${stats.gmv.toLocaleString('ar-JO')} د.أ`, trend: 'إجمالي المبيعات', isUp: true, icon: CreditCard, color: primary },
+        { title: 'إجمالي المتاجر', value: stats.totalStores, trend: 'كل الحالات', isUp: true, icon: Store, color: warning },
+        { title: 'المتاجر النشطة', value: stats.activeStores, trend: 'مفعلة', isUp: true, icon: Activity, color: success },
     ]
 
     const aiInsights = [
@@ -175,8 +169,7 @@ export default function AdminOverviewPage() {
                                     itemStyle={{ fontSize: 13 }}
                                     labelStyle={{ color: textMuted, marginBottom: 8, fontSize: 14, fontWeight: 700 }}
                                 />
-                                <Area type="monotone" name="الاشتراكات" dataKey="subscription" stroke={primary} strokeWidth={3} fillOpacity={1} fill="url(#colorSub)" />
-                                <Area type="monotone" name="العمولات" dataKey="commission" stroke={success} strokeWidth={3} fillOpacity={1} fill="url(#colorCom)" />
+                                <Area type="monotone" name="إجمالي التداولات (GMV)" dataKey="gmv" stroke={primary} strokeWidth={3} fillOpacity={1} fill="url(#colorSub)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>

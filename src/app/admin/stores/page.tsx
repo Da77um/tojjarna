@@ -72,11 +72,27 @@ export default function AdminStoresPage() {
 
                 if (error) throw error
 
-                // Map GMV and format dates (mocking health and gmv for now if no real orders table connected)
+                const storeIds = data?.map(s => s.id) || []
+
+                // Fetch GMV for these specific stores
+                let gmvMap: Record<string, number> = {}
+                if (storeIds.length > 0) {
+                    const { data: gmvData } = await supabase
+                        .from('orders')
+                        .select('store_id, total_jod')
+                        .in('store_id', storeIds)
+                        .not('status', 'in', '("cancelled","refunded")')
+
+                    gmvData?.forEach(order => {
+                        gmvMap[order.store_id] = (gmvMap[order.store_id] || 0) + Number(order.total_jod)
+                    })
+                }
+
+                // Map GMV and format dates (mocking health for now)
                 const mappedStores = data?.map(store => ({
                     ...store,
-                    health: store.status === 'suspended' ? 30 : 95, // mock health score
-                    gmv: '٠ د.أ', // Need an aggregated query or RPC for GMV per store
+                    health: store.status === 'suspended' ? 30 : 95,
+                    gmv: (gmvMap[store.id] || 0).toLocaleString('ar-JO') + ' د.أ',
                     created: new Date(store.created_at).toLocaleDateString('ar-JO'),
                     planName: store.plans?.name_ar || 'غير محدد'
                 })) || []
