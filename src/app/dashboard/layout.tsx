@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
     LayoutDashboard, Package, ShoppingCart, Users, BarChart3,
     Tag, Settings, Store, LogOut, Menu, X, Bell, ChevronDown,
-    Palette, ShoppingBag, FileText, Check,
+    Palette, ShoppingBag, FileText, Check, AlertTriangle, Ban
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -385,8 +385,20 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Page content */}
-                <main style={{ flex: 1, overflow: 'auto' }}>
-                    {children}
+                <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+                    {activeStore?.status === 'pending' && (
+                        <div style={{ background: '#FEF3C7', color: '#92400E', padding: '14px 24px', fontSize: 14, fontWeight: 700, borderBottom: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <AlertTriangle size={18} /> متجرك حالياً قيد المراجعة من قبل الإدارة. يمكن للعملاء زيارة المتجر ولكن لا يمكنهم الطلب.
+                        </div>
+                    )}
+                    {activeStore?.status === 'suspended' && (
+                        <div style={{ background: '#FEE2E2', color: '#B91C1C', padding: '14px 24px', fontSize: 14, fontWeight: 700, borderBottom: '1px solid #FCA5A5', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Ban size={18} /> تم إيقاف متجرك مؤقتاً. لا يمكن للعملاء تصفح المتجر الآن. يرجى التواصل مع الدعم.
+                        </div>
+                    )}
+                    <div style={{ flex: 1 }}>
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>

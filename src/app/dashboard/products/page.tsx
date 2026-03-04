@@ -31,6 +31,8 @@ export default function ProductsPage() {
     const [categories, setCategories] = useState<string[]>(['الكل'])
     const [loading, setLoading] = useState(true)
     const [itemToDelete, setItemToDelete] = useState<string | null>(null)
+    const [maxProducts, setMaxProducts] = useState<number | null>(null)
+    const [canAddProduct, setCanAddProduct] = useState(true)
 
     useEffect(() => {
         async function fetchData() {
@@ -41,13 +43,17 @@ export default function ProductsPage() {
                 // Get stores first to filter products by store
                 const { data: stores } = await supabase
                     .from('stores')
-                    .select('id')
+                    .select('id, plans(max_products)')
                     .eq('user_id', user.id)
 
                 if (!stores || stores.length === 0) {
                     setLoading(false)
                     return
                 }
+
+                // @ts-ignore
+                const maxLimit = stores[0].plans?.max_products ?? null;
+                setMaxProducts(maxLimit);
 
                 const storeIds = stores.map(s => s.id)
 
@@ -65,6 +71,8 @@ export default function ProductsPage() {
                         status: p.is_active ? 'active' : 'inactive',
                         sales: p.sold_count || 0,
                     })))
+
+                    setCanAddProduct(maxLimit === null || productsData.length < maxLimit)
 
                     // Extract unique categories
                     const cats = Array.from(new Set(productsData.map(p => p.categories?.name_ar).filter(Boolean))) as string[]
@@ -115,10 +123,25 @@ export default function ProductsPage() {
                         {products.length} منتج في متجرك
                     </p>
                 </div>
-                <Link href="/dashboard/products/new" className="btn btn-primary">
-                    <Plus size={16} />
-                    إضافة منتج
-                </Link>
+                <div style={{ display: 'flex', gap: 12 }}>
+                    {maxProducts !== null && (
+                        <div style={{ background: 'var(--surface-2)', border: `1px solid var(--border)`, padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: canAddProduct ? 'var(--text-secondary)' : '#EF4444', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Package size={16} />
+                            {products.length} / {maxProducts} منتج
+                        </div>
+                    )}
+                    {canAddProduct ? (
+                        <Link href="/dashboard/products/new" className="btn btn-primary">
+                            <Plus size={16} />
+                            إضافة منتج
+                        </Link>
+                    ) : (
+                        <button className="btn btn-primary" style={{ opacity: 0.5, cursor: 'not-allowed' }} title="لقد وصلت للحد الأقصى للمنتجات في باقتك الحالية">
+                            <Plus size={16} />
+                            ترقية الباقة
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Filters Row */}

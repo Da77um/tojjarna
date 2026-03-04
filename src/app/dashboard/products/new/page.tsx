@@ -39,12 +39,24 @@ export default function NewProductPage() {
             // Get vendor's store
             const { data: stores } = await supabase
                 .from('stores')
-                .select('id')
+                .select('id, plans(max_products)')
                 .eq('user_id', user.id)
                 .limit(1)
 
             if (stores && stores.length > 0) {
-                setStoreId(stores[0].id)
+                const currentStoreId = stores[0].id
+                setStoreId(currentStoreId)
+
+                // Check limits
+                const maxLimit = (stores[0].plans as any)?.max_products ?? null
+                if (maxLimit !== null) {
+                    const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', currentStoreId)
+                    if (count !== null && count >= maxLimit) {
+                        toast.error('لقد وصلت للحد الأقصى للمنتجات المسموح بها في باقتك.')
+                        router.push('/dashboard/products')
+                        return
+                    }
+                }
             }
 
             // Get categories

@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS stores (
   facebook VARCHAR(255),
   custom_domain VARCHAR(255),
   subscription_expires_at TIMESTAMPTZ,
+  status VARCHAR(20) NOT NULL DEFAULT 'approved' CHECK (status IN ('approved', 'pending', 'suspended')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -782,3 +783,5 @@ CREATE TABLE IF NOT EXISTS platform_promos (
 ALTER TABLE platform_promos ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "promos_public_read" ON platform_promos FOR SELECT USING (is_active = true);
 CREATE POLICY "promos_admin_all" ON platform_promos FOR ALL USING (is_super_admin());
+-- Ensure status is applied to stores safely if table already exists
+ALTER TABLE stores ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'approved' CHECK (status IN ('approved', 'pending', 'suspended'));
