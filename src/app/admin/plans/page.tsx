@@ -22,6 +22,7 @@ export default function AdminPlansPage() {
     const [loading, setLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingPlan, setEditingPlan] = useState<any>(null)
+    const [planToDelete, setPlanToDelete] = useState<any>(null)
 
     // Form state
     const [formData, setFormData] = useState({
@@ -134,6 +135,20 @@ export default function AdminPlansPage() {
         }
     }
 
+    const handleDeletePlan = async () => {
+        if (!planToDelete) return
+        try {
+            const { error } = await supabase.from('plans').delete().eq('id', planToDelete.id)
+            if (error) throw error
+            setPlans(plans.filter(p => p.id !== planToDelete.id))
+            toast.success("تم حذف الباقة بنجاح")
+            setPlanToDelete(null)
+        } catch (err) {
+            console.error("Error deleting plan:", err)
+            toast.error("لا يمكن حذف باقة تحتوي على مستخدمين نشطين مرتبطين بها")
+        }
+    }
+
     if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 100 }}><div className="spinner" /></div>
 
     return (
@@ -227,14 +242,24 @@ export default function AdminPlansPage() {
                                         </button>
                                     </td>
                                     <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                                        <button
-                                            onClick={() => handleOpenModal(plan)}
-                                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: textMuted }} title="تعديل الباقة"
-                                            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = textBright}
-                                            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = textMuted}
-                                        >
-                                            <Edit size={16} />
-                                        </button>
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+                                            <button
+                                                onClick={() => handleOpenModal(plan)}
+                                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: textMuted }} title="تعديل الباقة"
+                                                onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = textBright}
+                                                onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = textMuted}
+                                            >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => setPlanToDelete(plan)}
+                                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: textMuted }} title="حذف الباقة"
+                                                onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = danger}
+                                                onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = textMuted}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -377,6 +402,37 @@ export default function AdminPlansPage() {
                             </button>
                         </div>
 
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {planToDelete && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+                    <div style={{ background: surface, width: '100%', maxWidth: 400, borderRadius: 16, border: `1px solid ${borderDark}`, overflow: 'hidden' }}>
+                        <div style={{ padding: 24, textAlign: 'center' }}>
+                            <div style={{ width: 56, height: 56, borderRadius: '50%', background: `${danger}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                                <Trash2 size={28} color={danger} />
+                            </div>
+                            <h3 style={{ fontSize: 18, fontWeight: 800, color: 'white', marginBottom: 8 }}>حذف الباقة</h3>
+                            <p style={{ color: textMuted, fontSize: 14, lineHeight: 1.6, marginBottom: 0 }}>
+                                هل أنت متأكد من رغبتك في حذف باقة "{planToDelete.name_ar}"؟ لا يمكن التراجع عن هذا الإجراء وسيتم إزالتها نهائياً، شرط ألا يكون هناك متاجر مشتركة بها.
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', borderTop: `1px solid ${borderDark}` }}>
+                            <button
+                                onClick={() => setPlanToDelete(null)}
+                                style={{ flex: 1, padding: '14px', background: 'transparent', border: 'none', borderLeft: `1px solid ${borderDark}`, color: textBright, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
+                            >
+                                إلغاء
+                            </button>
+                            <button
+                                onClick={handleDeletePlan}
+                                style={{ flex: 1, padding: '14px', background: 'transparent', border: 'none', color: danger, cursor: 'pointer', fontWeight: 700, fontSize: 14 }}
+                            >
+                                حذف نهائي
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

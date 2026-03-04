@@ -20,7 +20,8 @@ import {
   ArrowLeft,
   CheckCircle,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 const features = [
   {
@@ -159,6 +160,27 @@ const stats = [
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activePlans, setActivePlans] = useState(plans)
+
+  useEffect(() => {
+    async function fetchPlans() {
+      const supabase = createClient()
+      const { data } = await supabase.from('plans').select('*').eq('is_active', true).order('sort_order', { ascending: true })
+      if (data && data.length > 0) {
+        setActivePlans(data.map(p => ({
+          name: p.name_ar,
+          nameEn: p.name_en,
+          price: p.price_jod,
+          period: 'شهرياً',
+          description: p.name_en?.toLowerCase() === 'pro' || p.price_jod > 20 ? 'للمتاجر النامية والمتوسطة' : (p.price_jod > 0 ? 'مثالي للمتاجر الصغيرة والمنزلية' : 'ابدأ مجاناً وجرّب المنصة'),
+          features: p.features || [],
+          highlighted: p.name_en?.toLowerCase() === 'pro' || p.price_jod >= 30, // highlight premium
+          cta: p.price_jod > 0 ? 'ابدأ الآن' : 'ابدأ مجاناً',
+        })))
+      }
+    }
+    fetchPlans()
+  }, [])
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
@@ -642,7 +664,7 @@ export default function LandingPage() {
               alignItems: 'stretch',
             }}
           >
-            {plans.map((plan) => (
+            {activePlans.map((plan) => (
               <div
                 key={plan.name}
                 style={{
