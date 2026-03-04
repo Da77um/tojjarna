@@ -26,6 +26,16 @@ export default function AdminStoresPage() {
     const [loading, setLoading] = useState(true)
     const [totalStores, setTotalStores] = useState(0)
 
+    const [allPlans, setAllPlans] = useState<any[]>([])
+
+    // Modal state for editing plan
+    const [planToEdit, setPlanToEdit] = useState<{ store: any, newPlanId: string } | null>(null)
+    const [savingPlan, setSavingPlan] = useState(false)
+
+    // Modal state for editing user
+    const [userToEdit, setUserToEdit] = useState<{ id: string, name: string, email: string, newName: string, newEmail: string } | null>(null)
+    const [savingUser, setSavingUser] = useState(false)
+
     // Pagination
     const PAGE_SIZE = 15
     const [page, setPage] = useState(1)
@@ -36,21 +46,27 @@ export default function AdminStoresPage() {
     const [planFilter, setPlanFilter] = useState('')
 
     useEffect(() => {
+        async function fetchPlans() {
+            const { data } = await supabase.from('plans').select('id, name_ar, price_jod').order('sort_order', { ascending: true })
+            if (data) setAllPlans(data)
+        }
+        fetchPlans()
+
         async function fetchStores() {
             try {
                 setLoading(true)
-                let query = supabase.from('stores').select('*', { count: 'exact' })
+                const query = supabase.from('stores').select('*, users(id, name, email), plans(id, name_ar, price_jod)', { count: 'exact' })
 
                 if (search) {
-                    query = query.or(`name.ilike.%${search}%,name_ar.ilike.%${search}%,slug.ilike.%${search}%`)
+                    query.or(`name.ilike.%${search}%,name_ar.ilike.%${search}%,slug.ilike.%${search}%`)
                 }
                 if (statusFilter) {
-                    query = query.eq('status', statusFilter)
+                    query.eq('status', statusFilter)
                 }
 
                 const from = (page - 1) * PAGE_SIZE
                 const to = from + PAGE_SIZE - 1
-                query = query.range(from, to).order('created_at', { ascending: false })
+                query.range(from, to).order('created_at', { ascending: false })
 
                 const { data, count, error } = await query
 
@@ -61,7 +77,8 @@ export default function AdminStoresPage() {
                     ...store,
                     health: store.status === 'suspended' ? 30 : 95, // mock health score
                     gmv: '٠ د.أ', // Need an aggregated query or RPC for GMV per store
-                    created: new Date(store.created_at).toLocaleDateString('ar-JO')
+                    created: new Date(store.created_at).toLocaleDateString('ar-JO'),
+                    planName: store.plans?.name_ar || 'غير محدد'
                 })) || []
 
                 setStores(mappedStores)
@@ -89,6 +106,52 @@ export default function AdminStoresPage() {
         } catch (err) {
             console.error("Error updating store status", err)
             toast.error("حدث خطأ أثناء تغيير حالة المتجر")
+        }
+    }
+
+    async function handleSavePlan() {
+        if (!planToEdit) return
+        setSavingPlan(true)
+        try {
+            const { error } = await supabase.from('stores').update({ plan_id: planToEdit.newPlanId }).eq('id', planToEdit.store.id)
+            if (error) throw error
+
+            const updatedPlan = allPlans.find(p => p.id === planToEdit.newPlanId)
+
+            setStores(prev => prev.map(s => s.id === planToEdit.store.id ? {
+                ...s, plan_id: planToEdit.newPlanId, plans: updatedPlan, planName: updatedPlan?.name_ar || 'غير محدد'
+            } : s))
+
+            toast.success('تم تغيير الباقة بنجاح')
+            setPlanToEdit(null)
+        } catch (err: any) {
+            toast.error('حدث خطأ أثناء تغيير الباقة: ' + err.message)
+        } finally {
+            setSavingPlan(false)
+        }
+    }
+
+    async function handleSaveUser() {
+        if (!userToEdit) return
+        setSavingUser(true)
+        try {
+            const { error } = await supabase.from('users').update({
+                name: userToEdit.newName,
+                email: userToEdit.newEmail
+            }).eq('id', userToEdit.id)
+
+            if (error) throw error
+
+            setStores(prev => prev.map(s => s.users?.id === userToEdit.id ? {
+                ...s, users: { ...s.users, name: userToEdit.newName, email: userToEdit.newEmail }
+            } : s))
+
+            toast.success('تم تحديث بيانات التاجر بنجاح')
+            setUserToEdit(null)
+        } catch (err: any) {
+            toast.error('حدث خطأ أثناء تحديث التاجر: ' + err.message)
+        } finally {
+            setSavingUser(false)
         }
     }
 
@@ -187,6 +250,17 @@ export default function AdminStoresPage() {
                                                 <div style={{ color: textMuted, fontSize: 12, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
                                                     {store.slug}.tojjarna.com <ExternalLink size={10} />
                                                 </div>
+                                                {store.users && (
+                                                    <div style={{ color: textMuted, fontSize: 11, marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                        {store.users.name || 'مجهول'} • {store.users.email || 'بدون إيميل'}
+                                                        <button
+                                                            onClick={() => setUserToEdit({ id: store.users.id, name: store.users.name || '', email: store.users.email || '', newName: store.users.name || '', newEmail: store.users.email || '' })}
+                                                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 2, color: primary }}
+                                                        >
+                                                            <Edit size={12} />
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </td>
@@ -196,7 +270,15 @@ export default function AdminStoresPage() {
                                         {store.status === 'suspended' && <span style={{ padding: '4px 10px', background: `${danger}15`, color: danger, borderRadius: 100, fontSize: 12, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Ban size={14} /> موقوف</span>}
                                     </td>
                                     <td style={{ padding: '16px 20px' }}>
-                                        <span style={{ fontWeight: 600, color: textBright, fontSize: 13 }}>{store.plan || 'Free'}</span>
+                                        <div style={{ fontWeight: 600, color: textBright, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            {store.planName}
+                                            <button
+                                                onClick={() => setPlanToEdit({ store: store, newPlanId: store.plan_id || '' })}
+                                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: primary }}
+                                            >
+                                                <Edit size={14} />
+                                            </button>
+                                        </div>
                                     </td>
                                     <td style={{ padding: '16px 20px' }}>
                                         {store.health !== null ? (
@@ -265,6 +347,99 @@ export default function AdminStoresPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Edit Plan Modal */}
+            {planToEdit && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', zIndex: 9999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+                }}>
+                    <div className="card" style={{ width: '100%', maxWidth: 400, padding: 32, background: surface, border: `1px solid ${borderDark}`, borderRadius: 16 }}>
+                        <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: 'white' }}>تعديل باقة المتجر</h2>
+                        <div style={{ marginBottom: 24 }}>
+                            <label style={{ display: 'block', marginBottom: 8, color: textMuted, fontSize: 14 }}>اختر الباقة الجديدة</label>
+                            <select
+                                value={planToEdit.newPlanId}
+                                onChange={e => setPlanToEdit({ ...planToEdit, newPlanId: e.target.value })}
+                                style={{ width: '100%', background: bgDark, border: `1px solid ${borderDark}`, color: textBright, padding: '10px 14px', borderRadius: 8, outline: 'none' }}
+                            >
+                                <option value="">اختر باقة...</option>
+                                {allPlans.map(p => (
+                                    <option key={p.id} value={p.id}>{p.name_ar} {p.price_jod === 0 ? '(مجاني)' : `(${p.price_jod} د.أ)`}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 12 }}>
+                            <button
+                                onClick={handleSavePlan}
+                                disabled={savingPlan || !planToEdit.newPlanId}
+                                style={{ flex: 1, padding: '12px', background: primary, color: 'white', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', opacity: (savingPlan || !planToEdit.newPlanId) ? 0.7 : 1 }}
+                            >
+                                {savingPlan ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                            </button>
+                            <button
+                                onClick={() => setPlanToEdit(null)}
+                                disabled={savingPlan}
+                                style={{ flex: 1, padding: '12px', background: bgDark, color: textBright, border: `1px solid ${borderDark}`, borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}
+                            >
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit User Modal */}
+            {userToEdit && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', zIndex: 9999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+                }}>
+                    <div className="card" style={{ width: '100%', maxWidth: 400, padding: 32, background: surface, border: `1px solid ${borderDark}`, borderRadius: 16 }}>
+                        <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: 'white' }}>تعديل بيانات التاجر</h2>
+                        <div style={{ marginBottom: 16 }}>
+                            <label style={{ display: 'block', marginBottom: 8, color: textMuted, fontSize: 14 }}>اسم التاجر</label>
+                            <input
+                                type="text"
+                                value={userToEdit.newName}
+                                onChange={e => setUserToEdit({ ...userToEdit, newName: e.target.value })}
+                                placeholder="اسم التاجر"
+                                style={{ width: '100%', background: bgDark, border: `1px solid ${borderDark}`, color: textBright, padding: '10px 14px', borderRadius: 8, outline: 'none' }}
+                            />
+                        </div>
+                        <div style={{ marginBottom: 24 }}>
+                            <label style={{ display: 'block', marginBottom: 8, color: textMuted, fontSize: 14 }}>البريد الإلكتروني</label>
+                            <input
+                                type="email"
+                                value={userToEdit.newEmail}
+                                onChange={e => setUserToEdit({ ...userToEdit, newEmail: e.target.value })}
+                                placeholder="البريد الإلكتروني"
+                                style={{ width: '100%', background: bgDark, border: `1px solid ${borderDark}`, color: textBright, padding: '10px 14px', borderRadius: 8, outline: 'none' }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 12 }}>
+                            <button
+                                onClick={handleSaveUser}
+                                disabled={savingUser || !userToEdit.newName || !userToEdit.newEmail}
+                                style={{ flex: 1, padding: '12px', background: primary, color: 'white', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', opacity: (savingUser || !userToEdit.newName || !userToEdit.newEmail) ? 0.7 : 1 }}
+                            >
+                                {savingUser ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                            </button>
+                            <button
+                                onClick={() => setUserToEdit(null)}
+                                disabled={savingUser}
+                                style={{ flex: 1, padding: '12px', background: bgDark, color: textBright, border: `1px solid ${borderDark}`, borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}
+                            >
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

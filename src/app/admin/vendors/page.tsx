@@ -55,19 +55,19 @@ export default function AdminVendorsPage() {
     }
 
     async function handleToggleStatus(id: string, currentStatus: boolean, isApprovalToggle = false) {
-        const field = isApprovalToggle ? 'is_approved' : 'is_active'
-        const { error } = await supabase
-            .from('stores')
-            .update({ [field]: !currentStatus })
-            .eq('id', id)
-
-        if (error) {
-            toast.error('حدث خطأ أثناء تعديل حالة المتجر')
-            return
+        if (isApprovalToggle) {
+            const { error } = await supabase.from('stores').update({ is_approved: !currentStatus }).eq('id', id)
+            if (error) { toast.error('حدث خطأ أثناء تعديل حالة المتجر'); return }
+            setVendors(prev => prev.map(v => v.id === id ? { ...v, is_approved: !currentStatus } : v))
+            toast.success(!currentStatus ? 'تمت الموافقة على المتجر' : 'تم إلغاء الموافقة')
+        } else {
+            // Suspended toggle (mapping boolean to status string)
+            const newStatus = currentStatus ? 'suspended' : 'approved'
+            const { error } = await supabase.from('stores').update({ status: newStatus }).eq('id', id)
+            if (error) { toast.error('حدث خطأ أثناء إيقاف المتجر'); return }
+            setVendors(prev => prev.map(v => v.id === id ? { ...v, status: newStatus } : v))
+            toast.success(newStatus === 'suspended' ? 'تم إيقاف المتجر مؤقتاً' : 'تم تفعيل المتجر')
         }
-
-        setVendors(prev => prev.map(v => v.id === id ? { ...v, [field]: !currentStatus } : v))
-        toast.success(isApprovalToggle ? (!currentStatus ? 'تمت الموافقة على المتجر' : 'تم إلغاء الموافقة') : (!currentStatus ? 'تم تفعيل المتجر' : 'تم إيقاف المتجر'))
     }
 
     async function handleDeleteConfirmed() {
@@ -259,8 +259,8 @@ export default function AdminVendorsPage() {
                                         <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
                                             <input
                                                 type="checkbox"
-                                                checked={vendor.is_active}
-                                                onChange={() => handleToggleStatus(vendor.id, vendor.is_active, false)}
+                                                checked={vendor.status !== 'suspended'}
+                                                onChange={() => handleToggleStatus(vendor.id, vendor.status !== 'suspended', false)}
                                                 style={{ width: 18, height: 18, accentColor: '#6C3CE1' }}
                                             />
                                         </label>
