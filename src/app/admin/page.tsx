@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import {
     TrendingUp, Store, Users, DollarSign, Activity, AlertTriangle, Zap, ArrowUpRight, ArrowDownRight, CreditCard
 } from 'lucide-react'
@@ -9,6 +10,12 @@ import {
 } from 'recharts'
 
 export default function AdminOverviewPage() {
+    const supabase = createClient()
+
+    const [stats, setStats] = useState({
+        mrr: 0, gmv: 0, totalStores: 0, activeStores: 0
+    })
+    const [loading, setLoading] = useState(true)
     // Admin theme colors
     const primary = '#6C3CE1'
     const success = '#10B981'
@@ -20,11 +27,43 @@ export default function AdminOverviewPage() {
     const textBright = '#F3F4F6'
     const textMuted = '#9CA3AF'
 
+    useEffect(() => {
+        async function fetchStats() {
+            try {
+                // Total Stores
+                const { count: totalStores } = await supabase.from('stores').select('*', { count: 'exact', head: true })
+
+                // Active Stores (approved)
+                const { count: activeStores } = await supabase.from('stores').select('*', { count: 'exact', head: true }).eq('status', 'approved')
+
+                // MRR (Mocking for now, would need a subscription tracking system or stripe webhook)
+                const mrr = (activeStores || 0) * 15 // Assuming 15 JOD avg subscription
+
+                // Total GMV (Aggregating all completed orders)
+                const { data: orders } = await supabase.from('orders').select('total_amount').neq('status', 'cancelled')
+                const gmv = orders?.reduce((sum, o) => sum + Number(o.total_amount || 0), 0) || 0
+
+                setStats({
+                    mrr: mrr,
+                    gmv: gmv,
+                    totalStores: totalStores || 0,
+                    activeStores: activeStores || 0
+                })
+
+            } catch (err) {
+                console.error("Failed to load platform stats", err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchStats()
+    }, [supabase])
+
     const kpiData = [
-        { title: 'إجمالي الإيرادات (MRR)', value: '١٢,٤٥٠ د.أ', trend: '+14%', isUp: true, icon: DollarSign, color: success },
-        { title: 'حجم المعاملات (GMV)', value: '١٣٤,٢٠٠ د.أ', trend: '+22%', isUp: true, icon: CreditCard, color: primary },
-        { title: 'المتاجر المسجلة', value: '842', trend: '+5%', isUp: true, icon: Store, color: warning },
-        { title: 'متاجر نشطة', value: '613', trend: '-2%', isUp: false, icon: Activity, color: danger },
+        { title: 'إجمالي التراكم (MRR التقديري)', value: `${stats.mrr.toLocaleString('ar-JO')} د.أ`, trend: '+14%', isUp: true, icon: DollarSign, color: success },
+        { title: 'حجم المعاملات (GMV المنصة)', value: `${stats.gmv.toLocaleString('ar-JO')} د.أ`, trend: '+22%', isUp: true, icon: CreditCard, color: primary },
+        { title: 'إجمالي المتاجر', value: stats.totalStores, trend: '+5%', isUp: true, icon: Store, color: warning },
+        { title: 'المتاجر النشطة', value: stats.activeStores, trend: '-2%', isUp: false, icon: Activity, color: danger },
     ]
 
     const chartData = [
@@ -42,6 +81,8 @@ export default function AdminOverviewPage() {
         { type: 'warning', message: 'استخدام بوابات الدفع (الدفع عند الاستلام) يمثل ٨٠٪ من طلبات هذا الشهر.', icon: Zap },
         { type: 'success', message: 'منحنى النمو لمشتراكات Pro ارتفع بنسبة ١٢٪ بعد إطلاق الكوبونات.', icon: TrendingUp },
     ]
+
+    if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 100 }}><div className="spinner" /></div>
 
     return (
         <div style={{ paddingBottom: 40 }}>
