@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
     BarChart3, Store, Wallet, TrendingUp, ShieldAlert,
-    Settings, Rocket, Puzzle, LogOut, Menu, X, Bell, User
+    Settings, Rocket, Puzzle, LogOut, Menu, X, Bell, User, Layers
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import '@/app/globals.css' // Assuming we have some global resets
@@ -13,6 +13,7 @@ import '@/app/globals.css' // Assuming we have some global resets
 const navItems = [
     { href: '/admin', label: 'نظرة عامة', icon: BarChart3 },
     { href: '/admin/stores', label: 'إدارة المتاجر', icon: Store },
+    { href: '/admin/plans', label: 'الباقات والاشتراكات', icon: Layers },
     { href: '/admin/finance', label: 'المركز المالي', icon: Wallet },
     { href: '/admin/analytics', label: 'التحليلات', icon: TrendingUp },
     { href: '/admin/risk', label: 'أمن ومخاطر', icon: ShieldAlert },
