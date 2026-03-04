@@ -10,14 +10,29 @@ export default function AdminVendorsPage() {
     const [vendors, setVendors] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
+    const [allPlans, setAllPlans] = useState<any[]>([])
 
     // Modal state for deletion
     const [itemToDelete, setItemToDelete] = useState<{ id: string, name: string } | null>(null)
     const [deleting, setDeleting] = useState(false)
 
+    // Modal state for editing plan
+    const [planToEdit, setPlanToEdit] = useState<{ store: any, newPlanId: string } | null>(null)
+    const [savingPlan, setSavingPlan] = useState(false)
+
+    // Modal state for editing user
+    const [userToEdit, setUserToEdit] = useState<{ id: string, name: string, email: string, newName: string, newEmail: string } | null>(null)
+    const [savingUser, setSavingUser] = useState(false)
+
     useEffect(() => {
         fetchVendors()
+        fetchPlans()
     }, [])
+
+    async function fetchPlans() {
+        const { data } = await supabase.from('plans').select('id, name_ar, price_jod').order('sort_order', { ascending: true })
+        if (data) setAllPlans(data)
+    }
 
     async function fetchVendors() {
         setLoading(true)
@@ -25,8 +40,8 @@ export default function AdminVendorsPage() {
             .from('stores')
             .select(`
                 *,
-                users (name, email),
-                plans (name_ar, price_jod)
+                users (id, name, email),
+                plans (id, name_ar, price_jod)
             `)
             .order('created_at', { ascending: false })
 
@@ -69,6 +84,52 @@ export default function AdminVendorsPage() {
         } finally {
             setDeleting(false)
             setItemToDelete(null)
+        }
+    }
+
+    async function handleSavePlan() {
+        if (!planToEdit) return
+        setSavingPlan(true)
+        try {
+            const { error } = await supabase.from('stores').update({ plan_id: planToEdit.newPlanId }).eq('id', planToEdit.store.id)
+            if (error) throw error
+
+            const updatedPlan = allPlans.find(p => p.id === planToEdit.newPlanId)
+
+            setVendors(prev => prev.map(v => v.id === planToEdit.store.id ? {
+                ...v, plan_id: planToEdit.newPlanId, plans: updatedPlan
+            } : v))
+
+            toast.success('تم تغيير الباقة بنجاح')
+            setPlanToEdit(null)
+        } catch (err: any) {
+            toast.error('حدث خطأ أثناء تغيير الباقة: ' + err.message)
+        } finally {
+            setSavingPlan(false)
+        }
+    }
+
+    async function handleSaveUser() {
+        if (!userToEdit) return
+        setSavingUser(true)
+        try {
+            const { error } = await supabase.from('users').update({
+                name: userToEdit.newName,
+                email: userToEdit.newEmail
+            }).eq('id', userToEdit.id)
+
+            if (error) throw error
+
+            setVendors(prev => prev.map(v => v.users?.id === userToEdit.id ? {
+                ...v, users: { ...v.users, name: userToEdit.newName, email: userToEdit.newEmail }
+            } : v))
+
+            toast.success('تم تحديث بيانات التاجر بنجاح')
+            setUserToEdit(null)
+        } catch (err: any) {
+            toast.error('حدث خطأ أثناء تحديث التاجر: ' + err.message)
+        } finally {
+            setSavingUser(false)
         }
     }
 
@@ -143,7 +204,17 @@ export default function AdminVendorsPage() {
                                             </div>
                                             <div>
                                                 <div style={{ fontWeight: 800, color: 'white', fontSize: 14 }}>{vendor.name_ar}</div>
-                                                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{vendor.users?.name || 'مجهول'} • {vendor.users?.email || 'لا يوجد إيميل'}</div>
+                                                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    {vendor.users?.name || 'مجهول'} • {vendor.users?.email || 'لا يوجد إيميل'}
+                                                    {vendor.users && (
+                                                        <button
+                                                            onClick={() => setUserToEdit({ id: vendor.users.id, name: vendor.users.name || '', email: vendor.users.email || '', newName: vendor.users.name || '', newEmail: vendor.users.email || '' })}
+                                                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 2, color: '#6C3CE1' }}
+                                                        >
+                                                            <Edit2 size={12} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -153,8 +224,14 @@ export default function AdminVendorsPage() {
                                         </div>
                                     </td>
                                     <td style={{ padding: '16px 20px' }}>
-                                        <div style={{ fontSize: 13, color: 'white', fontWeight: 600 }}>
+                                        <div style={{ fontSize: 13, color: 'white', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                                             {vendor.plans?.name_ar || 'غير محدد'}
+                                            <button
+                                                onClick={() => setPlanToEdit({ store: vendor, newPlanId: vendor.plan_id || '' })}
+                                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: '#6C3CE1' }}
+                                            >
+                                                <Edit2 size={14} />
+                                            </button>
                                         </div>
                                     </td>
                                     <td style={{ padding: '16px 20px', textAlign: 'center' }}>
@@ -251,6 +328,107 @@ export default function AdminVendorsPage() {
                                     background: 'rgba(255,255,255,0.05)',
                                     color: 'white',
                                     border: '1px solid rgba(255,255,255,0.1)',
+                                }}
+                            >
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Plan Modal */}
+            {planToEdit && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', zIndex: 9999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+                }}>
+                    <div className="card" style={{ width: '100%', maxWidth: 400, padding: 32, animation: 'slideUp 0.3s ease-out' }}>
+                        <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: 'white' }}>تعديل باقة المتجر</h2>
+                        <div style={{ marginBottom: 24 }}>
+                            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>اختر الباقة الجديدة</label>
+                            <select
+                                value={planToEdit.newPlanId}
+                                onChange={e => setPlanToEdit({ ...planToEdit, newPlanId: e.target.value })}
+                                className="form-control"
+                            >
+                                <option value="">اختر باقة...</option>
+                                {allPlans.map(p => (
+                                    <option key={p.id} value={p.id}>{p.name_ar} {p.price_jod === 0 ? '(مجاني)' : `(${p.price_jod} د.أ)`}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 12 }}>
+                            <button
+                                onClick={handleSavePlan}
+                                disabled={savingPlan || !planToEdit.newPlanId}
+                                className="btn btn-primary"
+                                style={{ flex: 1, opacity: (savingPlan || !planToEdit.newPlanId) ? 0.7 : 1 }}
+                            >
+                                {savingPlan ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                            </button>
+                            <button
+                                onClick={() => setPlanToEdit(null)}
+                                disabled={savingPlan}
+                                className="btn"
+                                style={{
+                                    flex: 1, background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)',
+                                }}
+                            >
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit User Modal */}
+            {userToEdit && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', zIndex: 9999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+                }}>
+                    <div className="card" style={{ width: '100%', maxWidth: 400, padding: 32, animation: 'slideUp 0.3s ease-out' }}>
+                        <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: 'white' }}>تعديل بيانات التاجر</h2>
+                        <div style={{ marginBottom: 16 }}>
+                            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>اسم التاجر</label>
+                            <input
+                                type="text"
+                                value={userToEdit.newName}
+                                onChange={e => setUserToEdit({ ...userToEdit, newName: e.target.value })}
+                                className="form-control"
+                                placeholder="اسم التاجر"
+                            />
+                        </div>
+                        <div style={{ marginBottom: 24 }}>
+                            <label style={{ display: 'block', marginBottom: 8, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>البريد الإلكتروني</label>
+                            <input
+                                type="email"
+                                value={userToEdit.newEmail}
+                                onChange={e => setUserToEdit({ ...userToEdit, newEmail: e.target.value })}
+                                className="form-control"
+                                placeholder="البريد الإلكتروني"
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 12 }}>
+                            <button
+                                onClick={handleSaveUser}
+                                disabled={savingUser || !userToEdit.newName || !userToEdit.newEmail}
+                                className="btn btn-primary"
+                                style={{ flex: 1, opacity: (savingUser || !userToEdit.newName || !userToEdit.newEmail) ? 0.7 : 1 }}
+                            >
+                                {savingUser ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                            </button>
+                            <button
+                                onClick={() => setUserToEdit(null)}
+                                disabled={savingUser}
+                                className="btn"
+                                style={{
+                                    flex: 1, background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)',
                                 }}
                             >
                                 إلغاء
