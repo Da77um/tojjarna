@@ -688,3 +688,97 @@ BEGIN
     CREATE TRIGGER trg_payment_config_updated_at BEFORE UPDATE ON store_payment_config FOR EACH ROW EXECUTE FUNCTION update_updated_at();
   END IF;
 END $$;
+
+-- =============================================
+-- PHASE 3: SUPER ADMIN CONTROL TOWER
+-- =============================================
+
+-- Add an is_super_admin helper
+CREATE OR REPLACE FUNCTION is_super_admin() RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 1. admin_audit_logs
+CREATE TABLE IF NOT EXISTS admin_audit_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    admin_id UUID REFERENCES users(id) NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    resource_type VARCHAR(50) NOT NULL,
+    resource_id UUID NOT NULL,
+    old_data JSONB,
+    new_data JSONB,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE admin_audit_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "admin_all_audit" ON admin_audit_logs FOR ALL USING (is_super_admin());
+
+-- 2. platform_payouts
+CREATE TABLE IF NOT EXISTS platform_payouts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    store_id UUID REFERENCES stores(id) NOT NULL,
+    amount_jod DECIMAL(10,3) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending',
+    payout_method VARCHAR(50) NOT NULL,
+    reference_id VARCHAR(100),
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    paid_at TIMESTAMPTZ
+);
+
+ALTER TABLE platform_payouts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "payouts_vendor_read" ON platform_payouts FOR SELECT USING (store_id = ANY(get_vendor_store_ids()) OR is_super_admin());
+CREATE POLICY "payouts_admin_all" ON platform_payouts FOR ALL USING (is_super_admin());
+
+-- 3. platform_invoices
+CREATE TABLE IF NOT EXISTS platform_invoices (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    store_id UUID REFERENCES stores(id) NOT NULL,
+    invoice_type VARCHAR(50), 
+    amount_jod DECIMAL(10,3) NOT NULL,
+    status VARCHAR(20) DEFAULT 'unpaid',
+    due_date TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    paid_at TIMESTAMPTZ
+);
+
+ALTER TABLE platform_invoices ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "invoices_vendor_read" ON platform_invoices FOR SELECT USING (store_id = ANY(get_vendor_store_ids()) OR is_super_admin());
+CREATE POLICY "invoices_admin_all" ON platform_invoices FOR ALL USING (is_super_admin());
+
+-- 4. store_health_metrics
+CREATE TABLE IF NOT EXISTS store_health_metrics (
+    store_id UUID REFERENCES stores(id) PRIMARY KEY,
+    health_score INTEGER DEFAULT 100,
+    risk_level VARCHAR(20) DEFAULT 'low',
+    fraud_flags INTEGER DEFAULT 0,
+    chargeback_count INTEGER DEFAULT 0,
+    admin_notes TEXT,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE store_health_metrics ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "health_admin_all" ON store_health_metrics FOR ALL USING (is_super_admin());
+
+-- 5. platform_promos
+CREATE TABLE IF NOT EXISTS platform_promos (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    discount_type VARCHAR(20),
+    discount_value DECIMAL(10,3) NOT NULL,
+    applies_to_plan UUID REFERENCES plans(id),
+    usage_limit INTEGER,
+    usage_count INTEGER DEFAULT 0,
+    expires_at TIMESTAMPTZ,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE platform_promos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "promos_public_read" ON platform_promos FOR SELECT USING (is_active = true);
+CREATE POLICY "promos_admin_all" ON platform_promos FOR ALL USING (is_super_admin());

@@ -41,6 +41,17 @@ export async function updateSession(request: NextRequest) {
         if (!user) {
             return NextResponse.redirect(new URL('/login', request.url))
         }
+
+        // Check user role in DB
+        const { data: dbUser } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+
+        if (!dbUser || dbUser.role !== 'admin') {
+            return NextResponse.redirect(new URL('/dashboard', request.url))
+        }
     }
 
     // Protect vendor dashboard routes
