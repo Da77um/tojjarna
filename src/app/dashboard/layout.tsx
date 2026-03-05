@@ -117,14 +117,15 @@ export default function DashboardLayout({
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh', background: '#F2EDE4' }}>
-            {/* Mobile overlay */}
+            {/* Mobile overlay (for sidebar drawer) */}
             {sidebarOpen && (
                 <div
                     style={{
                         position: 'fixed',
                         inset: 0,
-                        background: 'rgba(0,0,0,0.5)',
-                        zIndex: 99,
+                        background: 'rgba(0,0,0,0.45)',
+                        backdropFilter: 'blur(2px)',
+                        zIndex: 199,
                     }}
                     onClick={() => setSidebarOpen(false)}
                 />
@@ -394,6 +395,30 @@ export default function DashboardLayout({
                     </div>
                 </main>
             </div>
+
+            {/* ── Bottom Navigation Bar (mobile only) ── */}
+            <nav className="bottom-nav" dir="rtl">
+                <Link href="/dashboard" className={`bottom-nav-item ${pathname === '/dashboard' ? 'active' : ''}`}>
+                    <LayoutDashboard size={22} />
+                    <span>الرئيسية</span>
+                </Link>
+                <Link href="/dashboard/orders" className={`bottom-nav-item ${pathname.startsWith('/dashboard/orders') ? 'active' : ''}`}>
+                    <ShoppingCart size={22} />
+                    <span>الطلبات</span>
+                </Link>
+                <Link href="/dashboard/products" className={`bottom-nav-item ${pathname.startsWith('/dashboard/products') ? 'active' : ''}`}>
+                    <Package size={22} />
+                    <span>المنتجات</span>
+                </Link>
+                <Link href="/dashboard/customers" className={`bottom-nav-item ${pathname.startsWith('/dashboard/customers') ? 'active' : ''}`}>
+                    <Users size={22} />
+                    <span>العملاء</span>
+                </Link>
+                <Link href="/dashboard/settings" className={`bottom-nav-item ${pathname.startsWith('/dashboard/settings') ? 'active' : ''}`}>
+                    <Settings size={22} />
+                    <span>الإعدادات</span>
+                </Link>
+            </nav>
         </div>
     )
 }

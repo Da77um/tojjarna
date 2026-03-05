@@ -116,37 +116,35 @@ export default function DashboardHomePage() {
     }, [supabase])
 
     if (loading) return (
-        <div style={{ padding: 100, textAlign: 'center' }}>
-            <div className="spinner" style={{ margin: '0 auto' }} />
+        <div className="page-container" dir="rtl">
+            <div style={{ marginBottom: 20 }}>
+                <div className="skeleton skeleton-text" style={{ width: 200, height: 24, marginBottom: 8 }} />
+                <div className="skeleton skeleton-text" style={{ width: 140, height: 14 }} />
+            </div>
+            <div className="mobile-grid-2" style={{ marginBottom: 24 }}>
+                {[1, 2, 3, 4].map(i => <div key={i} className="skeleton" style={{ height: 96, borderRadius: 16 }} />)}
+            </div>
+            {[1, 2, 3].map(i => <div key={i} className="skeleton skeleton-card" />)}
         </div>
     )
 
     return (
-        <div className="page-container">
+        <div className="page-container" dir="rtl">
             {/* Header */}
             <div className="page-header">
                 <div>
                     <h1 className="page-title">مرحباً، {userName || 'بالتاجر'} 👋</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>
-                        إليك ملخص متجرك اليوم
-                    </p>
+                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>إليك ملخص متجرك اليوم</p>
                 </div>
-                <div style={{ display: 'flex', gap: 12 }}>
+                <div className="hide-on-mobile">
                     <Link href="/dashboard/products/new" className="btn btn-primary btn-sm">
                         + إضافة منتج
                     </Link>
                 </div>
             </div>
 
-            {/* Stats Grid */}
-            <div
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                    gap: 20,
-                    marginBottom: 32,
-                }}
-            >
+            {/* Stats Grid — 2 per row on mobile, 4 on desktop */}
+            <div className="mobile-grid-2" style={{ marginBottom: 28 }}>
                 {stats.map((stat) => {
                     const Icon = stat.icon
                     return (
@@ -154,210 +152,122 @@ export default function DashboardHomePage() {
                             <div className="stat-icon" style={{ background: stat.bg }}>
                                 <Icon size={22} color={stat.color} />
                             </div>
-                            <div>
-                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                            <div style={{ minWidth: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, flexWrap: 'wrap' }}>
                                     <span className="stat-value">{stat.value}</span>
-                                    <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{stat.suffix}</span>
+                                    <span style={{ fontSize: 12, color: '#6B6058' }}>{stat.suffix}</span>
                                 </div>
-                                <div className="stat-label">{stat.label}</div>
-                                {stat.change && (
-                                    <div
-                                        style={{
-                                            fontSize: 12,
-                                            fontWeight: 600,
-                                            color: stat.positive ? '#10B981' : '#EF4444',
-                                            marginTop: 4,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 2,
-                                        }}
-                                    >
-                                        <ArrowUpRight size={12} />
-                                        {stat.change} هذا الأسبوع
-                                    </div>
-                                )}
+                                <div className="stat-label" style={{ fontSize: 12 }}>{stat.label}</div>
                             </div>
                         </div>
                     )
                 })}
             </div>
 
-            {/* Content Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24 }}>
-                {/* Recent Orders */}
-                <div className="card">
-                    <div
-                        style={{
-                            padding: '20px 24px',
-                            borderBottom: '1px solid var(--border)',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <h2 style={{ fontSize: 16, fontWeight: 700 }}>أحدث الطلبات</h2>
-                        <Link
-                            href="/dashboard/orders"
-                            style={{
-                                fontSize: 13,
-                                color: 'var(--primary)',
-                                textDecoration: 'none',
-                                fontWeight: 600,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 4,
-                            }}
-                        >
-                            عرض الكل
-                            <ArrowUpRight size={14} />
+            {/* Content grid: stacked on mobile, side-by-side on desktop */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
+
+                {/* Recent Orders — mobile cards + desktop table */}
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 800 }}>أحدث الطلبات</h2>
+                        <Link href="/dashboard/orders" style={{ fontSize: 13, color: '#222', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            عرض الكل ←
                         </Link>
                     </div>
 
-                    <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-                        <table>
+                    {/* Desktop table */}
+                    <div className="card hide-on-mobile">
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr>
-                                    <th style={{ textAlign: 'right' }}>رقم الطلب</th>
-                                    <th style={{ textAlign: 'right' }}>العميل</th>
-                                    <th style={{ textAlign: 'right' }}>المنتجات</th>
-                                    <th style={{ textAlign: 'right' }}>الإجمالي</th>
-                                    <th style={{ textAlign: 'right' }}>الحالة</th>
-                                    <th style={{ textAlign: 'right' }}>الوقت</th>
+                                    {['رقم الطلب', 'العميل', 'الإجمالي', 'الحالة', 'التاريخ'].map(h => (
+                                        <th key={h} style={{ textAlign: 'right', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
+                                    ))}
                                 </tr>
                             </thead>
                             <tbody>
-                                {recentOrders.map((order) => {
-                                    const s = statusConfig[order.status as keyof typeof statusConfig]
+                                {recentOrders.length === 0 ? (
+                                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#A09080' }}>لا توجد طلبات حتى الآن</td></tr>
+                                ) : recentOrders.map((order) => {
+                                    const s = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
                                     const StatusIcon = s.Icon
                                     return (
-                                        <tr key={order.id}>
-                                            <td>
-                                                <Link
-                                                    href={`/dashboard/orders/${order.id}`}
-                                                    style={{
-                                                        color: 'var(--primary)',
-                                                        textDecoration: 'none',
-                                                        fontWeight: 700,
-                                                        fontSize: 14,
-                                                    }}
-                                                >
-                                                    {order.id}
-                                                </Link>
-                                            </td>
-                                            <td style={{ fontWeight: 600, fontSize: 13 }}>{order.customer}</td>
-                                            <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
-                                                {order.items} منتجات
-                                            </td>
-                                            <td style={{ fontWeight: 700, fontSize: 14 }}>
-                                                {order.total.toFixed(2)} د.أ
-                                            </td>
-                                            <td>
-                                                <span
-                                                    className="badge"
-                                                    style={{ background: s.bg, color: s.color, gap: 5 }}
-                                                >
-                                                    <StatusIcon size={12} />
-                                                    {s.label}
+                                        <tr key={order.id} style={{ borderTop: '1px solid #E0D6C8' }}>
+                                            <td style={{ padding: '12px 16px', fontWeight: 700, fontSize: 13, color: '#222' }}>{order.id.slice(0, 8)}</td>
+                                            <td style={{ padding: '12px 16px', fontWeight: 600, fontSize: 13 }}>{order.customer}</td>
+                                            <td style={{ padding: '12px 16px', fontWeight: 700, fontSize: 14 }}>{order.total.toFixed(2)} د.أ</td>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 600 }}>
+                                                    <StatusIcon size={12} />{s.label}
                                                 </span>
                                             </td>
-                                            <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{order.time}</td>
+                                            <td style={{ padding: '12px 16px', color: '#A09080', fontSize: 12 }}>{order.time}</td>
                                         </tr>
                                     )
                                 })}
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Mobile order cards */}
+                    <div className="show-on-mobile" style={{ flexDirection: 'column', gap: 10 }}>
+                        {recentOrders.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '32px 0', color: '#A09080' }}>لا توجد طلبات</div>
+                        ) : recentOrders.map((order) => {
+                            const s = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
+                            const StatusIcon = s.Icon
+                            return (
+                                <div key={order.id} className="mobile-card">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                        <span style={{ fontWeight: 800, fontSize: 14, color: '#222' }}>#{order.id.slice(0, 6).toUpperCase()}</span>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
+                                            <StatusIcon size={11} />{s.label}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: 13, color: '#4A4036', fontWeight: 600 }}>{order.customer}</span>
+                                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                            <span style={{ fontWeight: 800, fontSize: 15, color: '#222' }}>{order.total.toFixed(2)} <span style={{ fontSize: 11, fontWeight: 600, color: '#6B6058' }}>د.أ</span></span>
+                                            <span style={{ fontSize: 11, color: '#A09080' }}>{order.time}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
 
-                {/* Right Column */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                    {/* Low Stock Alert */}
+                {/* Bottom two-column: low stock + quick actions */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    {/* Low Stock */}
                     <div className="card card-body">
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginBottom: 16,
-                            }}
-                        >
-                            <h3 style={{ fontSize: 15, fontWeight: 700 }}>⚠️ مخزون منخفض</h3>
-                            <span className="badge badge-warning">{lowStockProducts.length}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                            <h3 style={{ fontSize: 14, fontWeight: 800 }}>⚠️ مخزون منخفض</h3>
+                            <span style={{ background: '#FEF3C7', color: '#92400E', padding: '2px 8px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>{lowStockProducts.length}</span>
                         </div>
-                        {lowStockProducts.map((p) => (
-                            <div
-                                key={p.name}
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    padding: '10px 0',
-                                    borderBottom: '1px solid var(--border)',
-                                }}
-                            >
-                                <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>
-                                    {p.name}
-                                </span>
-                                <span
-                                    style={{
-                                        fontSize: 12,
-                                        fontWeight: 700,
-                                        color: '#EF4444',
-                                        background: '#FEE2E2',
-                                        padding: '2px 8px',
-                                        borderRadius: 100,
-                                    }}
-                                >
-                                    {p.stock} فقط
-                                </span>
+                        {lowStockProducts.length === 0 ? (
+                            <p style={{ fontSize: 13, color: '#A09080' }}>المخزون جيد كله ممتاز ✅</p>
+                        ) : lowStockProducts.map(p => (
+                            <div key={p.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #F0EBE3' }}>
+                                <span style={{ fontSize: 13, color: '#222', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: '#B91C1C', background: '#FEE2E2', padding: '2px 8px', borderRadius: 100, flexShrink: 0, marginRight: 8 }}>{p.stock} فقط</span>
                             </div>
                         ))}
-                        <Link
-                            href="/dashboard/products?filter=low-stock"
-                            className="btn btn-secondary btn-sm"
-                            style={{ marginTop: 16, width: '100%', justifyContent: 'center' }}
-                        >
-                            إدارة المخزون
-                        </Link>
                     </div>
 
                     {/* Quick Actions */}
                     <div className="card card-body">
-                        <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>إجراءات سريعة</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 14 }}>إجراءات سريعة</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                             {[
-                                { label: 'إضافة منتج جديد', href: '/dashboard/products/new', color: '#6C3CE1' },
-                                { label: 'إنشاء كوبون خصم', href: '/dashboard/discounts/new', color: '#F59E0B' },
-                                { label: 'عرض التقارير', href: '/dashboard/analytics', color: '#10B981' },
-                                { label: 'تعديل إعدادات المتجر', href: '/dashboard/settings', color: '#3B82F6' },
-                            ].map((action) => (
-                                <Link
-                                    key={action.href}
-                                    href={action.href}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 10,
-                                        padding: '10px 14px',
-                                        borderRadius: 10,
-                                        background: 'var(--surface-2)',
-                                        textDecoration: 'none',
-                                        color: 'var(--text-primary)',
-                                        fontSize: 13,
-                                        fontWeight: 600,
-                                        transition: 'all 0.2s ease',
-                                        border: `1px solid var(--border)`,
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            width: 8,
-                                            height: 8,
-                                            borderRadius: '50%',
-                                            background: action.color,
-                                            flexShrink: 0,
-                                        }}
-                                    />
+                                { label: 'إضافة منتج', href: '/dashboard/products/new', color: '#C6A75E' },
+                                { label: 'كوبون خصم', href: '/dashboard/coupons', color: '#10B981' },
+                                { label: 'التقارير', href: '/dashboard/analytics', color: '#3B82F6' },
+                                { label: 'الإعدادات', href: '/dashboard/settings', color: '#6B6058' },
+                            ].map(action => (
+                                <Link key={action.href} href={action.href} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: '#F5F0E8', textDecoration: 'none', color: '#222', fontSize: 13, fontWeight: 600, border: '1px solid #E0D6C8' }}>
+                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: action.color, flexShrink: 0 }} />
                                     {action.label}
                                 </Link>
                             ))}
