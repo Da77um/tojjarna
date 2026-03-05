@@ -72,7 +72,7 @@ export default function SetupPage() {
     }
 
     return (
-        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: 'Lalezar, sans-serif' }}>
+        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: 'Noto Sans Arabic, sans-serif' }}>
             <div style={{ maxWidth: 800, margin: '0 auto', padding: '60px 20px' }}>
                 {/* Header */}
                 <div style={{ textAlign: 'center', marginBottom: 48 }}>

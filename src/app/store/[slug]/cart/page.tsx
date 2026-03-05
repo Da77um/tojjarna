@@ -25,7 +25,7 @@ export default function CartPage({ params }: { params: Promise<{ slug: string }>
     const total = subtotal + shipping
 
     if (items.length === 0) return (
-        <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'IBM Plex Sans Arabic, sans-serif', gap: 16, textAlign: 'center', padding: 40 }}>
+        <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Noto Sans Arabic, sans-serif', gap: 16, textAlign: 'center', padding: 40 }}>
             <ShoppingBag size={72} color="#D1D5DB" />
             <h2 style={{ fontSize: 22, fontWeight: 900, color: '#374151' }}>سلتك فارغة</h2>
             <p style={{ color: '#9CA3AF' }}>لم تقم بإضافة أي منتجات بعد</p>
@@ -36,7 +36,7 @@ export default function CartPage({ params }: { params: Promise<{ slug: string }>
     )
 
     return (
-        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: 'IBM Plex Sans Arabic, sans-serif', padding: '32px 20px' }}>
+        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: 'Noto Sans Arabic, sans-serif', padding: '32px 20px' }}>
             <div style={{ maxWidth: 1000, margin: '0 auto' }}>
                 <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 28 }}>سلة التسوق</h1>
 

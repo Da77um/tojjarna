@@ -83,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', background: bgDark, color: textBright, fontFamily: 'Lalezar, Inter, sans-serif', direction: 'rtl' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', background: bgDark, color: textBright, fontFamily: 'Noto Sans Arabic, Inter, sans-serif', direction: 'rtl' }}>
             {/* Mobile overlay */}
             {sidebarOpen && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 99 }} onClick={() => setSidebarOpen(false)} />
