@@ -214,31 +214,107 @@ function SectionRenderer({ section, primary, radius, products, slug }: {
 function ProductCard({ product, primary, radius, slug, compact }: any) {
     return (
         <Link href={`/store/${slug}/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-            <div style={{ background: 'white', borderRadius: radius, overflow: 'hidden', border: '1px solid #E5E7EB', transition: 'all 0.2s', cursor: 'pointer' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.1)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = ''; (e.currentTarget as HTMLElement).style.transform = '' }}
+            <div style={{
+                background: 'white', borderRadius: 16,
+                overflow: 'hidden', border: '1px solid #E8E0D5',
+                boxShadow: '0 2px 12px rgba(34,34,34,0.06)',
+                transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
+                cursor: 'pointer',
+            }}
+                onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.boxShadow = '0 20px 56px rgba(34,34,34,0.13)';
+                    el.style.transform = 'translateY(-6px)';
+                    const img = el.querySelector('.prod-img-inner') as HTMLElement;
+                    if (img) img.style.transform = 'scale(1.06)';
+                }}
+                onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.boxShadow = '0 2px 12px rgba(34,34,34,0.06)';
+                    el.style.transform = 'translateY(0)';
+                    const img = el.querySelector('.prod-img-inner') as HTMLElement;
+                    if (img) img.style.transform = 'scale(1)';
+                }}
             >
-                <div style={{ height: compact ? 140 : 200, background: product.image ? `url(${product.image}) center/cover` : `linear-gradient(135deg, ${primary}12, ${primary}25)`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                    {!product.image && <span style={{ fontSize: compact ? 36 : 56, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}>🛍️</span>}
-                    {product.is_featured && <div style={{ position: 'absolute', top: 10, right: 10, background: primary, color: 'white', borderRadius: 6, padding: '3px 8px', fontSize: 11, fontWeight: 700 }}>مميز</div>}
-                    {product.stock <= 3 && product.stock > 0 && <div style={{ position: 'absolute', top: 10, left: 10, background: '#FEF3C7', color: '#92400E', borderRadius: 6, padding: '3px 8px', fontSize: 11, fontWeight: 700 }}>{product.stock} فقط</div>}
-                    {product.stock === 0 && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 15 }}>نفد المخزون</div>}
+                {/* Image Container */}
+                <div style={{ height: compact ? 140 : 220, overflow: 'hidden', position: 'relative' }}>
+                    <div className="prod-img-inner" style={{
+                        width: '100%', height: '100%',
+                        background: product.image ? `url(${product.image}) center/cover` : '#F5F0E8',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'transform 0.45s cubic-bezier(0.4,0,0.2,1)',
+                    }}>
+                        {!product.image && <span style={{ fontSize: compact ? 36 : 56, opacity: 0.4 }}>🛍️</span>}
+                    </div>
+                    {/* Gold featured badge */}
+                    {product.is_featured && (
+                        <div style={{
+                            position: 'absolute', top: 12, right: 12,
+                            background: '#C6A75E', color: '#111111',
+                            borderRadius: 6, padding: '4px 10px',
+                            fontSize: 11, fontWeight: 900, letterSpacing: '0.04em',
+                        }}>حصري</div>
+                    )}
+                    {/* Discount badge */}
+                    {product.compare_price && Number(product.compare_price) > Number(product.price) && (
+                        <div style={{
+                            position: 'absolute', top: product.is_featured ? 44 : 12, right: 12,
+                            background: '#222222', color: 'white',
+                            borderRadius: 6, padding: '4px 10px',
+                            fontSize: 11, fontWeight: 900,
+                        }}>
+                            -{Math.round((1 - product.price / product.compare_price) * 100)}%
+                        </div>
+                    )}
+                    {product.stock <= 3 && product.stock > 0 && (
+                        <div style={{
+                            position: 'absolute', top: 12, left: 12,
+                            background: 'rgba(239,232,221,0.95)', color: '#7A5A1A',
+                            borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 800,
+                        }}>{product.stock} فقط</div>
+                    )}
+                    {product.stock === 0 && (
+                        <div style={{
+                            position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <span style={{ color: 'white', fontWeight: 900, fontSize: 14, background: 'rgba(0,0,0,0.6)', padding: '6px 16px', borderRadius: 8 }}>نفد المخزون</span>
+                        </div>
+                    )}
                 </div>
-                <div style={{ padding: compact ? '10px 12px' : '14px 16px 18px' }}>
-                    <div style={{ fontWeight: 700, fontSize: compact ? 12 : 14, marginBottom: 4, color: '#111827', lineHeight: 1.4 }}>{product.name}</div>
-                    {!compact && <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10 }}>
-                        <Star size={12} fill="#F59E0B" stroke="none" />
-                        <span style={{ fontSize: 12, fontWeight: 700 }}>4.8</span>
-                        <span style={{ fontSize: 11, color: '#9CA3AF' }}>(12)</span>
-                    </div>}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: compact ? 6 : 0 }}>
+
+                {/* Info */}
+                <div style={{ padding: compact ? '12px 14px' : '16px 18px 20px' }}>
+                    <div style={{ fontWeight: 700, fontSize: compact ? 13 : 15, marginBottom: 6, color: '#111111', lineHeight: 1.4 }}>{product.name}</div>
+                    {!compact && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10 }}>
+                            <Star size={12} fill="#C6A75E" stroke="none" />
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#6B6058' }}>4.8</span>
+                            <span style={{ fontSize: 11, color: '#A09080' }}>(12)</span>
+                        </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <span style={{ color: primary, fontWeight: 900, fontSize: compact ? 14 : 16 }}>{Number(product.price).toFixed(3)}</span>
-                            <span style={{ color: primary, fontSize: 11, marginRight: 2 }}>د.أ</span>
-                            {product.compare_price && <div style={{ color: '#9CA3AF', fontSize: 11, textDecoration: 'line-through' }}>{Number(product.compare_price).toFixed(3)}</div>}
+                            <span style={{ color: '#111111', fontWeight: 900, fontSize: compact ? 15 : 18 }}>{Number(product.price).toFixed(3)}</span>
+                            <span style={{ color: '#6B6058', fontSize: 11, marginRight: 3 }}>د.أ</span>
+                            {product.compare_price && (
+                                <div style={{ color: '#A09080', fontSize: 11, textDecoration: 'line-through' }}>{Number(product.compare_price).toFixed(3)} د.أ</div>
+                            )}
                         </div>
                         {!compact && (
-                            <button disabled={product.stock === 0} style={{ background: product.stock === 0 ? '#E5E7EB' : primary, color: product.stock === 0 ? '#9CA3AF' : 'white', border: 'none', borderRadius: radius - 4, padding: '7px 14px', fontSize: 12, fontWeight: 700, cursor: product.stock === 0 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                            <button
+                                disabled={product.stock === 0}
+                                style={{
+                                    background: product.stock === 0 ? '#F0EDE8' : '#222222',
+                                    color: product.stock === 0 ? '#A09080' : 'white',
+                                    border: 'none', borderRadius: 8,
+                                    padding: '8px 16px', fontSize: 12, fontWeight: 800,
+                                    cursor: product.stock === 0 ? 'not-allowed' : 'pointer',
+                                    fontFamily: 'inherit', transition: 'all 0.2s ease',
+                                }}
+                                onMouseEnter={e => { if (product.stock > 0) (e.currentTarget as HTMLButtonElement).style.background = '#C6A75E' }}
+                                onMouseLeave={e => { if (product.stock > 0) (e.currentTarget as HTMLButtonElement).style.background = '#222222' }}
+                            >
                                 + السلة
                             </button>
                         )}
@@ -251,11 +327,11 @@ function ProductCard({ product, primary, radius, slug, compact }: any) {
 
 function PlaceholderCard({ primary, radius, compact }: any) {
     return (
-        <div style={{ background: 'white', borderRadius: radius, overflow: 'hidden', border: '1px solid #E5E7EB' }}>
-            <div style={{ height: compact ? 140 : 200, background: `linear-gradient(135deg, ${primary}10, ${primary}20)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, opacity: 0.5 }}>🛍️</div>
+        <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid #E8E0D5' }}>
+            <div style={{ height: compact ? 140 : 220, background: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, opacity: 0.3 }}>🛍️</div>
             <div style={{ padding: compact ? '10px 12px' : '14px 16px', opacity: 0.3 }}>
-                <div style={{ height: 12, background: '#E5E7EB', borderRadius: 4, marginBottom: 8, width: '75%' }} />
-                <div style={{ height: 16, background: primary, borderRadius: 4, width: '40%' }} />
+                <div style={{ height: 12, background: '#E0D6C8', borderRadius: 4, marginBottom: 8, width: '70%' }} />
+                <div style={{ height: 16, background: '#C6A75E', borderRadius: 4, width: '40%' }} />
             </div>
         </div>
     )

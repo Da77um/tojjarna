@@ -31,13 +31,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
 
-    // Admin theme colors
-    const primary = '#6C3CE1' // Neon purple
-    const bgDark = '#0F111A' // Deep navy/black background
-    const surfaceDark = '#161A28' // Slightly lighter surface
-    const borderDark = '#2D3348'
-    const textBright = '#F3F4F6'
-    const textMuted = '#9CA3AF'
+    // Admin theme colors — Luxury Charcoal & Gold
+    const primary = '#C6A75E'      // Gold accent
+    const bgDark = '#111111'        // Deep charcoal background
+    const surfaceDark = '#1A1A1A'   // Sidebar surface
+    const borderDark = '#2A2A2A'
+    const textBright = '#F0EBE2'
+    const textMuted = '#7B7068'
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -114,12 +114,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                 {/* Logo & Branding */}
                 <div style={{ padding: '24px 20px', borderBottom: `1px solid ${borderDark}`, display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${primary}, #8B5CF6)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 16px ${primary}40`, flexShrink: 0 }}>
-                        <Store size={22} color="white" strokeWidth={2.5} />
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: '#111111', border: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+                        <Store size={22} color="#C6A75E" strokeWidth={2.5} />
                     </div>
                     <div>
                         <div style={{ fontWeight: 900, fontSize: 18, color: 'white', letterSpacing: '-0.02em', lineHeight: 1 }}>تجارنا</div>
-                        <div style={{ fontSize: 11, color: '#10B981', fontWeight: 700, marginTop: 4, letterSpacing: '0.05em' }}>مركز التحكم (Admin)</div>
+                        <div style={{ fontSize: 11, color: '#C6A75E', fontWeight: 700, marginTop: 4, letterSpacing: '0.05em' }}>لوحة التحكم الرئيسية</div>
                     </div>
                 </div>
 
@@ -131,10 +131,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         return (
                             <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)} style={{
                                 display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 10, textDecoration: 'none',
-                                background: isActive ? 'rgba(108,60,225,0.15)' : 'transparent',
-                                color: isActive ? 'white' : textMuted,
+                                background: isActive ? 'rgba(198,167,94,0.12)' : 'transparent',
+                                color: isActive ? '#C6A75E' : textMuted,
                                 fontWeight: isActive ? 700 : 500,
-                                border: `1px solid ${isActive ? 'rgba(108,60,225,0.3)' : 'transparent'}`,
+                                borderRight: isActive ? '3px solid #C6A75E' : '3px solid transparent',
                                 transition: 'all 0.15s ease'
                             }}
                                 onMouseEnter={e => {
@@ -150,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     }
                                 }}
                             >
-                                <Icon size={18} color={isActive ? primary : 'currentColor'} />
+                                <Icon size={18} color={isActive ? '#C6A75E' : 'currentColor'} />
                                 {item.label}
                             </Link>
                         )
@@ -198,10 +198,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <div style={{ position: 'relative', display: 'none' }} className="admin-search-desktop">
                             <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 768px) { .admin-search-desktop { display: block !important; } }` }} />
                             <input type="text" placeholder="ابحث عن متجر، طلب، معاملة..." style={{
-                                width: 280, padding: '10px 16px 10px 36px', borderRadius: 100, background: '#1F2937', border: `1px solid ${borderDark}`,
+                                width: 280, padding: '10px 16px 10px 36px', borderRadius: 100, background: '#222222', border: `1px solid ${borderDark}`,
                                 color: 'white', outline: 'none', fontSize: 13, fontFamily: 'inherit'
                             }}
-                                onFocus={e => e.target.style.borderColor = primary}
+                                onFocus={e => e.target.style.borderColor = '#C6A75E'}
                                 onBlur={e => e.target.style.borderColor = borderDark}
                             />
                         </div>

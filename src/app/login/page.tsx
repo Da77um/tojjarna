@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Store, Eye, EyeOff, ArrowLeft, Mail, Lock } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, Store } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
@@ -22,20 +22,10 @@ export default function LoginPage() {
 
         try {
             const supabase = createClient()
-            const { data, error: authError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            })
-
+            const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
             if (authError) throw authError
 
-            // User is signed in, check role
-            const { data: profile } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', data.user?.id)
-                .single()
-
+            const { data: profile } = await supabase.from('users').select('role').eq('id', data.user?.id).single()
             if (profile?.role === 'admin') {
                 router.push('/admin')
             } else {
@@ -50,270 +40,188 @@ export default function LoginPage() {
     }
 
     return (
-        <div
-            className="mobile-stack"
-            style={{
-                minHeight: '100vh',
-                display: 'flex',
-                background: 'linear-gradient(135deg, #0F0F17 0%, #1A1A2E 100%)',
-            }}
-        >
+        <div dir="rtl" className="mobile-stack" style={{
+            minHeight: '100vh',
+            display: 'flex',
+            background: '#EFE8DD',
+            fontFamily: 'Tajawal, sans-serif',
+        }}>
             {/* Left: Form */}
-            <div
-                style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '48px 24px',
-                }}
-            >
+            <div style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '56px 24px',
+            }}>
                 <div className="mobile-full-width" style={{ width: '100%', maxWidth: 420 }}>
+
                     {/* Logo */}
-                    <Link
-                        href="/"
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 10,
-                            textDecoration: 'none',
-                            marginBottom: 40,
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: 40,
-                                height: 40,
-                                borderRadius: 10,
-                                background: 'linear-gradient(135deg, #6C3CE1, #8B5CF6)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: '0 4px 12px rgba(108,60,225,0.4)',
-                            }}
-                        >
-                            <Store size={20} color="white" />
+                    <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 48 }}>
+                        <div style={{
+                            width: 42, height: 42, borderRadius: 10,
+                            background: '#222222',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
+                        }}>
+                            <Store size={20} color="#C6A75E" />
                         </div>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: 'white' }}>باسكت</span>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
                     </Link>
 
-                    <h1 style={{ fontSize: 28, fontWeight: 900, color: 'white', marginBottom: 8 }}>
-                        أهلاً بعودتك 👋
+                    {/* Headline */}
+                    <h1 style={{ fontSize: 30, fontWeight: 900, color: '#111111', marginBottom: 8, letterSpacing: '-0.02em' }}>
+                        أهلاً بعودتك
                     </h1>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 36, fontSize: 15 }}>
+                    <p style={{ color: '#6B6058', marginBottom: 36, fontSize: 15, lineHeight: 1.6 }}>
                         سجّل دخولك لإدارة متجرك
                     </p>
 
                     <form onSubmit={handleLogin}>
                         {error && (
-                            <div
-                                style={{
-                                    background: 'rgba(239,68,68,0.15)',
-                                    border: '1px solid rgba(239,68,68,0.3)',
-                                    borderRadius: 10,
-                                    padding: '12px 16px',
-                                    color: '#FCA5A5',
-                                    fontSize: 14,
-                                    marginBottom: 20,
-                                }}
-                            >
+                            <div style={{
+                                background: 'rgba(192,57,43,0.08)',
+                                border: '1px solid rgba(192,57,43,0.25)',
+                                borderRadius: 10, padding: '12px 16px',
+                                color: '#8B1A1A', fontSize: 14, marginBottom: 20,
+                            }}>
                                 {error}
                             </div>
                         )}
 
                         <div className="form-group">
-                            <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)' }}>
-                                البريد الإلكتروني
-                            </label>
+                            <label className="form-label">البريد الإلكتروني</label>
                             <div style={{ position: 'relative' }}>
-                                <Mail
-                                    size={18}
-                                    color="rgba(255,255,255,0.3)"
-                                    style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
-                                />
+                                <Mail size={17} color="#A09080" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }} />
                                 <input
                                     type="email"
                                     className="form-control"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={e => setEmail(e.target.value)}
                                     placeholder="example@email.com"
                                     required
-                                    style={{
-                                        paddingRight: 44,
-                                        background: 'rgba(255,255,255,0.07)',
-                                        border: '1.5px solid rgba(255,255,255,0.12)',
-                                        color: 'white',
-                                    }}
+                                    style={{ paddingRight: 44 }}
                                 />
                             </div>
                         </div>
 
                         <div className="form-group">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)', margin: 0 }}>
-                                    كلمة المرور
-                                </label>
-                                <Link href="/forgot-password" style={{ color: '#8B5CF6', fontSize: 13, textDecoration: 'none' }}>
+                                <label className="form-label" style={{ margin: 0 }}>كلمة المرور</label>
+                                <Link href="/forgot-password" style={{ color: '#C6A75E', fontSize: 13, textDecoration: 'none', fontWeight: 700 }}>
                                     نسيت كلمة المرور؟
                                 </Link>
                             </div>
                             <div style={{ position: 'relative' }}>
-                                <Lock
-                                    size={18}
-                                    color="rgba(255,255,255,0.3)"
-                                    style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
-                                />
+                                <Lock size={17} color="#A09080" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }} />
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     className="form-control"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={e => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     required
-                                    style={{
-                                        paddingRight: 44,
-                                        paddingLeft: 44,
-                                        background: 'rgba(255,255,255,0.07)',
-                                        border: '1.5px solid rgba(255,255,255,0.12)',
-                                        color: 'white',
-                                    }}
+                                    style={{ paddingRight: 44, paddingLeft: 44 }}
                                 />
                                 <button
                                     type="button"
+                                    id="toggle-password-btn"
                                     onClick={() => setShowPassword(!showPassword)}
                                     style={{
-                                        position: 'absolute',
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                        left: 14,
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        color: 'rgba(255,255,255,0.4)',
+                                        position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: 14,
+                                        background: 'none', border: 'none', cursor: 'pointer', color: '#A09080',
+                                        display: 'flex', alignItems: 'center',
                                     }}
                                 >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                                 </button>
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
                             <input
                                 type="checkbox"
                                 id="rememberMe"
                                 checked={rememberMe}
-                                onChange={(e) => setRememberMe(e.target.checked)}
-                                style={{
-                                    width: 18,
-                                    height: 18,
-                                    borderRadius: 4,
-                                    accentColor: '#8B5CF6',
-                                    cursor: 'pointer'
-                                }}
+                                onChange={e => setRememberMe(e.target.checked)}
+                                style={{ width: 18, height: 18, accentColor: '#C6A75E', cursor: 'pointer' }}
                             />
-                            <label htmlFor="rememberMe" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, cursor: 'pointer' }}>
-                                تذكرني
-                            </label>
+                            <label htmlFor="rememberMe" style={{ color: '#6B6058', fontSize: 14, cursor: 'pointer' }}>تذكرني</label>
                         </div>
 
                         <button
                             type="submit"
+                            id="submit-login-btn"
                             disabled={loading}
-                            className="btn btn-primary"
-                            style={{ width: '100%', padding: '13px 20px', fontSize: 16, marginTop: 8 }}
+                            style={{
+                                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                background: '#222222', color: 'white',
+                                border: 'none', padding: '14px 24px', borderRadius: 10,
+                                fontWeight: 800, fontSize: 16, cursor: loading ? 'not-allowed' : 'pointer',
+                                fontFamily: 'inherit', letterSpacing: '0.01em',
+                                opacity: loading ? 0.6 : 1,
+                                transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = '#111111' }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#222222' }}
                         >
-                            {loading ? (
-                                <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
-                            ) : (
-                                'تسجيل الدخول'
-                            )}
+                            {loading ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'تسجيل الدخول'}
                         </button>
                     </form>
 
-                    <div style={{ textAlign: 'center', marginTop: 28, color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>
+                    <p style={{ textAlign: 'center', marginTop: 28, color: '#6B6058', fontSize: 14 }}>
                         ليس لديك حساب؟{' '}
-                        <Link href="/register" style={{ color: '#8B5CF6', fontWeight: 700, textDecoration: 'none' }}>
+                        <Link href="/register" style={{ color: '#C6A75E', fontWeight: 800, textDecoration: 'none' }}>
                             أنشئ حسابك مجاناً
                         </Link>
-                    </div>
-
-                    <div style={{ textAlign: 'center', marginTop: 20 }}>
-                        <Link
-                            href="/"
-                            style={{
-                                color: 'rgba(255,255,255,0.4)',
-                                fontSize: 13,
-                                textDecoration: 'none',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 6,
-                            }}
-                        >
-                            <ArrowLeft size={14} />
-                            العودة للرئيسية
-                        </Link>
-                    </div>
+                    </p>
                 </div>
             </div>
 
-            {/* Right: Decorative panel (hidden on mobile) */}
-            <div
-                className="hide-on-mobile"
-                style={{
-                    flex: 1,
-                    background: 'linear-gradient(135deg, #6C3CE1 0%, #8B5CF6 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 48,
-                    position: 'relative',
-                    overflow: 'hidden',
-                }}
-            >
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: -80,
-                        right: -80,
-                        width: 300,
-                        height: 300,
-                        background: 'rgba(255,255,255,0.08)',
-                        borderRadius: '50%',
-                    }}
-                />
-                <div
-                    style={{
-                        position: 'absolute',
-                        bottom: -60,
-                        left: -60,
-                        width: 200,
-                        height: 200,
-                        background: 'rgba(255,255,255,0.06)',
-                        borderRadius: '50%',
-                    }}
-                />
-                <div style={{ textAlign: 'center', position: 'relative' }}>
-                    <div
-                        style={{
-                            width: 100,
-                            height: 100,
-                            borderRadius: '50%',
-                            background: 'rgba(255,255,255,0.15)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            margin: '0 auto 32px',
-                            border: '2px solid rgba(255,255,255,0.2)',
-                        }}
-                    >
-                        <Store size={48} color="white" />
+            {/* Right: Dark decorative panel */}
+            <div className="hide-on-mobile" style={{
+                flex: 1,
+                background: 'linear-gradient(160deg, #1C1C1C 0%, #2A2A2A 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 60,
+                position: 'relative',
+                overflow: 'hidden',
+            }}>
+                {/* Background orbs */}
+                <div style={{ position: 'absolute', top: '-10%', left: '-15%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(198,167,94,0.1) 0%, transparent 70%)', borderRadius: '50%' }} />
+                <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: 350, height: 350, background: 'radial-gradient(circle, rgba(198,167,94,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
+
+                <div style={{ position: 'relative', textAlign: 'center', maxWidth: 380 }}>
+                    {/* Icon container */}
+                    <div style={{
+                        width: 88, height: 88, borderRadius: '50%',
+                        background: 'rgba(198,167,94,0.12)', border: '1px solid rgba(198,167,94,0.25)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 32px',
+                    }}>
+                        <Store size={40} color="#C6A75E" />
                     </div>
-                    <h2 style={{ color: 'white', fontSize: 28, fontWeight: 800, marginBottom: 16 }}>
+                    <h2 style={{ color: 'white', fontSize: 30, fontWeight: 900, marginBottom: 16, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                         متجرك بانتظارك
                     </h2>
-                    <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, lineHeight: 1.8, maxWidth: 320 }}>
-                        أكثر من 2500 تاجر أردني يديرون متاجرهم الآن عبر باسكت ويحققون أرباحاً يومية
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, lineHeight: 1.8 }}>
+                        أكثر من 2,500 تاجر أردني يديرون متاجرهم ويحققون أرباحاً يومية عبر تجارنا.
                     </p>
+
+                    {/* Stat pills */}
+                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
+                        {[{ v: '2,500+', l: 'متجر' }, { v: '98%', l: 'رضا' }, { v: '50K+', l: 'طلب/شهر' }].map(s => (
+                            <div key={s.l} style={{
+                                background: 'rgba(198,167,94,0.1)', border: '1px solid rgba(198,167,94,0.2)',
+                                borderRadius: 12, padding: '12px 20px', textAlign: 'center',
+                            }}>
+                                <div style={{ color: '#C6A75E', fontWeight: 900, fontSize: 20 }}>{s.v}</div>
+                                <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, marginTop: 2 }}>{s.l}</div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

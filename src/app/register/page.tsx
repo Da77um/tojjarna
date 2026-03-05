@@ -122,22 +122,21 @@ export default function RegisterPage() {
 
     const inputStyle = {
         paddingRight: 44,
-        background: 'rgba(255,255,255,0.07)',
-        border: '1.5px solid rgba(255,255,255,0.12)',
-        color: 'white',
     }
 
-    const labelStyle = { color: 'rgba(255,255,255,0.8)' }
+    const labelStyle = { color: '#6B6058' }
 
     return (
         <div
+            dir="rtl"
             style={{
                 minHeight: '100vh',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, #0F0F17 0%, #1A1A2E 100%)',
+                background: '#EFE8DD',
                 padding: '48px 24px',
+                fontFamily: 'Tajawal, sans-serif',
             }}
         >
             <div style={{ width: '100%', maxWidth: 500 }}>
@@ -157,28 +156,29 @@ export default function RegisterPage() {
                             width: 40,
                             height: 40,
                             borderRadius: 10,
-                            background: 'linear-gradient(135deg, #6C3CE1, #8B5CF6)',
+                            background: '#222222',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
                         }}
                     >
-                        <Store size={20} color="white" />
+                        <Store size={20} color="#C6A75E" />
                     </div>
-                    <span style={{ fontSize: 22, fontWeight: 900, color: 'white' }}>باسكت</span>
+                    <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
                 </Link>
 
-                <h1 style={{ fontSize: 28, fontWeight: 900, color: 'white', marginBottom: 8 }}>
-                    أنشئ متجرك اليوم 🚀
+                <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111111', marginBottom: 8, letterSpacing: '-0.02em' }}>
+                    أنشئ متجرك اليوم
                 </h1>
-                <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 36, fontSize: 15 }}>
+                <p style={{ color: '#6B6058', marginBottom: 36, fontSize: 15 }}>
                     ابدأ مجاناً، لا حاجة لبطاقة ائتمانية
                 </p>
 
                 <div
                     style={{
-                        background: 'rgba(255,255,255,0.04)',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: '#FFFFFF',
+                        border: '1px solid #E0D6C8',
                         borderRadius: 20,
                         padding: 32,
                     }}
