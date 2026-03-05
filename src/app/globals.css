@@ -428,8 +428,12 @@ tr:hover td {
   display: flex;
   flex-direction: column;
   z-index: 100;
-  transition: var(--transition);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.32s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
+  /* Smooth scroll inside sidebar */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 [dir="rtl"] .sidebar {
@@ -693,8 +697,6 @@ tr:hover td {
 /* ── Page Container ── */
 .page-container {
   padding: var(--page-padding);
-  padding-bottom: 90px;
-  /* space above bottom nav on mobile */
   max-width: 1400px;
 }
 
@@ -748,12 +750,13 @@ tr:hover td {
   }
 }
 
-/* Mobile (max 768px) — sidebar drawer + bottom nav */
+/* Mobile (max 768px) — sidebar drawer */
 @media (max-width: 767px) {
   .sidebar {
     transform: translateX(100%);
     box-shadow: none;
     z-index: 200;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   [dir="ltr"] .sidebar {
@@ -762,18 +765,15 @@ tr:hover td {
 
   .sidebar.open {
     transform: translateX(0) !important;
-    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.15);
+    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.12);
   }
 
   .main-with-sidebar {
     margin-inline-start: 0 !important;
-    padding-bottom: 70px;
-    /* above bottom nav */
   }
 
   .page-container {
     padding: 16px;
-    padding-bottom: 90px;
   }
 
   .stat-card {

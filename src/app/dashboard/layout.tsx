@@ -396,29 +396,6 @@ export default function DashboardLayout({
                 </main>
             </div>
 
-            {/* ── Bottom Navigation Bar (mobile only) ── */}
-            <nav className="bottom-nav" dir="rtl">
-                <Link href="/dashboard" className={`bottom-nav-item ${pathname === '/dashboard' ? 'active' : ''}`}>
-                    <LayoutDashboard size={22} />
-                    <span>الرئيسية</span>
-                </Link>
-                <Link href="/dashboard/orders" className={`bottom-nav-item ${pathname.startsWith('/dashboard/orders') ? 'active' : ''}`}>
-                    <ShoppingCart size={22} />
-                    <span>الطلبات</span>
-                </Link>
-                <Link href="/dashboard/products" className={`bottom-nav-item ${pathname.startsWith('/dashboard/products') ? 'active' : ''}`}>
-                    <Package size={22} />
-                    <span>المنتجات</span>
-                </Link>
-                <Link href="/dashboard/customers" className={`bottom-nav-item ${pathname.startsWith('/dashboard/customers') ? 'active' : ''}`}>
-                    <Users size={22} />
-                    <span>العملاء</span>
-                </Link>
-                <Link href="/dashboard/settings" className={`bottom-nav-item ${pathname.startsWith('/dashboard/settings') ? 'active' : ''}`}>
-                    <Settings size={22} />
-                    <span>الإعدادات</span>
-                </Link>
-            </nav>
         </div>
     )
 }
