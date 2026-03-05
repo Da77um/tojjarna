@@ -36,7 +36,7 @@ function extractConfig(theme: ThemeConfig | null): { primary: string; secondary:
     return {
         primary: g.primary_color || theme?.primaryColor || theme?.primary_color || '#6C3CE1',
         secondary: g.secondary_color || '#F59E0B',
-        font: g.font_family || 'Tajawal',
+        font: g.font_family || 'IBM Plex Sans Arabic',
         radius: g.border_radius ?? 12,
         global: g,
         sections: theme?.sections || [],
@@ -349,7 +349,7 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
     })
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FAFAFA', fontFamily: `${font}, Tajawal, Inter, sans-serif`, direction: 'rtl' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FAFAFA', fontFamily: `${font}, IBM Plex Sans Arabic, Inter, sans-serif`, direction: 'rtl' }}>
 
             {/* ── Announcement Bar (global) ─────────────────────────────── */}
             {themeGlobal?.show_announcement && themeGlobal.announcement_text_ar && (

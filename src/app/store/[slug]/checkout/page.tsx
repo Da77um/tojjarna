@@ -47,7 +47,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ slug: strin
 
     // Order placed success screen
     if (placed) return (
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', background: '#FAFAFA', padding: 20 }}>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'IBM Plex Sans Arabic, sans-serif', background: '#FAFAFA', padding: 20 }}>
             <div style={{ textAlign: 'center', maxWidth: 440 }}>
                 <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
                     <CheckCircle size={48} color="#10B981" />
@@ -77,7 +77,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ slug: strin
     )
 
     return (
-        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: 'Tajawal, sans-serif', padding: '32px 20px' }}>
+        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: 'IBM Plex Sans Arabic, sans-serif', padding: '32px 20px' }}>
             <div style={{ maxWidth: 960, margin: '0 auto' }}>
                 {/* Steps indicator */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 0, marginBottom: 40 }}>

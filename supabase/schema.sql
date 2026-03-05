@@ -717,6 +717,7 @@ CREATE TABLE IF NOT EXISTS admin_audit_logs (
 );
 
 ALTER TABLE admin_audit_logs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "admin_all_audit" ON admin_audit_logs;
 CREATE POLICY "admin_all_audit" ON admin_audit_logs FOR ALL USING (is_super_admin());
 
 -- 2. platform_payouts
@@ -733,7 +734,9 @@ CREATE TABLE IF NOT EXISTS platform_payouts (
 );
 
 ALTER TABLE platform_payouts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "payouts_vendor_read" ON platform_payouts;
 CREATE POLICY "payouts_vendor_read" ON platform_payouts FOR SELECT USING (store_id = ANY(get_vendor_store_ids()) OR is_super_admin());
+DROP POLICY IF EXISTS "payouts_admin_all" ON platform_payouts;
 CREATE POLICY "payouts_admin_all" ON platform_payouts FOR ALL USING (is_super_admin());
 
 -- 3. platform_invoices
@@ -749,7 +752,9 @@ CREATE TABLE IF NOT EXISTS platform_invoices (
 );
 
 ALTER TABLE platform_invoices ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "invoices_vendor_read" ON platform_invoices;
 CREATE POLICY "invoices_vendor_read" ON platform_invoices FOR SELECT USING (store_id = ANY(get_vendor_store_ids()) OR is_super_admin());
+DROP POLICY IF EXISTS "invoices_admin_all" ON platform_invoices;
 CREATE POLICY "invoices_admin_all" ON platform_invoices FOR ALL USING (is_super_admin());
 
 -- 4. store_health_metrics
@@ -764,6 +769,7 @@ CREATE TABLE IF NOT EXISTS store_health_metrics (
 );
 
 ALTER TABLE store_health_metrics ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "health_admin_all" ON store_health_metrics;
 CREATE POLICY "health_admin_all" ON store_health_metrics FOR ALL USING (is_super_admin());
 
 -- 5. platform_promos
@@ -781,7 +787,9 @@ CREATE TABLE IF NOT EXISTS platform_promos (
 );
 
 ALTER TABLE platform_promos ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "promos_public_read" ON platform_promos;
 CREATE POLICY "promos_public_read" ON platform_promos FOR SELECT USING (is_active = true);
+DROP POLICY IF EXISTS "promos_admin_all" ON platform_promos;
 CREATE POLICY "promos_admin_all" ON platform_promos FOR ALL USING (is_super_admin());
 -- Ensure status is applied to stores safely if table already exists
 ALTER TABLE stores ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'approved' CHECK (status IN ('approved', 'pending', 'suspended'));

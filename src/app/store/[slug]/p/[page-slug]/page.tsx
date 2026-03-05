@@ -42,7 +42,7 @@ export default async function StorefrontCmsPage({ params }: Props) {
     const primaryColor = store.theme?.global?.primary_color || store.theme?.primary_color || '#6C3CE1'
 
     return (
-        <div style={{ fontFamily: 'Tajawal, sans-serif', direction: 'rtl', minHeight: '100vh', background: '#F9FAFB' }}>
+        <div style={{ fontFamily: 'IBM Plex Sans Arabic, sans-serif', direction: 'rtl', minHeight: '100vh', background: '#F9FAFB' }}>
             {/* Header */}
             <header style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <a href={`/store/${slug}`} style={{ fontWeight: 900, fontSize: 20, color: primaryColor, textDecoration: 'none' }}>
