@@ -30,7 +30,7 @@ export default async function StorefrontLayout({
 
     if (store.status !== 'approved') {
         return (
-            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFAFA', fontFamily: 'Noto Sans Arabic, Inter, sans-serif' }}>
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFAFA', fontFamily: 'Tajawal, Inter, sans-serif' }}>
                 <div style={{ fontSize: 60, marginBottom: 16 }}>🛠️</div>
                 <h2 style={{ marginBottom: 8, color: '#111827', fontWeight: 900 }}>المتجر غير متاح حالياً</h2>
                 <p style={{ color: '#6B7280', margin: 0, marginBottom: 24, fontSize: 16 }}>عذراً، هذا المتجر غير متاح في الوقت الحالي. يرجى المحاولة لاحقاً.</p>

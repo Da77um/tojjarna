@@ -49,7 +49,7 @@ const DEFAULT_THEME: ThemeConfig = {
     global: {
         primary_color: '#6C3CE1',
         secondary_color: '#F59E0B',
-        font_family: 'Noto Sans Arabic',
+        font_family: 'Tajawal',
         border_radius: 12,
         layout: 'rtl',
         header_sticky: true,
@@ -506,7 +506,7 @@ export default function ThemeEditorPage() {
                                 <div>
                                     <label style={labelStyle}>الخط</label>
                                     <select value={theme.global.font_family} onChange={(e) => updateGlobal('font_family', e.target.value)} style={selectStyle}>
-                                        {['Noto Sans Arabic', 'Tajawal', 'Cairo', 'Amiri'].map(f => (
+                                        {['Tajawal', 'Noto Sans Arabic', 'Cairo', 'Amiri'].map(f => (
                                             <option key={f} value={f}>{f}</option>
                                         ))}
                                     </select>
@@ -690,7 +690,7 @@ function ThemePreviewCanvas({ theme, selectedSectionId, onSelectSection }: {
     const primaryColor = g.primary_color
 
     return (
-        <div style={{ fontFamily: `${g.font_family}, Noto Sans Arabic, sans-serif`, direction: 'rtl', minHeight: '100%' }}>
+        <div style={{ fontFamily: `${g.font_family}, Tajawal, sans-serif`, direction: 'rtl', minHeight: '100%' }}>
             {/* Announcement bar */}
             {g.show_announcement && (
                 <div style={{ background: primaryColor, color: 'white', textAlign: 'center', padding: '8px 16px', fontSize: 13, fontWeight: 600 }}>

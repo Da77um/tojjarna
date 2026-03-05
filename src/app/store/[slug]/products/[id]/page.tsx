@@ -44,7 +44,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     )
 
     if (!store || !product) return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFAFA', fontFamily: 'Noto Sans Arabic, sans-serif' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFAFA', fontFamily: 'Tajawal, sans-serif' }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>🔍</div>
             <h2 style={{ color: '#111827', marginBottom: 12 }}>المنتج غير موجود</h2>
             <Link href={`/store/${slug}`} style={{ color: '#6C3CE1', fontWeight: 700, textDecoration: 'none' }}>العودة للمتجر</Link>
@@ -65,7 +65,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     }
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FAFAFA', fontFamily: 'Noto Sans Arabic, Inter, sans-serif', direction: 'rtl' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FAFAFA', fontFamily: 'Tajawal, Inter, sans-serif', direction: 'rtl' }}>
 
             {/* Header */}
             <header style={{ background: 'white', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
