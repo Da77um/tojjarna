@@ -116,7 +116,7 @@ export default function DashboardLayout({
     )
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', background: '#F2EDE4' }}>
             {/* Mobile overlay */}
             {sidebarOpen && (
                 <div
@@ -130,20 +130,13 @@ export default function DashboardLayout({
                 />
             )}
 
-            {/* Sidebar */}
-            <aside
-                className={`sidebar ${sidebarOpen ? 'open' : ''}`}
-                style={{
-                    background: 'var(--surface)',
-                    borderLeft: '1px solid var(--border)',
-                    borderRight: 'none',
-                }}
-            >
+            {/* Sidebar uses the .sidebar CSS class for light cream background */}
+            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                 {/* Logo */}
                 <div
                     style={{
                         padding: '24px 20px 20px',
-                        borderBottom: '1px solid var(--border)',
+                        borderBottom: '1px solid #E0D6C8',
                     }}
                 >
                     <Link
@@ -273,8 +266,8 @@ export default function DashboardLayout({
                 <header
                     style={{
                         height: 64,
-                        background: 'var(--surface)',
-                        borderBottom: '1px solid var(--border)',
+                        background: '#FDFAF6',
+                        borderBottom: '1px solid #E0D6C8',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
@@ -346,10 +339,10 @@ export default function DashboardLayout({
                                         ) : notifications.map(n => (
                                             <div key={n.id} style={{
                                                 padding: '12px 16px', borderBottom: '1px solid var(--border)',
-                                                background: n.is_read ? 'transparent' : 'rgba(108,60,225,0.04)',
+                                                background: n.is_read ? 'transparent' : 'rgba(198,167,94,0.07)',
                                                 display: 'flex', gap: 10, alignItems: 'flex-start',
                                             }}>
-                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.is_read ? 'transparent' : '#6C3CE1', marginTop: 6, flexShrink: 0 }} />
+                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.is_read ? 'transparent' : '#C6A75E', marginTop: 6, flexShrink: 0 }} />
                                                 <div style={{ flex: 1 }}>
                                                     <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{n.title_ar}</div>
                                                     {n.message_ar && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{n.message_ar}</div>}
