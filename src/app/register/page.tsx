@@ -340,31 +340,31 @@ export default function RegisterPage() {
                                 )}
                             </button>
 
-                            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, textAlign: 'center', marginTop: 16 }}>
+                            <p style={{ color: '#6B6058', fontSize: 12, textAlign: 'center', marginTop: 16 }}>
                                 بإنشاء حساب، أنت توافق على{' '}
-                                <Link href="/terms" style={{ color: '#8B5CF6', textDecoration: 'none' }}>شروط الخدمة</Link>
+                                <Link href="/terms" style={{ color: '#222222', textDecoration: 'underline', fontWeight: 700 }}>شروط الخدمة</Link>
                                 {' '}و{' '}
-                                <Link href="/privacy" style={{ color: '#8B5CF6', textDecoration: 'none' }}>سياسة الخصوصية</Link>
+                                <Link href="/privacy" style={{ color: '#222222', textDecoration: 'underline', fontWeight: 700 }}>سياسة الخصوصية</Link>
                             </p>
                         </form>
                     ) : (
                         <form onSubmit={handleVerifyOtp}>
-                            <h3 style={{ color: 'white', fontSize: 18, marginBottom: 12, textAlign: 'center' }}>
-                                تحقق من بريدك الإلكتروني 📩
+                            <h3 style={{ color: '#111111', fontSize: 20, fontWeight: 900, marginBottom: 12, textAlign: 'center', letterSpacing: '-0.01em' }}>
+                                تحقق من بريدك الإلكتروني
                             </h3>
-                            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, textAlign: 'center', marginBottom: 24 }}>
+                            <p style={{ color: '#6B6058', fontSize: 14, textAlign: 'center', marginBottom: 24 }}>
                                 أرسلنا رمز تحقق مكون من 6 أرقام إلى <br />
-                                <strong style={{ color: 'white' }}>{formData.email}</strong>
+                                <strong style={{ color: '#111111', fontWeight: 800 }}>{formData.email}</strong>
                             </p>
 
                             {error && (
                                 <div
                                     style={{
-                                        background: 'rgba(239,68,68,0.15)',
-                                        border: '1px solid rgba(239,68,68,0.3)',
+                                        background: 'rgba(192,57,43,0.08)',
+                                        border: '1px solid rgba(192,57,43,0.25)',
                                         borderRadius: 10,
                                         padding: '12px 16px',
-                                        color: '#FCA5A5',
+                                        color: '#8B1A1A',
                                         fontSize: 14,
                                         marginBottom: 20,
                                         textAlign: 'center'
@@ -417,10 +417,11 @@ export default function RegisterPage() {
                                     style={{
                                         background: 'none',
                                         border: 'none',
-                                        color: 'rgba(255,255,255,0.4)',
+                                        color: '#6B6058',
                                         fontSize: 13,
                                         cursor: 'pointer',
-                                        textDecoration: 'underline'
+                                        textDecoration: 'underline',
+                                        fontFamily: 'inherit',
                                     }}
                                 >
                                     تغيير البريد الإلكتروني
@@ -433,12 +434,14 @@ export default function RegisterPage() {
                                     style={{
                                         background: 'none',
                                         border: 'none',
-                                        color: '#8B5CF6',
+                                        color: '#C6A75E',
                                         fontSize: 13,
                                         cursor: 'pointer',
                                         display: 'block',
                                         margin: '0 auto',
-                                        marginTop: 12
+                                        marginTop: 12,
+                                        fontFamily: 'inherit',
+                                        fontWeight: 700,
                                     }}
                                 >
                                     إعادة إرسال الرمز
@@ -448,9 +451,9 @@ export default function RegisterPage() {
                     )}
                 </div>
 
-                <div style={{ textAlign: 'center', marginTop: 24, color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>
-                    لديك حساب بالفعل؟{' '}
-                    <Link href="/login" style={{ color: '#8B5CF6', fontWeight: 700, textDecoration: 'none' }}>
+                <div style={{ textAlign: 'center', marginTop: 24, color: '#6B6058', fontSize: 14 }}>
+                    لديك حساب بالفعل؟;{' '}
+                    <Link href="/login" style={{ color: '#222222', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid #222222' }}>
                         سجّل دخولك
                     </Link>
                 </div>
@@ -459,7 +462,7 @@ export default function RegisterPage() {
                     <Link
                         href="/"
                         style={{
-                            color: 'rgba(255,255,255,0.4)',
+                            color: '#6B6058',
                             fontSize: 13,
                             textDecoration: 'none',
                             display: 'inline-flex',

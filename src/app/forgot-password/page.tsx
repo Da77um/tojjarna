@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
             dir="rtl"
             style={{
                 minHeight: '100vh',
-                background: '#0B0D17',
+                background: '#EFE8DD',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -87,22 +87,22 @@ export default function ForgotPasswordPage() {
                                 width: 40,
                                 height: 40,
                                 borderRadius: 10,
-                                background: 'linear-gradient(135deg, #6C3CE1, #8B5CF6)',
+                                background: '#222222',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                boxShadow: '0 4px 12px rgba(108,60,225,0.4)',
+                                boxShadow: '0 4px 12px rgba(34,34,34,0.2)',
                             }}
                         >
-                            <Store size={20} color="white" />
+                            <Store size={20} color="#C6A75E" />
                         </div>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: 'white' }}>باسكت</span>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
                     </Link>
 
-                    <h1 style={{ fontSize: 26, fontWeight: 900, color: 'white', marginBottom: 12 }}>
-                        إعادة تعيين كلمة المرور 🔐
+                    <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111111', marginBottom: 12, letterSpacing: '-0.02em' }}>
+                        إعادة تعيين كلمة المرور
                     </h1>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 36, fontSize: 15, lineHeight: 1.6 }}>
+                    <p style={{ color: '#6B6058', marginBottom: 36, fontSize: 15, lineHeight: 1.6 }}>
                         أدخل بريدك الإلكتروني وسنرسل لك رابطاً <br /> لإعادة تعيين كلمة المرور الخاصة بك.
                     </p>
 
@@ -111,8 +111,8 @@ export default function ForgotPasswordPage() {
                             <div style={{ marginBottom: 20 }}>
                                 <CheckCircle size={64} color="#10B981" style={{ margin: '0 auto' }} />
                             </div>
-                            <h2 style={{ color: 'white', fontSize: 20, marginBottom: 12 }}>تم إرسال الرابط بنجاح!</h2>
-                            <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: 32, fontSize: 15 }}>
+                            <h2 style={{ color: '#111111', fontSize: 20, marginBottom: 12, fontWeight: 800 }}>تم إرسال الرابط بنجاح!</h2>
+                            <p style={{ color: '#6B6058', marginBottom: 32, fontSize: 15 }}>
                                 يرجى التحقق من بريدك الإلكتروني في غضون ثوانٍ.
                             </p>
                             <Link
@@ -129,11 +129,11 @@ export default function ForgotPasswordPage() {
                             {error && (
                                 <div
                                     style={{
-                                        background: 'rgba(239,68,68,0.15)',
-                                        border: '1px solid rgba(239,68,68,0.3)',
+                                        background: 'rgba(192,57,43,0.08)',
+                                        border: '1px solid rgba(192,57,43,0.25)',
                                         borderRadius: 10,
                                         padding: '12px 16px',
-                                        color: '#FCA5A5',
+                                        color: '#8B1A1A',
                                         fontSize: 14,
                                         marginBottom: 20,
                                         textAlign: 'right'
@@ -144,13 +144,13 @@ export default function ForgotPasswordPage() {
                             )}
 
                             <div className="form-group" style={{ textAlign: 'right', marginBottom: 24 }}>
-                                <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)', marginBottom: 8, display: 'block' }}>
+                                <label className="form-label" style={{ color: '#555147', marginBottom: 8, display: 'block' }}>
                                     البريد الإلكتروني
                                 </label>
                                 <div style={{ position: 'relative' }}>
                                     <Mail
                                         size={18}
-                                        color="rgba(255,255,255,0.3)"
+                                        color="#A09080"
                                         style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
                                     />
                                     <input
@@ -185,13 +185,13 @@ export default function ForgotPasswordPage() {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     gap: 8,
-                                    color: 'rgba(255,255,255,0.4)',
+                                    color: '#6B6058',
                                     fontSize: 14,
                                     textDecoration: 'none',
                                     transition: 'color 0.2s',
                                 }}
-                                onMouseOver={(e) => (e.currentTarget.style.color = 'white')}
-                                onMouseOut={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
+                                onMouseOver={(e) => (e.currentTarget.style.color = '#111111')}
+                                onMouseOut={(e) => (e.currentTarget.style.color = '#6B6058')}
                             >
                                 <ArrowRight size={16} />
                                 العودة لتسجيل الدخول

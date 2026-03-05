@@ -23,7 +23,7 @@ export default async function StorefrontLayout({
             <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFAFA' }}>
                 <div style={{ fontSize: 60, marginBottom: 16 }}>🏷️</div>
                 <h2 style={{ marginBottom: 16 }}>المتجر غير موجود</h2>
-                <Link href="/" style={{ color: '#6C3CE1', fontWeight: 700 }}>العودة للرئيسية</Link>
+                <Link href="/" style={{ color: '#222222', fontWeight: 700, borderBottom: '1.5px solid #222222', textDecoration: 'none' }}>العودة للرئيسية</Link>
             </div>
         )
     }
@@ -34,7 +34,7 @@ export default async function StorefrontLayout({
                 <div style={{ fontSize: 60, marginBottom: 16 }}>🛠️</div>
                 <h2 style={{ marginBottom: 8, color: '#111827', fontWeight: 900 }}>المتجر غير متاح حالياً</h2>
                 <p style={{ color: '#6B7280', margin: 0, marginBottom: 24, fontSize: 16 }}>عذراً، هذا المتجر غير متاح في الوقت الحالي. يرجى المحاولة لاحقاً.</p>
-                <Link href="/" style={{ background: '#6C3CE1', color: 'white', padding: '10px 24px', borderRadius: 8, fontWeight: 700, textDecoration: 'none' }}>تصفح متاجر أخرى</Link>
+                <Link href="/" style={{ background: '#222222', color: 'white', padding: '10px 24px', borderRadius: 8, fontWeight: 700, textDecoration: 'none' }}>تصفح متاجر أخرى</Link>
             </div>
         )
     }

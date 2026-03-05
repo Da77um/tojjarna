@@ -108,7 +108,7 @@ export default function LoginPage() {
                         <div className="form-group">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                                 <label className="form-label" style={{ margin: 0 }}>كلمة المرور</label>
-                                <Link href="/forgot-password" style={{ color: '#C6A75E', fontSize: 13, textDecoration: 'none', fontWeight: 700 }}>
+                                <Link href="/forgot-password" style={{ color: '#555147', fontSize: 13, textDecoration: 'none', fontWeight: 700, borderBottom: '1px solid rgba(85,81,71,0.35)' }}>
                                     نسيت كلمة المرور؟
                                 </Link>
                             </div>
@@ -171,7 +171,7 @@ export default function LoginPage() {
 
                     <p style={{ textAlign: 'center', marginTop: 28, color: '#6B6058', fontSize: 14 }}>
                         ليس لديك حساب؟{' '}
-                        <Link href="/register" style={{ color: '#C6A75E', fontWeight: 800, textDecoration: 'none' }}>
+                        <Link href="/register" style={{ color: '#222222', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid #222222' }}>
                             أنشئ حسابك مجاناً
                         </Link>
                     </p>
@@ -218,7 +218,7 @@ export default function LoginPage() {
                                 borderRadius: 12, padding: '12px 20px', textAlign: 'center',
                             }}>
                                 <div style={{ color: '#C6A75E', fontWeight: 900, fontSize: 20 }}>{s.v}</div>
-                                <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, marginTop: 2 }}>{s.l}</div>
+                                <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: 12, marginTop: 2 }}>{s.l}</div>
                             </div>
                         ))}
                     </div>

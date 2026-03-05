@@ -160,15 +160,15 @@ export default function DashboardLayout({
                                 width: 38,
                                 height: 38,
                                 borderRadius: 10,
-                                background: 'linear-gradient(135deg, #6C3CE1, #8B5CF6)',
+                                background: '#222222',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                boxShadow: '0 4px 12px rgba(108,60,225,0.3)',
+                                boxShadow: '0 4px 12px rgba(34,34,34,0.3)',
                                 flexShrink: 0,
                             }}
                         >
-                            <Store size={20} color="white" />
+                            <Store size={20} color="#C6A75E" />
                         </div>
                         <div>
                             <div style={{ fontWeight: 900, fontSize: 17, color: 'var(--text-primary)' }}>
@@ -186,8 +186,8 @@ export default function DashboardLayout({
                     style={{
                         margin: '16px 12px',
                         padding: '12px 14px',
-                        background: 'linear-gradient(135deg, rgba(108,60,225,0.08), rgba(139,92,246,0.05))',
-                        border: '1px solid rgba(108,60,225,0.15)',
+                        background: 'linear-gradient(135deg, rgba(198,167,94,0.08), rgba(198,167,94,0.04))',
+                        border: '1px solid rgba(198,167,94,0.18)',
                         borderRadius: 12,
                         cursor: 'pointer',
                         display: 'flex',
@@ -201,13 +201,13 @@ export default function DashboardLayout({
                                 width: 34,
                                 height: 34,
                                 borderRadius: 8,
-                                background: 'linear-gradient(135deg, #6C3CE1, #8B5CF6)',
+                                background: '#222222',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             }}
                         >
-                            <span style={{ color: 'white', fontWeight: 800, fontSize: 14 }}>م</span>
+                            <span style={{ color: '#C6A75E', fontWeight: 800, fontSize: 14 }}>م</span>
                         </div>
                         <div>
                             <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>
