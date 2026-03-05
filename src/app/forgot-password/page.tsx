@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 20,
-                fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+                fontFamily: 'Lalezar, sans-serif',
             }}
         >
             <div

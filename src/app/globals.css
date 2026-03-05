@@ -70,7 +70,7 @@
   --color-border: var(--border);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
-  --font-arabic: 'IBM Plex Sans Arabic', sans-serif;
+  --font-arabic: 'Lalezar', sans-serif;
   --font-latin: 'Inter', sans-serif;
 }
 
@@ -88,7 +88,7 @@ html {
 body {
   background: var(--background);
   color: var(--text-primary);
-  font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif;
+  font-family: 'Lalezar', 'Inter', sans-serif;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -96,7 +96,7 @@ body {
 
 /* RTL direction for Arabic */
 [dir="rtl"] {
-  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-family: 'Lalezar', sans-serif;
   text-align: right;
 }
 
@@ -645,7 +645,7 @@ tr:hover td {
 }
 
 [data-sonner-toast] {
-  font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif !important;
+  font-family: 'Lalezar', 'Inter', sans-serif !important;
   border-radius: var(--radius-md) !important;
   box-shadow: var(--shadow-md) !important;
   margin-bottom: 8px !important;

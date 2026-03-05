@@ -34,7 +34,7 @@ export default function SettingsPage() {
 
     // Appearance
     const [primaryColor, setPrimaryColor] = useState('#6C3CE1')
-    const [font, setFont] = useState('IBM Plex Sans Arabic')
+    const [font, setFont] = useState('Lalezar')
     const [layout, setLayout] = useState('grid')
 
     // Social
@@ -76,7 +76,7 @@ export default function SettingsPage() {
             setFacebook(s.facebook || '')
             setCustomDomain(s.custom_domain || '')
             setPrimaryColor(s.theme?.primary_color || '#6C3CE1')
-            setFont(s.theme?.font_family || 'IBM Plex Sans Arabic')
+            setFont(s.theme?.font_family || 'Lalezar')
             setLayout(s.theme?.layout || 'grid')
 
             // Load shipping zones from DB
@@ -263,7 +263,7 @@ export default function SettingsPage() {
                             <div className="form-group">
                                 <label className="form-label">الخط</label>
                                 <select className="form-control" value={font} onChange={e => setFont(e.target.value)}>
-                                    {['IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', 'Cairo', 'Amiri'].map(f => <option key={f}>{f}</option>)}
+                                    {['Lalezar', 'Tajawal', 'Noto Sans Arabic', 'Cairo', 'Amiri'].map(f => <option key={f}>{f}</option>)}
                                 </select>
                             </div>
 
