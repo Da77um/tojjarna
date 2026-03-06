@@ -808,22 +808,34 @@ tr:hover td {
   gap: 12px;
 }
 
-/* Settings tabs layout: sidebar + content */
-.settings-layout {
+
+/* Settings page — desktop: sidebar + content, mobile: chips + content */
+.settings-page-layout {
   display: flex;
   gap: 24px;
   align-items: flex-start;
 }
 
-.settings-tabs-sidebar {
+/* Full-width column for mobile chips — hidden on desktop */
+.settings-chip-tabs {
+  display: none;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Left sidebar nav — visible on desktop */
+.settings-sidebar-nav {
   width: 220px;
   flex-shrink: 0;
 }
 
-.settings-content {
+/* Content area */
+.settings-page-content {
   flex: 1;
   min-width: 0;
 }
+
+
 
 /* Floating Action Button */
 .fab {
@@ -994,32 +1006,29 @@ tr:hover td {
     width: 100%;
   }
 
-  .settings-tabs-sidebar .card {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 4px;
-    padding: 6px;
+  /* Settings → mobile: stack vertically, show chip tabs, hide sidebar */
+  .settings-page-layout {
+    flex-direction: column;
   }
 
-  .settings-tabs-sidebar .card::-webkit-scrollbar {
+  .settings-chip-tabs {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .settings-sidebar-nav {
     display: none;
   }
 
-  .settings-tabs-sidebar button {
-    flex-shrink: 0;
-    white-space: nowrap;
-    min-height: 40px;
-    font-size: 13px;
+  .settings-page-content {
+    width: 100%;
   }
 
   /* FAB visible on mobile */
   .fab {
     display: flex;
   }
+
 
   .stat-card {
     padding: 16px;
