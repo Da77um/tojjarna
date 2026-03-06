@@ -700,6 +700,38 @@ tr:hover td {
   max-width: 1400px;
 }
 
+/* ── Product form grid: 2-col desktop → 1-col mobile ── */
+.product-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── 4-col desktop stat grid ── */
+.mobile-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* ── Sticky save bar (mobile only, hidden on desktop) ── */
+.mobile-save-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: rgba(253, 250, 246, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid #E0D6C8;
+  gap: 10px;
+  z-index: 150;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .sidebar {
@@ -774,6 +806,23 @@ tr:hover td {
 
   .page-container {
     padding: 16px;
+    padding-bottom: 88px;
+    /* clear sticky save bar when present */
+  }
+
+  /* Form grid → single column on mobile */
+  .product-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 4-col stat grids → 2×2 on mobile */
+  .mobile-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Show the sticky save bar */
+  .mobile-save-bar {
+    display: flex;
   }
 
   .stat-card {
