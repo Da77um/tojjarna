@@ -7,6 +7,7 @@ import { User, Phone, Store, Eye, EyeOff, ArrowLeft, Mail, Lock } from 'lucide-r
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { useLanguage } from '@/i18n/LanguageContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function RegisterPage() {
     const router = useRouter()
@@ -142,33 +143,36 @@ export default function RegisterPage() {
             }}
         >
             <div style={{ width: '100%', maxWidth: 500 }}>
-                {/* Logo */}
-                <Link
-                    href="/"
-                    style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        textDecoration: 'none',
-                        marginBottom: 40,
-                    }}
-                >
-                    <div
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+                    {/* Logo */}
+                    <Link
+                        href="/"
                         style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 10,
-                            background: '#222222',
-                            display: 'flex',
+                            display: 'inline-flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
+                            gap: 10,
+                            textDecoration: 'none',
                         }}
                     >
-                        <Store size={20} color="#C6A75E" />
-                    </div>
-                    <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
-                </Link>
+                        <div
+                            style={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: 10,
+                                background: '#222222',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
+                            }}
+                        >
+                            <Store size={20} color="#C6A75E" />
+                        </div>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
+                    </Link>
+
+                    <LanguageSwitcher compact />
+                </div>
 
                 <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111111', marginBottom: 8, letterSpacing: '-0.02em' }}>
                     {t.auth.createStoreToday}

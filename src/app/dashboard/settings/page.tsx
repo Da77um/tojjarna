@@ -221,7 +221,7 @@ export default function SettingsPage() {
             <div className="settings-page-layout">
 
                 {/* ▷ MOBILE: horizontal chip row */}
-                <div className="chips-row settings-chip-tabs">
+                <div className="chips-row settings-chip-tabs show-on-mobile">
                     {TABS.map(t => {
                         const Icon = t.icon
                         return (
@@ -238,7 +238,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* ▷ DESKTOP: left sidebar nav */}
-                <nav className="settings-sidebar-nav">
+                <nav className="settings-sidebar-nav hide-on-mobile">
                     <div className="card" style={{ padding: 8 }}>
                         {TABS.map(navTab => {
                             const Icon = navTab.icon

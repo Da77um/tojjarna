@@ -218,10 +218,6 @@ export default function DashboardLayout({
 
                 {/* Sidebar bottom */}
                 <div style={{ padding: '16px 12px', borderTop: '1px solid #E0D6C8' }}>
-                    {/* Language switcher in sidebar */}
-                    <div style={{ marginBottom: 8, padding: '0 6px' }}>
-                        <LanguageSwitcher />
-                    </div>
                     <a
                         href={activeStore?.slug ? `/store/${activeStore.slug}` : '#'}
                         target="_blank"
@@ -277,8 +273,8 @@ export default function DashboardLayout({
                     {/* Right side: lang switcher + notifs + user */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
 
-                        {/* Language Switcher — hide on very small mobile, show on tablet+ */}
-                        <div className="hide-on-mobile">
+                        {/* Language Switcher */}
+                        <div>
                             <LanguageSwitcher compact />
                         </div>
 

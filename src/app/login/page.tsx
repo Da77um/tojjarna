@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, Store } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function LoginPage() {
     const router = useRouter()
@@ -58,18 +59,22 @@ export default function LoginPage() {
             }}>
                 <div className="mobile-full-width" style={{ width: '100%', maxWidth: 420 }}>
 
-                    {/* Logo */}
-                    <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 48 }}>
-                        <div style={{
-                            width: 42, height: 42, borderRadius: 10,
-                            background: '#222222',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
-                        }}>
-                            <Store size={20} color="#C6A75E" />
-                        </div>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
-                    </Link>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 48 }}>
+                        {/* Logo */}
+                        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                            <div style={{
+                                width: 42, height: 42, borderRadius: 10,
+                                background: '#222222',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
+                            }}>
+                                <Store size={20} color="#C6A75E" />
+                            </div>
+                            <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
+                        </Link>
+
+                        <LanguageSwitcher compact />
+                    </div>
 
                     {/* Headline */}
                     <h1 style={{ fontSize: 30, fontWeight: 900, color: '#111111', marginBottom: 8, letterSpacing: '-0.02em' }}>

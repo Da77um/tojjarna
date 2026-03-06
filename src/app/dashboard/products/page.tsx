@@ -55,13 +55,17 @@ export default function ProductsPage() {
                 if (productsData) {
                     setProducts(productsData.map(p => ({
                         ...p,
-                        name: p.name_ar,
-                        category: p.categories?.name_ar || t.products.uncategorized,
+                        name: lang === 'ar' ? p.name_ar : (p.name_en || p.name_ar),
+                        category: lang === 'ar'
+                            ? (p.categories?.name_ar || t.products.uncategorized)
+                            : (p.categories?.name_en || p.categories?.name_ar || t.products.uncategorized),
                         status: p.is_active ? 'active' : 'inactive',
                         sales: p.sold_count || 0,
                     })))
                     setCanAddProduct(maxLimit === null || productsData.length < maxLimit)
-                    const cats = Array.from(new Set(productsData.map(p => p.categories?.name_ar).filter(Boolean))) as string[]
+                    const cats = Array.from(new Set(productsData.map(p =>
+                        lang === 'ar' ? p.categories?.name_ar : (p.categories?.name_en || p.categories?.name_ar)
+                    ).filter(Boolean))) as string[]
                     setCategories([t.common.all, ...cats])
                 }
             } catch (err) {
@@ -157,7 +161,7 @@ export default function ProductsPage() {
             </div>
 
             {/* ── Desktop Table (hidden on mobile) ── */}
-            <div className="card hide-on-mobile">
+            <div className="card hide-on-mobile" style={{ padding: 0, overflow: 'hidden' }}>
                 {filtered.length === 0 ? (
                     <div style={{ padding: 80, textAlign: 'center' }}>
                         <Package size={48} color="#A09080" style={{ margin: '0 auto 16px' }} />
@@ -167,61 +171,63 @@ export default function ProductsPage() {
                         </p>
                     </div>
                 ) : (
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr>
-                                {[t.products.productDetails, 'SKU', t.common.price, t.products.stock, t.analytics.sales, t.common.status, t.common.actions].map(h => (
-                                    <th key={h} style={{ textAlign: dir === 'rtl' ? 'right' : 'left', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.map(product => {
-                                const stockBadge = getStockBadge(product.stock, t, lang)
-                                return (
-                                    <tr key={product.id} style={{ borderTop: '1px solid #E0D6C8' }}>
-                                        <td style={{ padding: '14px 16px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                                <div style={{ width: 48, height: 48, borderRadius: 10, background: '#F5F0E8', border: '1px solid #E0D6C8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                    {product.image_url
-                                                        ? <img src={product.image_url} alt={product.name} style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} />
-                                                        : <Package size={22} color="#A09080" />
-                                                    }
+                    <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr>
+                                    {[t.products.productDetails, 'SKU', t.common.price, t.products.stock, t.analytics.sales, t.common.status, t.common.actions].map(h => (
+                                        <th key={h} style={{ textAlign: dir === 'rtl' ? 'right' : 'left', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filtered.map(product => {
+                                    const stockBadge = getStockBadge(product.stock, t, lang)
+                                    return (
+                                        <tr key={product.id} style={{ borderTop: '1px solid #E0D6C8' }}>
+                                            <td style={{ padding: '14px 16px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                    <div style={{ width: 48, height: 48, borderRadius: 10, background: '#F5F0E8', border: '1px solid #E0D6C8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                        {product.image_url
+                                                            ? <img src={product.image_url} alt={product.name} style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} />
+                                                            : <Package size={22} color="#A09080" />
+                                                        }
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontWeight: 700, fontSize: 14, color: '#111' }}>{product.name}</div>
+                                                        <div style={{ fontSize: 12, color: '#A09080', marginTop: 2 }}>{product.category}</div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <div style={{ fontWeight: 700, fontSize: 14, color: '#111' }}>{product.name}</div>
-                                                    <div style={{ fontSize: 12, color: '#A09080', marginTop: 2 }}>{product.category}</div>
+                                            </td>
+                                            <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sku || '—'}</td>
+                                            <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }} dir="ltr">{product.price?.toFixed(2)} {t.common.currency}</td>
+                                            <td style={{ padding: '14px 16px' }}>
+                                                <span style={{ background: stockBadge.bg, color: stockBadge.color, padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
+                                                    {stockBadge.label}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sales} {t.analytics.sold}</td>
+                                            <td style={{ padding: '14px 16px' }}>
+                                                <span style={{ background: product.status === 'active' ? '#D1FAE5' : '#F3F4F6', color: product.status === 'active' ? '#065F46' : '#374151', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
+                                                    {product.status === 'active' ? t.common.active : t.common.inactive}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '14px 16px' }}>
+                                                <div style={{ display: 'flex', gap: 6, justifyContent: dir === 'rtl' ? 'flex-start' : 'flex-start' }}>
+                                                    <Link href={`/dashboard/products/${product.id}/edit`} style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #E0D6C8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B6058' }}>
+                                                        <Edit size={14} />
+                                                    </Link>
+                                                    <button onClick={() => setItemToDelete(product.id)} style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #FEE2E2', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <Trash2 size={14} color="#B91C1C" />
+                                                    </button>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sku || '—'}</td>
-                                        <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }} dir="ltr">{product.price?.toFixed(2)} {t.common.currency}</td>
-                                        <td style={{ padding: '14px 16px' }}>
-                                            <span style={{ background: stockBadge.bg, color: stockBadge.color, padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
-                                                {stockBadge.label}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sales} {t.analytics.sold}</td>
-                                        <td style={{ padding: '14px 16px' }}>
-                                            <span style={{ background: product.status === 'active' ? '#D1FAE5' : '#F3F4F6', color: product.status === 'active' ? '#065F46' : '#374151', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
-                                                {product.status === 'active' ? t.common.active : t.common.inactive}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '14px 16px' }}>
-                                            <div style={{ display: 'flex', gap: 6, justifyContent: dir === 'rtl' ? 'flex-start' : 'flex-start' }}>
-                                                <Link href={`/dashboard/products/${product.id}/edit`} style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #E0D6C8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B6058' }}>
-                                                    <Edit size={14} />
-                                                </Link>
-                                                <button onClick={() => setItemToDelete(product.id)} style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #FEE2E2', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Trash2 size={14} color="#B91C1C" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 

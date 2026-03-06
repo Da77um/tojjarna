@@ -21,9 +21,11 @@ import {
   ChevronLeft,
   Sparkles,
   Zap,
-} from 'lucide-react'
+import { Zap } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 const features = [
   {
@@ -152,8 +154,10 @@ export default function LandingPage() {
     fetchPlans()
   }, [])
 
+  const { dir } = useLanguage()
+
   return (
-    <div dir="rtl" style={{ background: '#EFE8DD', minHeight: '100vh', fontFamily: 'Tajawal, sans-serif' }}>
+    <div dir={dir} style={{ background: '#EFE8DD', minHeight: '100vh', fontFamily: 'Tajawal, Inter, sans-serif' }}>
 
       {/* ===== NAVBAR ===== */}
       <nav style={{
@@ -185,6 +189,7 @@ export default function LandingPage() {
             <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>المميزات</a>
             <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>الأسعار</a>
             <a href="#testimonials" style={{ color: 'inherit', textDecoration: 'none' }}>آراء العملاء</a>
+            <LanguageSwitcher compact />
           </div>
 
           {/* CTA Buttons */}
@@ -229,6 +234,9 @@ export default function LandingPage() {
           <div style={{ background: '#EFE8DD', borderTop: '1px solid #E0D6C8', padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
             <a href="#features" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }} onClick={() => setMobileMenuOpen(false)}>المميزات</a>
             <a href="#pricing" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }} onClick={() => setMobileMenuOpen(false)}>الأسعار</a>
+            <div style={{ padding: '8px 0', borderTop: '1px solid #E0D6C8', borderBottom: '1px solid #E0D6C8' }}>
+              <LanguageSwitcher />
+            </div>
             <Link href="/login" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }}>تسجيل الدخول</Link>
             <Link href="/register" id="mobile-reg-btn" style={{ background: '#C6A75E', color: '#111111', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 800, textAlign: 'center', fontSize: 16 }}>انشئ متجرك مجاناً</Link>
           </div>
