@@ -147,7 +147,7 @@ function SectionRenderer({ section, primary, radius, products, slug, t, dir }: {
                             ]).map((t: any, i: number) => (
                                 <div key={i} style={{ background: 'white', borderRadius: radius, padding: '24px', border: '1px solid #E5E7EB', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                                     <div style={{ color: '#F59E0B', fontSize: 18, marginBottom: 12, letterSpacing: 2 }}>{'★'.repeat(t.stars)}{'☆'.repeat(5 - t.stars)}</div>
-                                    <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, marginBottom: 16 }}>"{t.text}"</p>
+                                    <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, marginBottom: 16 }}>&quot;{t.text}&quot;</p>
                                     <div style={{ fontWeight: 700, fontSize: 13, color: primary }}>— {t.name}</div>
                                 </div>
                             ))}

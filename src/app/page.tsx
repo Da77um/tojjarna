@@ -21,7 +21,7 @@ import {
   ChevronLeft,
   Sparkles,
   Zap,
-import { Zap } from 'lucide-react'
+} from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import LanguageSwitcher from '@/components/LanguageSwitcher'

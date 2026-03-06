@@ -25,6 +25,15 @@ const LanguageContext = createContext<LanguageContextType>({
 export function LanguageProvider({ children }: { children: ReactNode }) {
     const [lang, setLangState] = useState<Lang>('ar')
 
+    function applyLang(lng: Lang) {
+        const dir = lng === 'ar' ? 'rtl' : 'ltr'
+        document.documentElement.lang = lng
+        document.documentElement.dir = dir
+        // Font switching via CSS class
+        document.documentElement.classList.remove('lang-ar', 'lang-en')
+        document.documentElement.classList.add(`lang-${lng}`)
+    }
+
     // On mount: read from localStorage or browser preference
     useEffect(() => {
         const stored = localStorage.getItem('tojjarna_lang') as Lang | null
@@ -38,15 +47,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
             setLangState(browserLang)
         }
     }, [])
-
-    function applyLang(lng: Lang) {
-        const dir = lng === 'ar' ? 'rtl' : 'ltr'
-        document.documentElement.lang = lng
-        document.documentElement.dir = dir
-        // Font switching via CSS class
-        document.documentElement.classList.remove('lang-ar', 'lang-en')
-        document.documentElement.classList.add(`lang-${lng}`)
-    }
 
     const setLang = (lng: Lang) => {
         localStorage.setItem('tojjarna_lang', lng)
