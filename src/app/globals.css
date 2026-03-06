@@ -700,6 +700,157 @@ tr:hover td {
   max-width: 1400px;
 }
 
+/* ════════════════════════════════
+   Mobile Utility Classes
+   ════════════════════════════════ */
+
+/* Visibility helpers */
+.hide-on-mobile {
+  display: block;
+}
+
+.show-on-mobile {
+  display: none;
+}
+
+/* Mobile search bar */
+.mobile-search {
+  position: relative;
+  width: 100%;
+}
+
+.mobile-search input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 48px 12px 14px;
+  border: 1.5px solid #E0D6C8;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fff;
+  outline: none;
+  color: #111;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.mobile-search input:focus {
+  border-color: #C6A75E;
+}
+
+.mobile-search .search-icon {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  color: #A09080;
+  pointer-events: none;
+}
+
+/* Horizontal scrollable chip row */
+.chips-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.chips-row::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1.5px solid #E0D6C8;
+  background: transparent;
+  color: #6B6058;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  min-height: 40px;
+}
+
+.chip.active,
+.chip:active {
+  border-color: #C6A75E;
+  background: #C6A75E;
+  color: white;
+}
+
+/* Mobile card */
+.mobile-card {
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid #E8E0D4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+}
+
+.mobile-card:active {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* 2-column mobile grid */
+.mobile-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* Settings tabs layout: sidebar + content */
+.settings-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.settings-tabs-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.settings-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  left: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #C6A75E;
+  color: white;
+  border: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(198, 167, 94, 0.4);
+  cursor: pointer;
+  z-index: 140;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fab:active {
+  transform: scale(0.94);
+}
+
+
+
 /* ── Product form grid: 2-col desktop → 1-col mobile ── */
 .product-form-grid {
   display: grid;
@@ -822,6 +973,51 @@ tr:hover td {
 
   /* Show the sticky save bar */
   .mobile-save-bar {
+    display: flex;
+  }
+
+  /* Visibility helpers — flip on mobile */
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: flex;
+  }
+
+  /* Settings → stack tabs above content */
+  .settings-layout {
+    flex-direction: column;
+  }
+
+  .settings-tabs-sidebar {
+    width: 100%;
+  }
+
+  .settings-tabs-sidebar .card {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .settings-tabs-sidebar .card::-webkit-scrollbar {
+    display: none;
+  }
+
+  .settings-tabs-sidebar button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-height: 40px;
+    font-size: 13px;
+  }
+
+  /* FAB visible on mobile */
+  .fab {
     display: flex;
   }
 

@@ -13,7 +13,6 @@ export default function CouponsPage() {
     const [saving, setSaving] = useState(false)
     const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 
-    // Form states
     const [code, setCode] = useState('')
     const [type, setType] = useState<'percentage' | 'fixed'>('percentage')
     const [value, setValue] = useState('')
@@ -25,35 +24,17 @@ export default function CouponsPage() {
         try {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
-
-            const { data: stores } = await supabase
-                .from('stores')
-                .select('id')
-                .eq('user_id', user.id)
-
+            const { data: stores } = await supabase.from('stores').select('id').eq('user_id', user.id)
             if (!stores || stores.length === 0) return
-            const storeIds = stores.map(s => s.id)
-
-            const { data, error } = await supabase
-                .from('coupons')
-                .select('*')
-                .in('store_id', storeIds)
-                .order('created_at', { ascending: false })
-
+            const { data, error } = await supabase.from('coupons').select('*').in('store_id', stores.map(s => s.id)).order('created_at', { ascending: false })
             if (error) throw error
             setCoupons(data || [])
-        } catch (err) {
-            console.error('Error fetching coupons:', err)
-        } finally {
-            setLoading(false)
-        }
+        } catch (err) { console.error(err) } finally { setLoading(false) }
     }
 
-    useEffect(() => {
-        fetchCoupons()
-    }, [supabase])
+    useEffect(() => { fetchCoupons() }, [supabase])
 
-    const filtered = coupons.filter((c) => c.code.toLowerCase().includes(search.toLowerCase()))
+    const filtered = coupons.filter(c => c.code.toLowerCase().includes(search.toLowerCase()))
 
     async function handleSave() {
         if (!code || !value) return
@@ -61,98 +42,80 @@ export default function CouponsPage() {
         try {
             const { data: { user } } = await supabase.auth.getUser()
             const { data: store } = await supabase.from('stores').select('id').eq('user_id', user?.id).single()
-
             const { error } = await supabase.from('coupons').insert({
-                store_id: store?.id,
-                code: code.toUpperCase(),
+                store_id: store?.id, code: code.toUpperCase(),
                 type: type === 'percentage' ? 'percent' : 'fixed',
-                value: Number(value),
-                min_order: minOrder ? Number(minOrder) : null,
-                usage_limit: limit ? Number(limit) : null,
-                is_active: true
+                value: Number(value), min_order: minOrder ? Number(minOrder) : null,
+                usage_limit: limit ? Number(limit) : null, is_active: true
             })
-
             if (error) throw error
-
-            setShowNew(false)
-            setCode('')
-            setValue('')
-            setMinOrder('')
-            setLimit('')
+            setShowNew(false); setCode(''); setValue(''); setMinOrder(''); setLimit('')
             toast.success('تم حفظ الكوبون بنجاح')
             fetchCoupons()
-        } catch (err) {
-            console.error('Error saving coupon:', err)
-            toast.error('حدث خطأ أثناء حفظ الكوبون. يرجى المحاولة مرة أخرى.')
-        } finally {
-            setSaving(false)
-        }
+        } catch {
+            toast.error('حدث خطأ أثناء حفظ الكوبون')
+        } finally { setSaving(false) }
     }
 
     async function handleDelete(id: string) {
-        try {
-            const { error } = await supabase.from('coupons').delete().eq('id', id)
-            if (error) throw error
-            toast.success('تم حذف الكوبون بنجاح')
-            fetchCoupons()
-        } catch (err) {
-            console.error('Error deleting coupon:', err)
-            toast.error('حدث خطأ أثناء حذف الكوبون')
-        }
+        const { error } = await supabase.from('coupons').delete().eq('id', id)
+        if (!error) { toast.success('تم حذف الكوبون'); fetchCoupons() }
+        else toast.error('خطأ في حذف الكوبون')
     }
 
     if (loading) return (
-        <div style={{ padding: 100, textAlign: 'center' }}>
-            <div className="spinner" style={{ margin: '0 auto' }} />
+        <div className="page-container" dir="rtl">
+            <div className="skeleton skeleton-text" style={{ width: 140, height: 22, marginBottom: 8 }} />
+            {[1, 2, 3].map(i => <div key={i} className="skeleton mobile-card" style={{ marginBottom: 10, height: 80 }} />)}
         </div>
     )
 
     return (
-        <div className="page-container">
-            <div className="page-header">
+        <div className="page-container" dir="rtl">
+            <div className="page-header" style={{ flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <h1 className="page-title">الكوبونات والخصومات</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>
-                        {coupons.filter(c => c.is_active).length} كوبونات نشطة
-                    </p>
+                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>{coupons.filter(c => c.is_active).length} كوبون نشط</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => setShowNew(true)}>
-                    <Plus size={16} />
-                    إنشاء كوبون
+                <button className="btn btn-primary" onClick={() => setShowNew(!showNew)}>
+                    <Plus size={16} /> إنشاء كوبون
                 </button>
             </div>
 
             {/* New coupon form */}
             {showNew && (
-                <div className="card card-body" style={{ marginBottom: 24, border: '2px solid var(--primary)' }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 20, fontSize: 15 }}>كوبون جديد</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
-                        <div className="form-group">
+                <div className="card card-body" style={{ marginBottom: 20, borderTop: '3px solid #C6A75E' }}>
+                    <h3 style={{ fontWeight: 700, marginBottom: 16, fontSize: 15 }}>كوبون جديد</h3>
+
+                    {/* Responsive form grid: stack on mobile */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
                             <label className="form-label">كود الكوبون *</label>
-                            <input className="form-control" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="مثال: WELCOME20" dir="ltr" />
+                            <input className="form-control" value={code} onChange={e => setCode(e.target.value.toUpperCase())} placeholder="WELCOME20" dir="ltr" />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group" style={{ marginBottom: 0 }}>
                             <label className="form-label">نوع الخصم</label>
-                            <select className="form-control" value={type} onChange={(e) => setType(e.target.value as 'percentage' | 'fixed')}>
+                            <select className="form-control" value={type} onChange={e => setType(e.target.value as any)}>
                                 <option value="percentage">نسبة مئوية (%)</option>
                                 <option value="fixed">مبلغ ثابت (د.أ)</option>
                             </select>
                         </div>
-                        <div className="form-group">
+                        <div className="form-group" style={{ marginBottom: 0 }}>
                             <label className="form-label">قيمة الخصم *</label>
-                            <input className="form-control" type="number" value={value} onChange={(e) => setValue(e.target.value)} placeholder={type === 'percentage' ? '20' : '3.000'} />
+                            <input className="form-control" type="number" value={value} onChange={e => setValue(e.target.value)} placeholder={type === 'percentage' ? '20' : '3.000'} />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group" style={{ marginBottom: 0 }}>
                             <label className="form-label">حد أدنى للطلب (د.أ)</label>
-                            <input className="form-control" type="number" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} placeholder="اختياري" />
+                            <input className="form-control" type="number" value={minOrder} onChange={e => setMinOrder(e.target.value)} placeholder="اختياري" />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group" style={{ marginBottom: 0 }}>
                             <label className="form-label">حد الاستخدام</label>
-                            <input className="form-control" type="number" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder="غير محدود" />
+                            <input className="form-control" type="number" value={limit} onChange={e => setLimit(e.target.value)} placeholder="غير محدود" />
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
-                        <button className="btn btn-ghost" onClick={() => setShowNew(false)} disabled={saving}>إلغاء</button>
+
+                    <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        <button className="btn btn-ghost" onClick={() => setShowNew(false)} disabled={saving} style={{ border: '1px solid #E0D6C8' }}>إلغاء</button>
                         <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
                             {saving ? 'جاري الحفظ...' : 'حفظ الكوبون'}
                         </button>
@@ -161,100 +124,129 @@ export default function CouponsPage() {
             )}
 
             {/* Search */}
-            <div style={{ position: 'relative', marginBottom: 20, maxWidth: 380 }}>
-                <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }} />
-                <input className="form-control" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحث عن كوبون..." style={{ paddingRight: 42 }} />
+            <div className="mobile-search" style={{ marginBottom: 20 }}>
+                <Search size={17} className="search-icon" />
+                <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="ابحث عن كوبون..." style={{ paddingRight: 44 }} />
             </div>
 
-            {/* Coupons table */}
-            <div className="card">
-                {filtered.length === 0 ? (
-                    <div style={{ padding: 60, textAlign: 'center' }}>
-                        <p style={{ color: 'var(--text-secondary)' }}>لا توجد كوبونات للعرض</p>
-                    </div>
-                ) : (
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr>
-                                {['الكود', 'الخصم', 'شرط', 'الاستخدام', 'الحالة', 'انتهاء الصلاحية', ''].map((h) => (
-                                    <th key={h} style={{ textAlign: 'right', padding: '14px 20px', background: 'var(--surface-2)', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 700 }}>{h}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.map((coupon) => (
-                                <tr key={coupon.id} style={{ borderTop: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '14px 20px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <Tag size={14} color="var(--primary)" />
-                                            <span style={{ fontWeight: 800, fontSize: 14, letterSpacing: 0.5, color: 'var(--primary)', fontFamily: 'monospace' }}>{coupon.code}</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '14px 20px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, fontSize: 15 }}>
-                                            {coupon.type === 'percent' ? <Percent size={14} color="#10B981" /> : <DollarSign size={14} color="#F59E0B" />}
-                                            {coupon.type === 'percent' ? `${coupon.value}%` : `${coupon.value.toFixed(3)} د.أ`}
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '14px 20px', fontSize: 13, color: 'var(--text-secondary)' }}>
-                                        {coupon.min_order ? `فوق ${coupon.min_order} د.أ` : 'بدون حد'}
-                                    </td>
-                                    <td style={{ padding: '14px 20px' }}>
-                                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                                            {coupon.usage_count || 0} / {coupon.usage_limit ?? '∞'}
-                                        </div>
-                                        {coupon.usage_limit && (
-                                            <div style={{ height: 4, borderRadius: 4, background: 'var(--surface-2)', marginTop: 4, overflow: 'hidden' }}>
-                                                <div style={{ height: '100%', background: (coupon.usage_count || 0) >= coupon.usage_limit ? '#EF4444' : 'var(--primary)', width: `${Math.min(((coupon.usage_count || 0) / coupon.usage_limit) * 100, 100)}%`, borderRadius: 4 }} />
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td style={{ padding: '14px 20px' }}>
-                                        <span className={`badge ${coupon.is_active ? 'badge-success' : 'badge-gray'}`}>
-                                            {coupon.is_active ? 'نشط' : 'منتهي'}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '14px 20px', color: 'var(--text-muted)', fontSize: 13 }}>
-                                        {coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString('ar-JO') : '—'}
-                                    </td>
-                                    <td style={{ padding: '14px 20px' }}>
-                                        <button
-                                            onClick={() => setItemToDelete(coupon.id)}
-                                            style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #FEE2E2', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                        >
-                                            <Trash2 size={14} color="#EF4444" />
-                                        </button>
-                                    </td>
+            {/* Empty state */}
+            {filtered.length === 0 ? (
+                <div className="card card-body" style={{ textAlign: 'center', padding: '48px 20px' }}>
+                    <Tag size={40} color="#D4C8BB" style={{ margin: '0 auto 12px', display: 'block' }} />
+                    <p style={{ color: '#6B6058', fontSize: 14 }}>لا توجد كوبونات للعرض</p>
+                </div>
+            ) : (
+                <>
+                    {/* Desktop table */}
+                    <div className="card hide-on-mobile">
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr>
+                                    {['الكود', 'الخصم', 'شرط', 'الاستخدام', 'الحالة', 'انتهاء الصلاحية', ''].map(h => (
+                                        <th key={h} style={{ textAlign: 'right', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
+                                    ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+                            </thead>
+                            <tbody>
+                                {filtered.map(coupon => (
+                                    <tr key={coupon.id} style={{ borderTop: '1px solid #E0D6C8' }}>
+                                        <td style={{ padding: '14px 16px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <Tag size={14} color="#C6A75E" />
+                                                <span style={{ fontWeight: 800, fontSize: 14, color: '#C6A75E', fontFamily: 'monospace' }}>{coupon.code}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '14px 16px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, fontSize: 15 }}>
+                                                {coupon.type === 'percent' ? <Percent size={14} color="#10B981" /> : <DollarSign size={14} color="#F59E0B" />}
+                                                {coupon.type === 'percent' ? `${coupon.value}%` : `${coupon.value.toFixed(3)} د.أ`}
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '14px 16px', fontSize: 13, color: '#6B6058' }}>{coupon.min_order ? `فوق ${coupon.min_order} د.أ` : 'بدون حد'}</td>
+                                        <td style={{ padding: '14px 16px', fontSize: 13, color: '#6B6058' }}>
+                                            {coupon.usage_count || 0} / {coupon.usage_limit ?? '∞'}
+                                            {coupon.usage_limit && (
+                                                <div style={{ height: 4, borderRadius: 4, background: '#E0D6C8', marginTop: 4, overflow: 'hidden', width: 60 }}>
+                                                    <div style={{ height: '100%', background: (coupon.usage_count || 0) >= coupon.usage_limit ? '#EF4444' : '#C6A75E', width: `${Math.min(((coupon.usage_count || 0) / coupon.usage_limit) * 100, 100)}%`, borderRadius: 4 }} />
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '14px 16px' }}>
+                                            <span style={{ background: coupon.is_active ? '#D1FAE5' : '#F3F4F6', color: coupon.is_active ? '#065F46' : '#374151', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
+                                                {coupon.is_active ? 'نشط' : 'منتهي'}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '14px 16px', color: '#A09080', fontSize: 12 }}>{coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString('ar-JO') : '—'}</td>
+                                        <td style={{ padding: '14px 16px' }}>
+                                            <button onClick={() => setItemToDelete(coupon.id)} style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #FEE2E2', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Trash2 size={14} color="#EF4444" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-            {/* Custom Delete Confirmation Modal */}
+                    {/* Mobile coupon cards */}
+                    <div className="show-on-mobile" style={{ flexDirection: 'column', gap: 10 }}>
+                        {filtered.map(coupon => (
+                            <div key={coupon.id} className="mobile-card">
+                                {/* Top row: code + status */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <Tag size={16} color="#C6A75E" />
+                                        <span style={{ fontWeight: 900, fontSize: 16, color: '#C6A75E', fontFamily: 'monospace', letterSpacing: 1 }}>{coupon.code}</span>
+                                    </div>
+                                    <span style={{ background: coupon.is_active ? '#D1FAE5' : '#F3F4F6', color: coupon.is_active ? '#065F46' : '#374151', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
+                                        {coupon.is_active ? 'نشط' : 'منتهي'}
+                                    </span>
+                                </div>
+
+                                {/* Info chips */}
+                                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                                    <span style={{ background: '#F5F0E8', color: '#111', padding: '5px 10px', borderRadius: 8, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                        {coupon.type === 'percent' ? <Percent size={12} color="#10B981" /> : <DollarSign size={12} color="#F59E0B" />}
+                                        {coupon.type === 'percent' ? `${coupon.value}%` : `${coupon.value.toFixed(3)} د.أ`}
+                                    </span>
+                                    {coupon.min_order && (
+                                        <span style={{ background: '#F5F0E8', color: '#6B6058', padding: '5px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600 }}>
+                                            فوق {coupon.min_order} د.أ
+                                        </span>
+                                    )}
+                                    <span style={{ background: '#F5F0E8', color: '#6B6058', padding: '5px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600 }}>
+                                        {coupon.usage_count || 0} / {coupon.usage_limit ?? '∞'} استخدام
+                                    </span>
+                                </div>
+
+                                {/* Delete */}
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, borderTop: '1px solid #F0EBE3' }}>
+                                    <button onClick={() => setItemToDelete(coupon.id)} style={{ background: '#FEE2E2', color: '#B91C1C', border: 'none', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, minHeight: 40 }}>
+                                        <Trash2 size={14} />حذف
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {/* Delete confirmation modal */}
             {itemToDelete && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div className="card" style={{ width: '100%', maxWidth: 400, padding: 24, margin: 20 }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <AlertTriangle size={24} color="#EF4444" />
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: '0 0 0 0' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: 420, padding: 24, margin: '0 16px 24px', borderRadius: 20 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 20 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <AlertTriangle size={22} color="#EF4444" />
                             </div>
                             <div>
-                                <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>تأكيد الحذف</h3>
-                                <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>هل أنت متأكد من حذف هذا الكوبون نهائياً؟ لا يمكن التراجع عن هذا الإجراء وسيتم إلغاء تفعيله للعملاء.</p>
+                                <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>تأكيد الحذف</h3>
+                                <p style={{ fontSize: 14, color: '#6B6058', lineHeight: 1.6 }}>هل أنت متأكد من حذف هذا الكوبون نهائياً؟ لا يمكن التراجع عن هذا الإجراء.</p>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-                            <button onClick={() => setItemToDelete(null)} className="btn btn-ghost" style={{ flex: 1, border: '1px solid var(--border)' }}>إلغاء</button>
-                            <button
-                                onClick={() => {
-                                    handleDelete(itemToDelete);
-                                    setItemToDelete(null);
-                                }}
-                                className="btn btn-danger"
-                                style={{ flex: 1 }}
-                            >
+                        <div style={{ display: 'flex', gap: 10 }}>
+                            <button onClick={() => setItemToDelete(null)} className="btn btn-ghost" style={{ flex: 1, border: '1px solid #E0D6C8', minHeight: 48 }}>إلغاء</button>
+                            <button onClick={() => { handleDelete(itemToDelete!); setItemToDelete(null) }} style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer', minHeight: 48 }}>
                                 نعم، احذف
                             </button>
                         </div>

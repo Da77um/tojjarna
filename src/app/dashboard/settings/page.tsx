@@ -175,14 +175,22 @@ export default function SettingsPage() {
         else saveGeneral()
     }
 
-    if (loading) return <div style={{ padding: 100, textAlign: 'center' }}><div className="spinner" style={{ margin: '0 auto' }} /></div>
+    if (loading) return (
+        <div className="page-container" dir="rtl">
+            <div className="skeleton skeleton-text" style={{ width: 180, height: 26, marginBottom: 20 }} />
+            <div style={{ display: 'flex', gap: 16 }}>
+                <div className="skeleton" style={{ width: 220, height: 280, borderRadius: 14 }} />
+                <div style={{ flex: 1 }}><div className="skeleton" style={{ height: 300, borderRadius: 14 }} /></div>
+            </div>
+        </div>
+    )
 
     return (
-        <div className="page-container">
-            <div className="page-header">
+        <div className="page-container" dir="rtl">
+            <div className="page-header" style={{ flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <h1 className="page-title">إعدادات المتجر</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>إدارة إعدادات وتفاصيل متجرك</p>
+                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>إدارة إعدادات وتفاصيل متجرك</p>
                 </div>
                 <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
                     <Save size={16} />
@@ -190,18 +198,18 @@ export default function SettingsPage() {
                 </button>
             </div>
 
-            <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+            <div className="settings-layout">
                 {/* Sidebar Tabs */}
-                <div style={{ width: 220, flexShrink: 0 }}>
+                <div className="settings-tabs-sidebar">
                     <div className="card" style={{ padding: 8 }}>
                         {TABS.map((t) => {
                             const Icon = t.icon
                             return (
                                 <button key={t.key} onClick={() => setTab(t.key)} style={{
-                                    display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '11px 14px',
+                                    display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '11px 14px',
                                     borderRadius: 10, border: 'none', textAlign: 'right', fontSize: 14, fontWeight: 500, cursor: 'pointer',
-                                    background: tab === t.key ? 'rgba(108,60,225,0.1)' : 'transparent',
-                                    color: tab === t.key ? 'var(--primary)' : 'var(--text-secondary)', fontFamily: 'inherit',
+                                    background: tab === t.key ? 'rgba(198,167,94,0.12)' : 'transparent',
+                                    color: tab === t.key ? '#C6A75E' : '#6B6058', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0,
                                 }}>
                                     <Icon size={16} />{t.label}
                                 </button>
@@ -211,7 +219,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Content */}
-                <div style={{ flex: 1 }}>
+                <div className="settings-content">
 
                     {/* ── General ──────────────────────────────────────── */}
                     {tab === 'general' && (
@@ -351,14 +359,14 @@ export default function SettingsPage() {
                                         </div>
                                     </div>
 
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
                                         <div className="form-group" style={{ marginBottom: 0 }}>
                                             <label className="form-label">سعر الشحن (د.أ)</label>
                                             <input className="form-control" type="number" value={zone.rate} step="0.5" onChange={e => updateZone(zone.id, 'rate', parseFloat(e.target.value))} />
                                         </div>
                                         <div className="form-group" style={{ marginBottom: 0 }}>
                                             <label className="form-label">شحن مجاني فوق (د.أ)</label>
-                                            <input className="form-control" type="number" value={zone.free_above || ''} placeholder="اتركه فارغاً لإيقافه" onChange={e => updateZone(zone.id, 'free_above', e.target.value ? parseFloat(e.target.value) : null)} />
+                                            <input className="form-control" type="number" value={zone.free_above || ''} placeholder="اتركه فارغاً" onChange={e => updateZone(zone.id, 'free_above', e.target.value ? parseFloat(e.target.value) : null)} />
                                         </div>
                                         <div className="form-group" style={{ marginBottom: 0 }}>
                                             <label className="form-label">أقل أيام التسليم</label>

@@ -82,25 +82,30 @@ export default function StorePagesPage() {
 
     const generateSlug = (title: string) => title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
 
-    if (loading) return <div style={{ padding: 100, textAlign: 'center' }}><div className="spinner" style={{ margin: '0 auto' }} /></div>
+    if (loading) return (
+        <div className="page-container" dir="rtl">
+            <div className="skeleton skeleton-text" style={{ width: 140, height: 22, marginBottom: 20 }} />
+            {[1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 14, marginBottom: 12 }} />)}
+        </div>
+    )
 
     // ── Editor view ────────────────────────────────────────────────────────
     if (editing !== null) {
         return (
-            <div className="page-container">
-                <div className="page-header">
+            <div className="page-container" dir="rtl">
+                <div className="page-header" style={{ flexWrap: 'wrap', gap: 12 }}>
                     <div>
                         <h1 className="page-title">{editing.id ? 'تعديل الصفحة' : 'صفحة جديدة'}</h1>
                     </div>
                     <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={() => setEditing(null)} className="btn btn-secondary">إلغاء</button>
+                        <button onClick={() => setEditing(null)} className="btn btn-ghost" style={{ border: '1px solid #E0D6C8' }}>إلغاء</button>
                         <button onClick={savePage} disabled={saving} className="btn btn-primary">
                             {saving ? 'جاري الحفظ...' : 'حفظ الصفحة'}
                         </button>
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24 }}>
+                <div className="product-form-grid">
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                         <div className="card card-body">
                             <div className="form-group">
@@ -176,18 +181,18 @@ export default function StorePagesPage() {
     const filtered = pages.filter(p => !search || p.title_ar?.includes(search) || p.slug?.includes(search))
 
     return (
-        <div className="page-container">
-            <div className="page-header">
+        <div className="page-container" dir="rtl">
+            <div className="page-header" style={{ flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <h1 className="page-title">صفحات المتجر</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>أنشئ صفحات ثابتة مثل "عن المتجر" و"سياسة الخصوصية"</p>
+                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>أنشئ صفحات ثابتة مثل "عن المتجر" و"سياسة الخصوصية"</p>
                 </div>
                 <button onClick={() => startEdit()} className="btn btn-primary"><Plus size={16} />صفحة جديدة</button>
             </div>
 
-            <div style={{ marginBottom: 16, position: 'relative', maxWidth: 320 }}>
-                <Search size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input className="form-control" value={search} onChange={e => setSearch(e.target.value)} placeholder="بحث في الصفحات..." style={{ paddingRight: 38 }} />
+            <div className="mobile-search" style={{ marginBottom: 16 }}>
+                <Search size={17} className="search-icon" />
+                <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="بحث في الصفحات..." style={{ paddingRight: 44 }} />
             </div>
 
             {filtered.length === 0 ? (
