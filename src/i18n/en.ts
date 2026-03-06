@@ -625,6 +625,96 @@ const en: Translations = {
         shipping: 'Shipping',
         free: 'Free',
         noContentYet: 'No content for this page yet.',
+    },
+
+    // ── Landing Page ──
+    landing: {
+        hero: {
+            eyebrow: 'Jordan\'s leading e-commerce platform',
+            title: 'Launch Your Online Store',
+            titleHighlight: 'with World-Class Standards',
+            subtitle: 'Tojjarna gives you all the professional selling tools — from a ready-to-use store to secure payments and precise analytics. All with one click.',
+            ctaPrimary: 'Start for Free Now',
+            ctaSecondary: 'Login',
+        },
+        features: {
+            eyebrow: 'Platform Features',
+            title: 'Everything you need in one platform',
+            items: [
+                {
+                    title: 'Professional Store in Minutes',
+                    description: 'Create your store easily without any technical experience, with modern templates and full customization.',
+                },
+                {
+                    title: 'Secure Multi-Payments',
+                    description: 'Accept Cash on Delivery, Credit Cards, Apple Pay, and Google Pay.',
+                },
+                {
+                    title: 'Smart Analytics',
+                    description: 'Track your sales, profits, and top products from a single dashboard.',
+                },
+                {
+                    title: 'Mobile-Compatible Arabic Design',
+                    description: 'All your pages are fully optimized for mobile with full Arabic language support.',
+                },
+                {
+                    title: 'WhatsApp & SMS Notifications',
+                    description: 'Send order notifications automatically to your customers via WhatsApp and SMS.',
+                },
+                {
+                    title: 'Professional Domain',
+                    description: 'Get a unique store link and add your own domain to enhance your brand identity.',
+                },
+            ]
+        },
+        stats: {
+            activeStores: 'Active Store',
+            monthlyOrders: 'Order/Month',
+            satisfaction: 'Satisfaction Rate',
+        },
+        ctaBanner: {
+            eyebrow: 'Ready to launch?',
+            title: 'Over 2,500 Jordanian merchants trust Tojjarna',
+            subtitle: 'Join the largest digital trade community in Jordan and take control of your business with integrated tools and an excellent support team.',
+            cta: 'Start Your Business Journey Now',
+        },
+        pricing: {
+            eyebrow: 'Plans & Pricing',
+            title: 'Full Transparency in Pricing',
+            popular: '⭐ Most Popular',
+            free: 'Free',
+            monthly: 'Monthly',
+            perMonth: 'JOD / Monthly',
+        },
+        testimonials: {
+            eyebrow: 'Merchant Reviews',
+            title: 'What our customers say?',
+            items: [
+                {
+                    name: 'Sarah Al-Ahmed',
+                    role: 'Abaya Store Owner — Amman',
+                    text: 'My experience with the platform changed my business path. My orders doubled within two months and I have a truly professional store.',
+                },
+                {
+                    name: 'Mohamed Al-Zoubi',
+                    role: 'Electronics Merchant — Zarqa',
+                    text: 'The ease of use is unparalleled. I added 200 products and started receiving orders on the same day as the launch.',
+                },
+                {
+                    name: 'Rana Haddad',
+                    role: 'Dessert Maker — Irbid',
+                    text: 'The technical support is great and communicating with customers via WhatsApp has made my job easier than I expected.',
+                },
+            ]
+        },
+        footer: {
+            description: 'The leading e-commerce platform for Jordanians. Build your store, start your business.',
+            platform: 'Platform',
+            company: 'Company',
+            legal: 'Legal',
+            rights: '© 2025 Tojjarna. All rights reserved.',
+            madeWithLove: 'Made with passion in Amman, Jordan 🇯🇴',
+        }
     }
 }
 

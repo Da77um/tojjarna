@@ -27,105 +27,20 @@ import { createClient } from '@/lib/supabase/client'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { useLanguage } from '@/i18n/LanguageContext'
 
-const features = [
-  {
-    icon: Store,
-    title: 'متجر احترافي في دقائق',
-    description: 'أنشئ متجرك بسهولة دون أي خبرة تقنية، مع قوالب عصرية وتخصيص كامل',
-  },
-  {
-    icon: CreditCard,
-    title: 'مدفوعات آمنة متعددة',
-    description: 'استقبل الدفع عند الاستلام، البطاقات الائتمانية، Apple Pay وGoogle Pay',
-  },
-  {
-    icon: BarChart3,
-    title: 'تحليلات ذكية',
-    description: 'تابع مبيعاتك وأرباحك وأفضل منتجاتك من لوحة تحكم واحدة',
-  },
-  {
-    icon: Smartphone,
-    title: 'تصميم عربي متوافق',
-    description: 'كل صفحاتك محسّنة للجوال بالكامل مع دعم كامل للغة العربية',
-  },
-  {
-    icon: MessageCircle,
-    title: 'إشعارات واتساب وSMS',
-    description: 'أرسل إشعارات الطلبات تلقائياً لعملائك عبر واتساب والرسائل القصيرة',
-  },
-  {
-    icon: Globe,
-    title: 'نطاق احترافي',
-    description: 'احصل على رابط متجر فريد وأضف نطاقك الخاص لتعزيز هويتك التجارية',
-  },
-]
-
-const plans = [
-  {
-    name: 'المجاني',
-    nameEn: 'Free',
-    price: 0,
-    period: 'شهرياً',
-    description: 'ابدأ مجاناً وجرّب المنصة',
-    features: ['حتى 10 منتجات', 'طلبات غير محدودة', 'لوحة تحكم أساسية', 'دعم الدفع عند الاستلام'],
-    highlighted: false,
-    cta: 'ابدأ مجاناً',
-  },
-  {
-    name: 'الأساسي',
-    nameEn: 'Basic',
-    price: 15,
-    period: 'شهرياً',
-    description: 'مثالي للمتاجر الصغيرة والمنزلية',
-    features: ['حتى 100 منتج', 'تحليلات المبيعات', 'كوبونات الخصم', 'إشعارات واتساب', 'دعم البطاقات الائتمانية'],
-    highlighted: false,
-    cta: 'ابدأ الآن',
-  },
-  {
-    name: 'الاحترافي',
-    nameEn: 'Pro',
-    price: 35,
-    period: 'شهرياً',
-    description: 'للمتاجر النامية والطموحة',
-    features: ['منتجات غير محدودة', 'تحليلات متقدمة', 'نطاق مخصص مجاني', 'ذكاء اصطناعي للأوصاف', 'Apple Pay & Google Pay', 'أولوية في الدعم الفني'],
-    highlighted: true,
-    cta: 'ابدأ التجربة',
-  },
-]
-
-const testimonials = [
-  {
-    name: 'سارة الأحمد',
-    role: 'صاحبة متجر عبايات — عمّان',
-    avatar: 'س',
-    rating: 5,
-    text: 'تجربتي مع المنصة غيّرت مسار عملي. طلباتي تضاعفت خلال شهرين وأصبح لدي متجر بمستوى احترافي حقيقي.',
-  },
-  {
-    name: 'محمد الزعبي',
-    role: 'تاجر إلكترونيات — الزرقاء',
-    avatar: 'م',
-    rating: 5,
-    text: 'سهولة الاستخدام لا مثيل لها. أضفت 200 منتج وبدأت أستقبل طلبات في نفس اليوم من الإطلاق.',
-  },
-  {
-    name: 'رنا حداد',
-    role: 'صانعة حلويات — اربد',
-    avatar: 'ر',
-    rating: 5,
-    text: 'الدعم الفني رائع والتواصل مع العملاء عبر واتساب سهّل عملي بشكل لم أتوقعه.',
-  },
-]
-
-const stats = [
-  { label: 'متجر نشط', value: '2,500+', icon: Store },
-  { label: 'طلب شهرياً', value: '50,000+', icon: ShoppingBag },
-  { label: 'نسبة الرضا', value: '98%', icon: Star },
-]
+// Feature icons mapping for easy lookup
+const FEATURE_ICONS = {
+  Store,
+  CreditCard,
+  BarChart3,
+  Smartphone,
+  MessageCircle,
+  Globe,
+}
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activePlans, setActivePlans] = useState(plans)
+  const { dir, t, lang } = useLanguage()
+  const [activePlans, setActivePlans] = useState<any[]>([])
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -134,27 +49,40 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Consolidate features from translations
+  const features = t.landing.features.items.map((item, idx) => ({
+    ...item,
+    icon: Object.values(FEATURE_ICONS)[idx] || Store
+  }))
+
+  const stats = [
+    { label: t.landing.stats.activeStores, value: '2,500+', icon: Store },
+    { label: t.landing.stats.monthlyOrders, value: '50,000+', icon: ShoppingBag },
+    { label: t.landing.stats.satisfaction, value: '98%', icon: Star },
+  ]
+
   useEffect(() => {
     async function fetchPlans() {
       const supabase = createClient()
       const { data } = await supabase.from('plans').select('*').eq('is_active', true).order('sort_order', { ascending: true })
       if (data && data.length > 0) {
-        setActivePlans(data.map(p => ({
-          name: p.name_ar,
-          nameEn: p.name_en,
+        setActivePlans(data.map((p: any) => ({
+          name: lang === 'ar' ? p.name_ar : p.name_en,
           price: p.price_jod,
-          period: 'شهرياً',
-          description: p.name_en?.toLowerCase() === 'pro' || p.price_jod > 20 ? 'للمتاجر النامية والطموحة' : (p.price_jod > 0 ? 'مثالي للمتاجر الصغيرة والمنزلية' : 'ابدأ مجاناً وجرّب المنصة'),
+          period: t.landing.pricing.monthly,
+          description: p.name_en?.toLowerCase() === 'pro' || p.price_jod > 20
+            ? t.landing.testimonials.items[0].text.substring(0, 0) || (lang === 'ar' ? 'للمتاجر النامية والطموحة' : 'For growing and ambitious stores')
+            : (p.price_jod > 0
+              ? (lang === 'ar' ? 'مثالي للمتاجر الصغيرة والمنزلية' : 'Ideal for small and home businesses')
+              : (lang === 'ar' ? 'ابدأ مجاناً وجرّب المنصة' : 'Start for free and try the platform')),
           features: p.features || [],
           highlighted: p.name_en?.toLowerCase() === 'pro' || p.price_jod >= 30,
-          cta: p.price_jod > 0 ? 'ابدأ الآن' : 'ابدأ مجاناً',
+          cta: p.price_jod > 0 ? (lang === 'ar' ? 'ابدأ الآن' : 'Start Now') : t.landing.hero.ctaPrimary,
         })))
       }
     }
     fetchPlans()
-  }, [])
-
-  const { dir } = useLanguage()
+  }, [lang, t])
 
   return (
     <div dir={dir} style={{ background: '#EFE8DD', minHeight: '100vh', fontFamily: 'Tajawal, Inter, sans-serif' }}>
@@ -181,14 +109,14 @@ export default function LandingPage() {
             }}>
               <Store size={20} color="#C6A75E" />
             </div>
-            <span style={{ fontSize: 22, fontWeight: 900, color: '#111111', letterSpacing: '-0.5px' }}>تجارنا</span>
+            <span style={{ fontSize: 22, fontWeight: 900, color: '#111111', letterSpacing: '-0.5px' }}>{t.common.store}</span>
           </Link>
 
           {/* Desktop Nav */}
           <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: 36, color: '#6B6058', fontSize: 15, fontWeight: 600 }}>
-            <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>المميزات</a>
-            <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>الأسعار</a>
-            <a href="#testimonials" style={{ color: 'inherit', textDecoration: 'none' }}>آراء العملاء</a>
+            <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>{t.landing.features.eyebrow}</a>
+            <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>{t.landing.pricing.eyebrow}</a>
+            <a href="#testimonials" style={{ color: 'inherit', textDecoration: 'none' }}>{t.landing.testimonials.eyebrow}</a>
             <LanguageSwitcher compact />
           </div>
 
@@ -203,7 +131,7 @@ export default function LandingPage() {
               onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#222222'; (e.currentTarget as HTMLAnchorElement).style.color = 'white'; (e.currentTarget as HTMLAnchorElement).style.borderColor = '#222222' }}
               onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = '#111111'; (e.currentTarget as HTMLAnchorElement).style.borderColor = '#D0C8BC' }}
             >
-              تسجيل الدخول
+              {t.auth.login}
             </Link>
             <Link href="/register" id="register-btn" style={{
               padding: '9px 22px', borderRadius: 10, fontWeight: 800, fontSize: 14,
@@ -214,7 +142,7 @@ export default function LandingPage() {
               onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#A8883C'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#C6A75E'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)' }}
             >
-              انشئ متجرك مجاناً
+              {t.landing.hero.ctaPrimary}
             </Link>
           </div>
 
@@ -232,13 +160,13 @@ export default function LandingPage() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div style={{ background: '#EFE8DD', borderTop: '1px solid #E0D6C8', padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <a href="#features" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }} onClick={() => setMobileMenuOpen(false)}>المميزات</a>
-            <a href="#pricing" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }} onClick={() => setMobileMenuOpen(false)}>الأسعار</a>
+            <a href="#features" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }} onClick={() => setMobileMenuOpen(false)}>{t.landing.features.eyebrow}</a>
+            <a href="#pricing" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }} onClick={() => setMobileMenuOpen(false)}>{t.landing.pricing.eyebrow}</a>
             <div style={{ padding: '8px 0', borderTop: '1px solid #E0D6C8', borderBottom: '1px solid #E0D6C8' }}>
               <LanguageSwitcher />
             </div>
-            <Link href="/login" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }}>تسجيل الدخول</Link>
-            <Link href="/register" id="mobile-reg-btn" style={{ background: '#C6A75E', color: '#111111', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 800, textAlign: 'center', fontSize: 16 }}>انشئ متجرك مجاناً</Link>
+            <Link href="/login" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }}>{t.auth.login}</Link>
+            <Link href="/register" id="mobile-reg-btn" style={{ background: '#C6A75E', color: '#111111', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 800, textAlign: 'center', fontSize: 16 }}>{t.landing.hero.ctaPrimary}</Link>
           </div>
         )}
       </nav>
@@ -267,7 +195,7 @@ export default function LandingPage() {
             padding: '6px 18px', borderRadius: 50, marginBottom: 32,
           }}>
             <Sparkles size={14} color="#C6A75E" />
-            <span style={{ color: '#C6A75E', fontSize: 13, fontWeight: 700, letterSpacing: '0.06em' }}>أبرز منصة تجارة إلكترونية في الأردن</span>
+            <span style={{ color: '#C6A75E', fontSize: 13, fontWeight: 700, letterSpacing: '0.06em' }}>{t.landing.hero.eyebrow}</span>
           </div>
 
           {/* Main headline */}
@@ -275,16 +203,16 @@ export default function LandingPage() {
             fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 900, color: '#FFFFFF',
             lineHeight: 1.15, marginBottom: 24, letterSpacing: '-0.02em',
           }}>
-            أطلق متجرك الإلكتروني
+            {t.landing.hero.title}
             <br />
-            <span style={{ color: '#C6A75E' }}>بمستوى عالمي</span>
+            <span style={{ color: '#C6A75E' }}>{t.landing.hero.titleHighlight}</span>
           </h1>
 
           <p style={{
             fontSize: 'clamp(16px, 2.2vw, 20px)', color: 'rgba(255,255,255,0.6)',
             maxWidth: 600, margin: '0 auto 44px', lineHeight: 1.75,
           }}>
-            منصة تجارنا تمنحك كل أدوات البيع الاحترافية — من متجر جاهز، إلى مدفوعات آمنة، وتحليلات دقيقة. كل ذلك بنقرة واحدة.
+            {t.landing.hero.subtitle}
           </p>
 
           {/* CTA Buttons */}
@@ -300,7 +228,7 @@ export default function LandingPage() {
               onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#B8963A'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#C6A75E'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)' }}
             >
-              ابدأ مجاناً الآن
+              {t.landing.hero.ctaPrimary}
               <ChevronLeft size={18} />
             </Link>
             <Link href="/login" id="hero-cta-secondary" style={{
@@ -313,7 +241,7 @@ export default function LandingPage() {
               onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.5)'; (e.currentTarget as HTMLAnchorElement).style.color = 'white' }}
               onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.75)' }}
             >
-              تسجيل الدخول
+              {t.auth.login}
             </Link>
           </div>
 
@@ -334,8 +262,8 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>مميزات المنصة</p>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>كل ما تحتاجه في منصة واحدة</h2>
+            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>{t.landing.features.eyebrow}</p>
+            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>{t.landing.features.title}</h2>
             <div style={{ width: 48, height: 3, background: '#C6A75E', borderRadius: 2, margin: '0 auto' }} />
           </div>
 
@@ -370,12 +298,12 @@ export default function LandingPage() {
         textAlign: 'center',
       }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>جاهز للإطلاق؟</p>
+          <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>{t.landing.ctaBanner.eyebrow}</p>
           <h2 style={{ fontSize: 'clamp(28px,4vw,50px)', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, marginBottom: 20, letterSpacing: '-0.02em' }}>
-            أكثر من 2,500 تاجر أردني<br />يثقون في تجارنا
+            {t.landing.ctaBanner.title}
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 17, marginBottom: 40, lineHeight: 1.7 }}>
-            انضم لأكبر مجتمع تجاري رقمي في الأردن واحكم قبضتك على عملك بأدوات متكاملة وفريق دعم متميز.
+            {t.landing.ctaBanner.subtitle}
           </p>
           <Link href="/register" id="banner-cta" style={{
             display: 'inline-flex', alignItems: 'center', gap: 10,
@@ -388,7 +316,7 @@ export default function LandingPage() {
             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#B8963A'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#C6A75E'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)' }}
           >
-            ابدأ رحلتك التجارية الآن
+            {t.landing.ctaBanner.cta}
             <ChevronLeft size={18} />
           </Link>
         </div>
@@ -399,8 +327,8 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
 
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>الباقات والأسعار</p>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>شفافية كاملة في التسعير</h2>
+            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>{t.landing.pricing.eyebrow}</p>
+            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>{t.landing.pricing.title}</h2>
             <div style={{ width: 48, height: 3, background: '#C6A75E', borderRadius: 2, margin: '0 auto' }} />
           </div>
 
@@ -425,7 +353,7 @@ export default function LandingPage() {
                     padding: '5px 18px', borderRadius: 50, fontSize: 12, fontWeight: 900,
                     letterSpacing: '0.06em', whiteSpace: 'nowrap',
                   }}>
-                    ⭐ الأكثر شعبية
+                    {t.landing.pricing.popular}
                   </div>
                 )}
 
@@ -435,18 +363,18 @@ export default function LandingPage() {
                 </div>
 
                 <div style={{ marginBottom: 28 }}>
-                  <span style={{ fontSize: 52, fontWeight: 900, color: plan.highlighted ? '#C6A75E' : '#111111', lineHeight: 1 }}>
-                    {plan.price === 0 ? 'مجاني' : plan.price}
+                  <span style={{ fontSize: 46, fontWeight: 900, color: plan.highlighted ? '#C6A75E' : '#111111', lineHeight: 1 }}>
+                    {plan.price === 0 ? t.landing.pricing.free : plan.price}
                   </span>
                   {plan.price > 0 && (
                     <span style={{ fontSize: 15, color: plan.highlighted ? 'rgba(255,255,255,0.5)' : '#6B6058', marginRight: 6 }}>
-                      د.أ / {plan.period}
+                      {t.common.currency} / {plan.period}
                     </span>
                   )}
                 </div>
 
                 <div style={{ borderTop: plan.highlighted ? '1px solid rgba(255,255,255,0.1)' : '1px solid #E8E0D5', paddingTop: 24, marginBottom: 28 }}>
-                  {plan.features.map((feat, fi) => (
+                  {plan.features.map((feat: string, fi: number) => (
                     <div key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
                       <CheckCircle size={16} color="#C6A75E" style={{ flexShrink: 0, marginTop: 3 }} />
                       <span style={{ color: plan.highlighted ? 'rgba(255,255,255,0.8)' : '#4A4440', fontSize: 14, lineHeight: 1.5 }}>{feat}</span>
@@ -487,13 +415,13 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
 
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>آراء تجارنا</p>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>ماذا يقول عملاؤنا؟</h2>
+            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>{t.landing.testimonials.eyebrow}</p>
+            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>{t.landing.testimonials.title}</h2>
             <div style={{ width: 48, height: 3, background: '#C6A75E', borderRadius: 2, margin: '0 auto' }} />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
-            {testimonials.map((t, i) => (
+            {t.landing.testimonials.items.map((testi, i) => (
               <div key={i} style={{
                 background: '#FFFFFF', borderRadius: 16, padding: 32,
                 border: '1px solid #E0D6C8',
@@ -505,11 +433,11 @@ export default function LandingPage() {
               >
                 {/* Stars */}
                 <div style={{ display: 'flex', gap: 4, marginBottom: 18 }}>
-                  {[...Array(t.rating)].map((_, si) => <Star key={si} size={16} color="#C6A75E" fill="#C6A75E" />)}
+                  {[...Array(5)].map((_, si) => <Star key={si} size={16} color="#C6A75E" fill="#C6A75E" />)}
                 </div>
 
                 <p style={{ color: '#4A4440', fontSize: 15, lineHeight: 1.75, marginBottom: 24, fontStyle: 'italic' }}>
-                  &ldquo;{t.text}&rdquo;
+                  &ldquo;{testi.text}&rdquo;
                 </p>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderTop: '1px solid #EDE5D8', paddingTop: 20 }}>
@@ -518,11 +446,11 @@ export default function LandingPage() {
                     background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: '#C6A75E', fontWeight: 900, fontSize: 18, flexShrink: 0,
                   }}>
-                    {t.avatar}
+                    {testi.name.charAt(0)}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 800, color: '#111111', fontSize: 15 }}>{t.name}</div>
-                    <div style={{ color: '#6B6058', fontSize: 13 }}>{t.role}</div>
+                    <div style={{ fontWeight: 800, color: '#111111', fontSize: 15 }}>{testi.name}</div>
+                    <div style={{ color: '#6B6058', fontSize: 13 }}>{testi.role}</div>
                   </div>
                 </div>
               </div>
@@ -539,10 +467,10 @@ export default function LandingPage() {
       }}>
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(30px,5vw,56px)', fontWeight: 900, color: '#FFFFFF', marginBottom: 20, lineHeight: 1.2, letterSpacing: '-0.02em' }}>
-            مستعد لتأسيس<br /><span style={{ color: '#C6A75E' }}>إمبراطوريتك التجارية؟</span>
+            {t.landing.hero.title}<br /><span style={{ color: '#C6A75E' }}>{t.landing.hero.titleHighlight}</span>
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 18, marginBottom: 44, lineHeight: 1.7 }}>
-            انضم اليوم وابدأ مجاناً. لا كرت بنكي. لا التزامات.
+            {t.auth.startFree}
           </p>
           <Link href="/register" id="final-cta" style={{
             display: 'inline-flex', alignItems: 'center', gap: 10,
@@ -555,7 +483,7 @@ export default function LandingPage() {
             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#B8963A'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#C6A75E'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)' }}
           >
-            أنشئ متجرك مجاناً
+            {t.landing.hero.ctaPrimary}
             <ChevronLeft size={20} />
           </Link>
         </div>
@@ -572,15 +500,15 @@ export default function LandingPage() {
                 <div style={{ width: 36, height: 36, borderRadius: 8, background: '#1C1C1C', border: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Store size={18} color="#C6A75E" />
                 </div>
-                <span style={{ color: 'white', fontWeight: 900, fontSize: 20 }}>تجارنا</span>
+                <span style={{ color: 'white', fontWeight: 900, fontSize: 20 }}>{t.common.store}</span>
               </div>
-              <p style={{ fontSize: 14, lineHeight: 1.75 }}>منصة التجارة الإلكترونية الرائدة للأردنيين. ابنِ متجرك، وابدأ تجارتك.</p>
+              <p style={{ fontSize: 14, lineHeight: 1.75 }}>{t.landing.footer.description}</p>
             </div>
 
             {/* Links */}
             <div>
-              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>المنصة</h4>
-              {['المميزات', 'الأسعار', 'التحليلات', 'الدعم الفني'].map(l => (
+              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>{t.landing.footer.platform}</h4>
+              {[t.landing.features.eyebrow, t.landing.pricing.eyebrow, t.nav.analytics, t.common.platformAdmin].map(l => (
                 <div key={l} style={{ marginBottom: 10 }}>
                   <a href="#" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 14, transition: 'color 0.2s' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#C6A75E' }}
@@ -591,7 +519,7 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>الشركة</h4>
+              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>{t.landing.footer.company}</h4>
               {['من نحن', 'الشركاء', 'الوظائف', 'أخبارنا'].map(l => (
                 <div key={l} style={{ marginBottom: 10 }}>
                   <a href="#" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 14, transition: 'color 0.2s' }}
@@ -603,7 +531,7 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>قانوني</h4>
+              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>{t.landing.footer.legal}</h4>
               {['الشروط والأحكام', 'سياسة الخصوصية', 'سياسة الاسترجاع'].map(l => (
                 <div key={l} style={{ marginBottom: 10 }}>
                   <a href="#" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 14 }}>{l}</a>
@@ -613,8 +541,8 @@ export default function LandingPage() {
           </div>
 
           <div style={{ borderTop: '1px solid #222222', paddingTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <span style={{ fontSize: 13 }}>© 2025 تجارنا. جميع الحقوق محفوظة.</span>
-            <span style={{ fontSize: 13, color: '#C6A75E' }}>صُنع بشغف في عمّان، الأردن 🇯🇴</span>
+            <span style={{ fontSize: 13 }}>{t.landing.footer.rights}</span>
+            <span style={{ fontSize: 13, color: '#C6A75E' }}>{t.landing.footer.madeWithLove}</span>
           </div>
         </div>
       </footer>
