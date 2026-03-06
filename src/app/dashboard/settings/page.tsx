@@ -247,14 +247,15 @@ export default function SettingsPage() {
                                 <button
                                     key={navTab.key}
                                     onClick={() => setTab(navTab.key)}
+                                    className={`btn btn-ghost w-full ${active ? 'active' : ''}`}
                                     style={{
                                         display: 'flex', alignItems: 'center', gap: 10,
-                                        width: '100%', padding: '12px 14px', borderRadius: 10,
-                                        border: 'none', textAlign: dir === 'rtl' ? 'right' : 'left', fontSize: 14,
+                                        padding: '12px 14px', borderRadius: 10,
+                                        border: 'none', textAlign: 'inherit', fontSize: 14,
                                         fontWeight: active ? 700 : 500, cursor: 'pointer',
-                                        fontFamily: 'inherit', marginBottom: 2,
-                                        background: active ? 'rgba(198,167,94,0.12)' : 'transparent',
-                                        color: active ? '#C6A75E' : '#6B6058',
+                                        marginBottom: 2,
+                                        background: active ? 'var(--surface-2)' : 'transparent',
+                                        color: active ? 'var(--primary)' : 'var(--text-secondary)',
                                     }}
                                 >
                                     <Icon size={16} style={{ flexShrink: 0 }} />
