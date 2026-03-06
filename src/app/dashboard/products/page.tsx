@@ -7,19 +7,21 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/i18n/LanguageContext'
 
-function getStockBadge(stock: number) {
-    if (stock === 0) return { label: 'نفد', bg: '#FEE2E2', color: '#B91C1C' }
-    if (stock <= 3) return { label: `${stock} فقط`, bg: '#FEF3C7', color: '#92400E' }
+function getStockBadge(stock: number, t: any, lang: string) {
+    if (stock === 0) return { label: t.store.outOfStock, bg: '#FEE2E2', color: '#B91C1C' }
+    if (stock <= 3) return { label: `${stock} ${lang === 'ar' ? 'فقط' : 'only'}`, bg: '#FEF3C7', color: '#92400E' }
     return { label: `${stock}`, bg: '#D1FAE5', color: '#065F46' }
 }
 
 export default function ProductsPage() {
     const supabase = createClient()
+    const { t, lang, dir } = useLanguage()
     const [search, setSearch] = useState('')
-    const [activeCategory, setActiveCategory] = useState('الكل')
+    const [activeCategory, setActiveCategory] = useState(t.common.all)
     const [products, setProducts] = useState<any[]>([])
-    const [categories, setCategories] = useState<string[]>(['الكل'])
+    const [categories, setCategories] = useState<string[]>([t.common.all])
     const [loading, setLoading] = useState(true)
     const [itemToDelete, setItemToDelete] = useState<string | null>(null)
     const [maxProducts, setMaxProducts] = useState<number | null>(null)
@@ -54,13 +56,13 @@ export default function ProductsPage() {
                     setProducts(productsData.map(p => ({
                         ...p,
                         name: p.name_ar,
-                        category: p.categories?.name_ar || 'غير مصنف',
+                        category: p.categories?.name_ar || t.products.uncategorized,
                         status: p.is_active ? 'active' : 'inactive',
                         sales: p.sold_count || 0,
                     })))
                     setCanAddProduct(maxLimit === null || productsData.length < maxLimit)
                     const cats = Array.from(new Set(productsData.map(p => p.categories?.name_ar).filter(Boolean))) as string[]
-                    setCategories(['الكل', ...cats])
+                    setCategories([t.common.all, ...cats])
                 }
             } catch (err) {
                 console.error('Error fetching products:', err)
@@ -75,21 +77,21 @@ export default function ProductsPage() {
         try {
             const { error } = await supabase.from('products').delete().eq('id', id)
             if (error) throw error
-            toast.success('تم حذف المنتج بنجاح')
+            toast.success(t.success.deleted)
             setProducts(prev => prev.filter(p => p.id !== id))
         } catch (err) {
-            toast.error('حدث خطأ أثناء حذف المنتج')
+            toast.error(t.errors.deleteFailed)
         }
     }
 
     const filtered = products.filter(p => {
-        const matchesCat = activeCategory === 'الكل' || p.category === activeCategory
+        const matchesCat = activeCategory === t.common.all || p.category === activeCategory
         const matchesSearch = p.name.includes(search) || (p.sku && p.sku.toLowerCase().includes(search.toLowerCase()))
         return matchesCat && matchesSearch
     })
 
     if (loading) return (
-        <div className="page-container" dir="rtl">
+        <div className="page-container">
             <div style={{ marginBottom: 20 }}>
                 <div className="skeleton skeleton-text" style={{ width: 120, height: 22, marginBottom: 8 }} />
                 <div className="skeleton skeleton-text" style={{ width: 80, height: 14 }} />
@@ -103,13 +105,13 @@ export default function ProductsPage() {
     )
 
     return (
-        <div className="page-container" dir="rtl">
+        <div className="page-container">
             {/* Header */}
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">المنتجات</h1>
+                    <h1 className="page-title">{t.products.title}</h1>
                     <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>
-                        {products.length} منتج في متجرك
+                        {products.length} {t.products.productsCount}
                         {maxProducts !== null && <span style={{ color: canAddProduct ? '#6B6058' : '#B91C1C' }}> / {maxProducts}</span>}
                     </p>
                 </div>
@@ -118,12 +120,12 @@ export default function ProductsPage() {
                     {canAddProduct ? (
                         <Link href="/dashboard/products/new" className="btn btn-primary">
                             <Plus size={16} />
-                            إضافة منتج
+                            {t.products.addProduct}
                         </Link>
                     ) : (
                         <button className="btn btn-primary" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
                             <Plus size={16} />
-                            ترقية الباقة
+                            {t.products.upgradePlan}
                         </button>
                     )}
                 </div>
@@ -131,13 +133,13 @@ export default function ProductsPage() {
 
             {/* Search */}
             <div className="mobile-search" style={{ marginBottom: 14 }}>
-                <Search size={17} className="search-icon" />
+                <Search size={17} className="search-icon" style={{ [dir === 'rtl' ? 'right' : 'left']: 14, [dir === 'rtl' ? 'left' : 'right']: 'auto' }} />
                 <input
                     type="search"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    placeholder="ابحث باسم المنتج أو الكود..."
-                    style={{ paddingRight: 44 }}
+                    placeholder={t.products.searchPlaceholder}
+                    style={{ [dir === 'rtl' ? 'paddingRight' : 'paddingLeft']: 44, textAlign: 'inherit' }}
                 />
             </div>
 
@@ -159,23 +161,23 @@ export default function ProductsPage() {
                 {filtered.length === 0 ? (
                     <div style={{ padding: 80, textAlign: 'center' }}>
                         <Package size={48} color="#A09080" style={{ margin: '0 auto 16px' }} />
-                        <h3 style={{ color: '#6B6058', fontWeight: 600 }}>لا توجد منتجات</h3>
+                        <h3 style={{ color: '#6B6058', fontWeight: 600 }}>{t.products.noProducts}</h3>
                         <p style={{ color: '#A09080', fontSize: 14, marginTop: 8 }}>
-                            <Link href="/dashboard/products/new" style={{ color: '#222222', fontWeight: 700 }}>أضف منتجاً الآن ←</Link>
+                            <Link href="/dashboard/products/new" style={{ color: '#222222', fontWeight: 700 }}>{t.products.addFirstProduct} {dir === 'rtl' ? '←' : '→'}</Link>
                         </p>
                     </div>
                 ) : (
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr>
-                                {['المنتج', 'الكود', 'السعر', 'المخزون', 'المبيعات', 'الحالة', 'إجراءات'].map(h => (
-                                    <th key={h} style={{ textAlign: 'right', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
+                                {[t.products.productDetails, 'SKU', t.common.price, t.products.stock, t.analytics.sales, t.common.status, t.common.actions].map(h => (
+                                    <th key={h} style={{ textAlign: dir === 'rtl' ? 'right' : 'left', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
                             {filtered.map(product => {
-                                const stockBadge = getStockBadge(product.stock)
+                                const stockBadge = getStockBadge(product.stock, t, lang)
                                 return (
                                     <tr key={product.id} style={{ borderTop: '1px solid #E0D6C8' }}>
                                         <td style={{ padding: '14px 16px' }}>
@@ -193,20 +195,20 @@ export default function ProductsPage() {
                                             </div>
                                         </td>
                                         <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sku || '—'}</td>
-                                        <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }}>{product.price?.toFixed(2)} د.أ</td>
+                                        <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }} dir="ltr">{product.price?.toFixed(2)} {t.common.currency}</td>
                                         <td style={{ padding: '14px 16px' }}>
                                             <span style={{ background: stockBadge.bg, color: stockBadge.color, padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
                                                 {stockBadge.label}
                                             </span>
                                         </td>
-                                        <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sales} مبيعة</td>
+                                        <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sales} {t.analytics.sold}</td>
                                         <td style={{ padding: '14px 16px' }}>
                                             <span style={{ background: product.status === 'active' ? '#D1FAE5' : '#F3F4F6', color: product.status === 'active' ? '#065F46' : '#374151', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
-                                                {product.status === 'active' ? 'نشط' : 'مخفي'}
+                                                {product.status === 'active' ? t.common.active : t.common.inactive}
                                             </span>
                                         </td>
                                         <td style={{ padding: '14px 16px' }}>
-                                            <div style={{ display: 'flex', gap: 6 }}>
+                                            <div style={{ display: 'flex', gap: 6, justifyContent: dir === 'rtl' ? 'flex-start' : 'flex-start' }}>
                                                 <Link href={`/dashboard/products/${product.id}/edit`} style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #E0D6C8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B6058' }}>
                                                     <Edit size={14} />
                                                 </Link>
@@ -228,10 +230,10 @@ export default function ProductsPage() {
                 {filtered.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '48px 0', color: '#A09080' }}>
                         <Package size={40} style={{ margin: '0 auto 12px', display: 'block' }} />
-                        لا توجد منتجات مطابقة
+                        {t.products.noProducts}
                     </div>
                 ) : filtered.map(product => {
-                    const stockBadge = getStockBadge(product.stock)
+                    const stockBadge = getStockBadge(product.stock, t, lang)
                     return (
                         <div key={product.id} className="mobile-card">
                             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -248,12 +250,12 @@ export default function ProductsPage() {
                                     <div style={{ fontWeight: 700, fontSize: 15, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
                                     <div style={{ fontSize: 12, color: '#A09080', marginTop: 2 }}>{product.category}</div>
                                     <div style={{ display: 'flex', gap: 6, marginTop: 6, alignItems: 'center' }}>
-                                        <span style={{ fontWeight: 800, fontSize: 15, color: '#222' }}>{product.price?.toFixed(2)} <span style={{ fontSize: 11, fontWeight: 600, color: '#6B6058' }}>د.أ</span></span>
+                                        <span style={{ fontWeight: 800, fontSize: 15, color: '#222' }} dir="ltr">{product.price?.toFixed(2)} <span style={{ fontSize: 11, fontWeight: 600, color: '#6B6058' }}>{t.common.currency}</span></span>
                                         <span style={{ background: stockBadge.bg, color: stockBadge.color, padding: '2px 8px', borderRadius: 100, fontSize: 11, fontWeight: 700 }}>
                                             {stockBadge.label}
                                         </span>
                                         <span style={{ background: product.status === 'active' ? '#D1FAE5' : '#F3F4F6', color: product.status === 'active' ? '#065F46' : '#374151', padding: '2px 8px', borderRadius: 100, fontSize: 11, fontWeight: 700 }}>
-                                            {product.status === 'active' ? 'نشط' : 'مخفي'}
+                                            {product.status === 'active' ? t.common.active : t.common.inactive}
                                         </span>
                                     </div>
                                 </div>
@@ -266,14 +268,14 @@ export default function ProductsPage() {
                                     style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 0', borderRadius: 10, background: '#F5F0E8', border: '1px solid #E0D6C8', color: '#222', fontWeight: 600, fontSize: 13, textDecoration: 'none' }}
                                 >
                                     <Edit size={14} />
-                                    تعديل
+                                    {t.common.edit}
                                 </Link>
                                 <button
                                     onClick={() => setItemToDelete(product.id)}
                                     style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 0', borderRadius: 10, background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#B91C1C', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
                                 >
                                     <Trash2 size={14} />
-                                    حذف
+                                    {t.common.delete}
                                 </button>
                             </div>
                         </div>
@@ -283,11 +285,11 @@ export default function ProductsPage() {
 
             {/* ── FAB: floating Add button (mobile only) ── */}
             {canAddProduct ? (
-                <Link href="/dashboard/products/new" className="fab" title="إضافة منتج">
+                <Link href="/dashboard/products/new" className="fab" title={t.products.addProduct}>
                     <Plus size={26} />
                 </Link>
             ) : (
-                <div className="fab" style={{ background: '#A09080', cursor: 'not-allowed' }} title="وصلت للحد الأقصى">
+                <div className="fab" style={{ background: '#A09080', cursor: 'not-allowed' }} title={t.products.upgradePlan}>
                     <Plus size={26} />
                 </div>
             )}
@@ -301,18 +303,18 @@ export default function ProductsPage() {
                                 <AlertTriangle size={24} color="#B91C1C" />
                             </div>
                             <div>
-                                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 6 }}>تأكيد الحذف</h3>
-                                <p style={{ fontSize: 14, color: '#6B6058', lineHeight: 1.6 }}>هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 6 }}>{t.common.confirm}</h3>
+                                <p style={{ fontSize: 14, color: '#6B6058', lineHeight: 1.6 }}>{t.coupons.deleteWarning}</p>
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-                            <button onClick={() => setItemToDelete(null)} className="btn btn-ghost" style={{ flex: 1, border: '1px solid #E0D6C8' }}>إلغاء</button>
+                            <button onClick={() => setItemToDelete(null)} className="btn btn-ghost" style={{ flex: 1, border: '1px solid #E0D6C8' }}>{t.common.cancel}</button>
                             <button
                                 onClick={() => { handleDelete(itemToDelete); setItemToDelete(null) }}
                                 className="btn btn-danger"
                                 style={{ flex: 1 }}
                             >
-                                نعم، احذف
+                                {t.common.delete}
                             </button>
                         </div>
                     </div>

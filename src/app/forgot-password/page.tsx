@@ -4,8 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Mail, Store, ArrowRight, CheckCircle } from 'lucide-react'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 export default function ForgotPasswordPage() {
+    const { t, dir } = useLanguage()
     const [email, setEmail] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -26,7 +28,7 @@ export default function ForgotPasswordPage() {
             if (resetError) throw resetError
             setSuccess(true)
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'حدث خطأ في إرسال طلب إعادة تعيين كلمة المرور'
+            const message = err instanceof Error ? err.message : t.auth.resetError
             setError(message)
         } finally {
             setLoading(false)
@@ -47,7 +49,7 @@ export default function ForgotPasswordPage() {
 
     return (
         <div
-            dir="rtl"
+            dir={dir}
             style={{
                 minHeight: '100vh',
                 background: '#EFE8DD',
@@ -55,7 +57,7 @@ export default function ForgotPasswordPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 20,
-                fontFamily: 'Tajawal, sans-serif',
+                fontFamily: 'Tajawal, Inter, sans-serif',
             }}
         >
             <div
@@ -100,10 +102,10 @@ export default function ForgotPasswordPage() {
                     </Link>
 
                     <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111111', marginBottom: 12, letterSpacing: '-0.02em' }}>
-                        إعادة تعيين كلمة المرور
+                        {t.auth.resetPasswordTitle}
                     </h1>
                     <p style={{ color: '#6B6058', marginBottom: 36, fontSize: 15, lineHeight: 1.6 }}>
-                        أدخل بريدك الإلكتروني وسنرسل لك رابطاً <br /> لإعادة تعيين كلمة المرور الخاصة بك.
+                        {t.auth.resetPasswordDesc}
                     </p>
 
                     {success ? (
@@ -111,17 +113,17 @@ export default function ForgotPasswordPage() {
                             <div style={{ marginBottom: 20 }}>
                                 <CheckCircle size={64} color="#10B981" style={{ margin: '0 auto' }} />
                             </div>
-                            <h2 style={{ color: '#111111', fontSize: 20, marginBottom: 12, fontWeight: 800 }}>تم إرسال الرابط بنجاح!</h2>
+                            <h2 style={{ color: '#111111', fontSize: 20, marginBottom: 12, fontWeight: 800 }}>{t.auth.resetLinkSent}</h2>
                             <p style={{ color: '#6B6058', marginBottom: 32, fontSize: 15 }}>
-                                يرجى التحقق من بريدك الإلكتروني في غضون ثوانٍ.
+                                {t.auth.checkEmailDesc}
                             </p>
                             <Link
                                 href="/login"
                                 className="btn btn-primary"
-                                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', textDecoration: 'none' }}
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', textDecoration: 'none', flexDirection: dir === 'rtl' ? 'row' : 'row-reverse' }}
                             >
-                                <ArrowRight size={18} />
-                                العودة لتسجيل الدخول
+                                <ArrowRight size={18} style={{ transform: dir === 'rtl' ? 'none' : 'rotate(180deg)' }} />
+                                {t.auth.backToLogin}
                             </Link>
                         </div>
                     ) : (
@@ -143,24 +145,25 @@ export default function ForgotPasswordPage() {
                                 </div>
                             )}
 
-                            <div className="form-group" style={{ textAlign: 'right', marginBottom: 24 }}>
+                            <div className="form-group" style={{ textAlign: dir === 'rtl' ? 'right' : 'left', marginBottom: 24 }}>
                                 <label className="form-label" style={{ color: '#555147', marginBottom: 8, display: 'block' }}>
-                                    البريد الإلكتروني
+                                    {t.auth.email}
                                 </label>
                                 <div style={{ position: 'relative' }}>
                                     <Mail
                                         size={18}
                                         color="#A09080"
-                                        style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
+                                        style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }}
                                     />
                                     <input
                                         type="email"
                                         className="form-control"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="example@email.com"
+                                        placeholder={t.auth.emailPlaceholder}
                                         required
-                                        style={{ ...inputStyle, paddingRight: 44 }}
+                                        style={{ ...inputStyle, [dir === 'rtl' ? 'paddingRight' : 'paddingLeft']: 44, textAlign: dir === 'rtl' ? 'right' : 'left' }}
+                                        dir="ltr"
                                     />
                                 </div>
                             </div>
@@ -174,7 +177,7 @@ export default function ForgotPasswordPage() {
                                 {loading ? (
                                     <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
                                 ) : (
-                                    'إرسال رابط التعيين'
+                                    t.auth.sendResetLink
                                 )}
                             </button>
 
@@ -189,12 +192,13 @@ export default function ForgotPasswordPage() {
                                     fontSize: 14,
                                     textDecoration: 'none',
                                     transition: 'color 0.2s',
+                                    flexDirection: dir === 'rtl' ? 'row' : 'row-reverse',
                                 }}
                                 onMouseOver={(e) => (e.currentTarget.style.color = '#111111')}
                                 onMouseOut={(e) => (e.currentTarget.style.color = '#6B6058')}
                             >
-                                <ArrowRight size={16} />
-                                العودة لتسجيل الدخول
+                                <ArrowRight size={16} style={{ transform: dir === 'rtl' ? 'none' : 'rotate(180deg)' }} />
+                                {t.auth.backToLogin}
                             </Link>
                         </form>
                     )}

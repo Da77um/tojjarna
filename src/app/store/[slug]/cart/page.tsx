@@ -2,7 +2,8 @@
 
 import { useState, use } from 'react'
 import Link from 'next/link'
-import { Trash2, Plus, Minus, ChevronRight, ShoppingBag } from 'lucide-react'
+import { Trash2, Plus, Minus, ChevronRight, ChevronLeft, ShoppingBag } from 'lucide-react'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 const initialItems = [
     { id: 1, name: 'قميص قطني أبيض', variant: 'مقاس L — أبيض', price: 12.5, qty: 2, image: '👕' },
@@ -12,6 +13,7 @@ const initialItems = [
 export default function CartPage({ params }: { params: Promise<{ slug: string }> }) {
     const unwrappedParams = use(params)
     const slug = unwrappedParams.slug
+    const { t, dir } = useLanguage()
     const [items, setItems] = useState(initialItems)
     const primaryColor = '#6C3CE1'
 
@@ -25,20 +27,20 @@ export default function CartPage({ params }: { params: Promise<{ slug: string }>
     const total = subtotal + shipping
 
     if (items.length === 0) return (
-        <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, sans-serif', gap: 16, textAlign: 'center', padding: 40 }}>
+        <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tajawal, Inter, sans-serif', gap: 16, textAlign: 'center', padding: 40, direction: dir as 'rtl' | 'ltr' }}>
             <ShoppingBag size={72} color="#D1D5DB" />
-            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#374151' }}>سلتك فارغة</h2>
-            <p style={{ color: '#9CA3AF' }}>لم تقم بإضافة أي منتجات بعد</p>
+            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#374151' }}>{t.storefront.cartEmptyTitle}</h2>
+            <p style={{ color: '#9CA3AF' }}>{t.storefront.cartEmptyDesc}</p>
             <Link href={`/store/${slug}`} style={{ background: primaryColor, color: 'white', textDecoration: 'none', padding: '12px 28px', borderRadius: 12, fontWeight: 700, fontSize: 15 }}>
-                تصفح المنتجات
+                {t.storefront.browseProducts}
             </Link>
         </div>
     )
 
     return (
-        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: 'Tajawal, sans-serif', padding: '32px 20px' }}>
+        <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: 'Tajawal, Inter, sans-serif', padding: '32px 20px', direction: dir as 'rtl' | 'ltr' }}>
             <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-                <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 28 }}>سلة التسوق</h1>
+                <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 28 }}>{t.storefront.shoppingCart}</h1>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24 }}>
                     {/* Items */}
@@ -61,12 +63,12 @@ export default function CartPage({ params }: { params: Promise<{ slug: string }>
                                         </button>
                                     </div>
                                 </div>
-                                <div style={{ textAlign: 'left' }}>
+                                <div style={{ textAlign: dir === 'rtl' ? 'left' : 'right' }}>
                                     <div style={{ fontWeight: 900, fontSize: 16, color: primaryColor, marginBottom: 8 }}>
-                                        {(item.price * item.qty).toFixed(2)} د.أ
+                                        {(item.price * item.qty).toFixed(2)} {t.common.currency}
                                     </div>
                                     <button onClick={() => remove(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
-                                        <Trash2 size={14} /> حذف
+                                        <Trash2 size={14} /> {t.storefront.delete}
                                     </button>
                                 </div>
                             </div>
@@ -76,26 +78,26 @@ export default function CartPage({ params }: { params: Promise<{ slug: string }>
                     {/* Summary */}
                     <div>
                         <div style={{ background: 'white', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden' }}>
-                            <div style={{ padding: '20px 20px 0', fontWeight: 700, fontSize: 16, borderBottom: '1px solid #E5E7EB', paddingBottom: 16 }}>ملخص الطلب</div>
+                            <div style={{ padding: '20px 20px 0', fontWeight: 700, fontSize: 16, borderBottom: '1px solid #E5E7EB', paddingBottom: 16 }}>{t.storefront.orderSummary}</div>
                             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#6B7280' }}>
-                                    <span>المجموع الفرعي ({items.reduce((a, i) => a + i.qty, 0)} منتجات)</span>
-                                    <span style={{ fontWeight: 600, color: '#111827' }}>{subtotal.toFixed(2)} د.أ</span>
+                                    <span>{t.storefront.subtotalItems.replace('{count}', String(items.reduce((a, i) => a + i.qty, 0)))}</span>
+                                    <span style={{ fontWeight: 600, color: '#111827', direction: 'ltr' }}>{subtotal.toFixed(2)} {t.common.currency}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#6B7280' }}>
-                                    <span>رسوم الشحن</span>
-                                    <span style={{ fontWeight: 600, color: shipping === 0 ? '#10B981' : '#111827' }}>
-                                        {shipping === 0 ? '🎉 مجاني' : `${shipping.toFixed(2)} د.أ`}
+                                    <span>{t.storefront.shippingFee}</span>
+                                    <span style={{ fontWeight: 600, color: shipping === 0 ? '#10B981' : '#111827', direction: 'ltr' }}>
+                                        {shipping === 0 ? t.storefront.freeShippingBadge : `${shipping.toFixed(2)} ${t.common.currency}`}
                                     </span>
                                 </div>
                                 {subtotal < 50 && (
                                     <div style={{ background: '#F0FDF4', borderRadius: 8, padding: '8px 12px', fontSize: 12, color: '#065F46' }}>
-                                        أضف {(50 - subtotal).toFixed(2)} د.أ للحصول على شحن مجاني 🚚
+                                        {t.storefront.addForFreeShipping.replace('{amount}', (50 - subtotal).toFixed(2)).replace('{currency}', t.common.currency)}
                                     </div>
                                 )}
                                 <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 14, display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: 18 }}>
-                                    <span>الإجمالي</span>
-                                    <span style={{ color: primaryColor }}>{total.toFixed(2)} د.أ</span>
+                                    <span>{t.storefront.total}</span>
+                                    <span style={{ color: primaryColor, direction: 'ltr' }}>{total.toFixed(2)} {t.common.currency}</span>
                                 </div>
                                 <Link
                                     href={`/store/${slug}/checkout`}
@@ -104,10 +106,10 @@ export default function CartPage({ params }: { params: Promise<{ slug: string }>
                                         background: primaryColor, color: 'white', textDecoration: 'none', padding: '14px', borderRadius: 12, fontWeight: 700, fontSize: 15,
                                     }}
                                 >
-                                    إتمام الشراء <ChevronRight size={18} />
+                                    {t.storefront.checkout} {dir === 'rtl' ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
                                 </Link>
                                 <Link href={`/store/${slug}`} style={{ textAlign: 'center', color: '#6B7280', fontSize: 13, textDecoration: 'none' }}>
-                                    ← متابعة التسوق
+                                    {dir === 'rtl' ? '←' : '→'} {t.storefront.continueShopping}
                                 </Link>
                             </div>
                         </div>

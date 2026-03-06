@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { Search, Users, Phone, Mail, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 export default function CustomersPage() {
     const supabase = createClient()
+    const { t, dir } = useLanguage()
     const [search, setSearch] = useState('')
     const [customers, setCustomers] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
@@ -37,18 +39,18 @@ export default function CustomersPage() {
     )
 
     if (loading) return (
-        <div className="page-container" dir="rtl">
+        <div className="page-container" dir={dir}>
             <div className="skeleton skeleton-text" style={{ width: 120, height: 22, marginBottom: 8 }} />
             {[1, 2, 3, 4].map(i => <div key={i} className="skeleton skeleton-card" style={{ marginBottom: 10 }} />)}
         </div>
     )
 
     return (
-        <div className="page-container" dir="rtl">
+        <div className="page-container" dir={dir}>
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">العملاء</h1>
-                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>{customers.length} عميل في متجرك</p>
+                    <h1 className="page-title">{t.customers.title}</h1>
+                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>{customers.length} {t.customers.customersInStore}</p>
                 </div>
             </div>
 
@@ -59,16 +61,16 @@ export default function CustomersPage() {
                     type="search"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    placeholder="ابحث باسم العميل أو رقم الهاتف..."
-                    style={{ paddingRight: 44 }}
+                    placeholder={t.customers.searchPlaceholder}
+                    style={{ paddingRight: dir === 'rtl' ? 44 : 12, paddingLeft: dir === 'ltr' ? 44 : 12 }}
                 />
             </div>
 
             {filtered.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 0', color: '#A09080' }}>
                     <Users size={48} color="#D4C8BB" style={{ margin: '0 auto 16px', display: 'block' }} />
-                    <h3 style={{ fontWeight: 700, color: '#6B6058', marginBottom: 6 }}>لا يوجد عملاء بعد</h3>
-                    <p style={{ fontSize: 14 }}>سيظهر هنا العملاء الذين أتموا طلبات من متجرك</p>
+                    <h3 style={{ fontWeight: 700, color: '#6B6058', marginBottom: 6 }}>{t.customers.noCustomers}</h3>
+                    <p style={{ fontSize: 14 }}>{t.customers.noCustomersDesc}</p>
                 </div>
             ) : (
                 <>
@@ -77,8 +79,8 @@ export default function CustomersPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr>
-                                    {['العميل', 'المدينة', 'الطلبات', 'إجمالي الإنفاق', 'آخر طلب'].map(h => (
-                                        <th key={h} style={{ textAlign: 'right', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
+                                    {[t.customers.customer, t.customers.city, t.customers.orders, t.customers.totalSpend, t.customers.lastOrder].map(h => (
+                                        <th key={h} style={{ textAlign: dir === 'rtl' ? 'right' : 'left', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -96,8 +98,8 @@ export default function CustomersPage() {
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={13} color="#A09080" />{customer.city || '—'}</div>
                                         </td>
                                         <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }}>{customer.total_orders || 0}</td>
-                                        <td style={{ padding: '14px 16px', fontWeight: 800, fontSize: 14, color: '#C6A75E' }}>{(customer.total_spent || 0).toFixed(2)} <span style={{ fontWeight: 500, fontSize: 11, color: '#6B6058' }}>د.أ</span></td>
-                                        <td style={{ padding: '14px 16px', fontSize: 12, color: '#A09080' }}>{customer.last_order_at ? new Date(customer.last_order_at).toLocaleDateString('ar-JO') : '—'}</td>
+                                        <td style={{ padding: '14px 16px', fontWeight: 800, fontSize: 14, color: '#C6A75E' }}>{(customer.total_spent || 0).toFixed(2)} <span style={{ fontWeight: 500, fontSize: 11, color: '#6B6058' }}>{t.common.currency}</span></td>
+                                        <td style={{ padding: '14px 16px', fontSize: 12, color: '#A09080' }}>{customer.last_order_at ? new Date(customer.last_order_at).toLocaleDateString(dir === 'rtl' ? 'ar-JO' : 'en-US') : '—'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -114,10 +116,10 @@ export default function CustomersPage() {
                                         {(customer.full_name || 'ع')[0]}
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontWeight: 700, fontSize: 15, color: '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{customer.full_name}</div>
-                                        <div style={{ fontSize: 12, color: '#A09080', marginTop: 2, direction: 'ltr', textAlign: 'right' }}>{customer.phone}</div>
+                                        <div style={{ fontWeight: 700, fontSize: 15, color: '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{customer.full_name}</div>
+                                        <div style={{ fontSize: 12, color: '#A09080', marginTop: 2, direction: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{customer.phone}</div>
                                     </div>
-                                    <div style={{ fontWeight: 800, fontSize: 16, color: '#C6A75E', flexShrink: 0 }}>{(customer.total_spent || 0).toFixed(0)}<span style={{ fontSize: 11, fontWeight: 500, color: '#6B6058' }}> د.أ</span></div>
+                                    <div style={{ fontWeight: 800, fontSize: 16, color: '#C6A75E', flexShrink: 0 }}>{(customer.total_spent || 0).toFixed(0)}<span style={{ fontSize: 11, fontWeight: 500, color: '#6B6058' }}> {t.common.currency}</span></div>
                                 </div>
 
                                 {/* Stats row */}
@@ -128,11 +130,11 @@ export default function CustomersPage() {
                                         </span>
                                     )}
                                     <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#6B6058', background: '#F5F0E8', padding: '5px 10px', borderRadius: 8 }}>
-                                        🛍️ {customer.total_orders || 0} طلب
+                                        🛍️ {customer.total_orders || 0} {t.customers.customerOrders}
                                     </span>
                                     {customer.last_order_at && (
-                                        <span style={{ fontSize: 11, color: '#A09080', padding: '5px 0', marginRight: 'auto' }}>
-                                            {new Date(customer.last_order_at).toLocaleDateString('ar-JO')}
+                                        <span style={{ fontSize: 11, color: '#A09080', padding: '5px 0', [dir === 'rtl' ? 'marginRight' : 'marginLeft']: 'auto' }}>
+                                            {new Date(customer.last_order_at).toLocaleDateString(dir === 'rtl' ? 'ar-JO' : 'en-US')}
                                         </span>
                                     )}
                                 </div>

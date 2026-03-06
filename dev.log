@@ -70,3 +70,299 @@ Persisting failed: Another write batch or compaction is already active (Only a s
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 138ms
+ GET /dashboard/settings 200 in 810ms (compile: 57ms, proxy.ts: 612ms, render: 142ms)
+ GET /dashboard/settings 200 in 751ms (compile: 89ms, proxy.ts: 556ms, render: 106ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 66ms
+ GET /dashboard/settings 200 in 460ms (compile: 41ms, proxy.ts: 338ms, render: 81ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 97ms
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 44ms
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 34ms
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 34ms
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 37ms
+ GET /dashboard/settings 200 in 392ms (compile: 63ms, proxy.ts: 242ms, render: 87ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 28ms
+ GET /dashboard/settings 200 in 411ms (compile: 59ms, proxy.ts: 254ms, render: 98ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 46ms
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 25ms
+ GET /dashboard/settings 200 in 414ms (compile: 38ms, proxy.ts: 298ms, render: 79ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 25ms
+ GET /dashboard/settings 200 in 372ms (compile: 49ms, proxy.ts: 252ms, render: 72ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 33ms
+ GET /dashboard/settings 200 in 588ms (compile: 40ms, proxy.ts: 452ms, render: 96ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 31ms
+ GET /dashboard/settings 200 in 397ms (compile: 70ms, proxy.ts: 244ms, render: 83ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 30ms
+ GET /dashboard/settings 200 in 440ms (compile: 63ms, proxy.ts: 287ms, render: 90ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 26ms
+ GET /dashboard/settings 200 in 417ms (compile: 32ms, proxy.ts: 324ms, render: 60ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 28ms
+ GET /dashboard/settings 200 in 462ms (compile: 59ms, proxy.ts: 326ms, render: 77ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 38ms
+ GET /dashboard/settings 200 in 531ms (compile: 37ms, proxy.ts: 409ms, render: 85ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 29ms
+ GET /dashboard/settings 200 in 394ms (compile: 81ms, proxy.ts: 241ms, render: 72ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 45ms
+ GET /dashboard/settings 200 in 336ms (compile: 34ms, proxy.ts: 233ms, render: 69ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 23ms
+ GET /dashboard/settings 200 in 397ms (compile: 55ms, proxy.ts: 275ms, render: 67ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 41ms
+ GET /dashboard/settings 200 in 566ms (compile: 38ms, proxy.ts: 441ms, render: 87ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 25ms
+ GET /dashboard/settings 200 in 312ms (compile: 53ms, proxy.ts: 185ms, render: 74ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 25ms
+ GET /dashboard/settings 200 in 372ms (compile: 33ms, proxy.ts: 239ms, render: 100ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 34ms
+ GET /dashboard/settings 200 in 333ms (compile: 82ms, proxy.ts: 184ms, render: 67ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 25ms
+ GET /dashboard/settings 200 in 546ms (compile: 83ms, proxy.ts: 396ms, render: 68ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 30ms
+ GET /dashboard/settings 200 in 365ms (compile: 39ms, proxy.ts: 221ms, render: 105ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 36ms
+ GET /dashboard/settings 200 in 561ms (compile: 73ms, proxy.ts: 354ms, render: 133ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 23ms
+ GET /dashboard/settings 200 in 285ms (compile: 31ms, proxy.ts: 185ms, render: 69ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 28ms
+ GET /dashboard/settings 200 in 485ms (compile: 74ms, proxy.ts: 304ms, render: 107ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 30ms
+ GET /dashboard/settings 200 in 397ms (compile: 49ms, proxy.ts: 263ms, render: 85ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 58ms
+ GET /dashboard/settings 200 in 618ms (compile: 77ms, proxy.ts: 454ms, render: 87ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 26ms
+ GET /dashboard/settings 200 in 453ms (compile: 56ms, proxy.ts: 304ms, render: 94ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 39ms
+ GET /dashboard/settings 200 in 483ms (compile: 92ms, proxy.ts: 292ms, render: 98ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 73ms
+ GET /dashboard/settings 200 in 615ms (compile: 78ms, proxy.ts: 437ms, render: 101ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 24ms
+ GET /dashboard/settings 200 in 287ms (compile: 34ms, proxy.ts: 187ms, render: 67ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 41ms
+ GET /dashboard/settings 200 in 766ms (compile: 37ms, proxy.ts: 659ms, render: 70ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 27ms
+ GET /dashboard/settings 200 in 445ms (compile: 48ms, proxy.ts: 323ms, render: 74ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 37ms
+ GET /dashboard/settings 200 in 523ms (compile: 38ms, proxy.ts: 419ms, render: 66ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 45ms
+ GET /dashboard/settings 200 in 335ms (compile: 30ms, proxy.ts: 248ms, render: 57ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 30ms
+ GET /dashboard/settings 200 in 620ms (compile: 97ms, proxy.ts: 424ms, render: 99ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 33ms
+ GET /dashboard/settings 200 in 443ms (compile: 68ms, proxy.ts: 286ms, render: 88ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 31ms
+ GET /dashboard/settings 200 in 491ms (compile: 61ms, proxy.ts: 339ms, render: 91ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 39ms
+ GET /dashboard/settings 200 in 395ms (compile: 45ms, proxy.ts: 283ms, render: 66ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 31ms
+ GET /dashboard/settings 200 in 434ms (compile: 45ms, proxy.ts: 315ms, render: 74ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 40ms
+ GET /dashboard/settings 200 in 341ms (compile: 33ms, proxy.ts: 239ms, render: 69ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 29ms
+ GET /dashboard/settings 200 in 445ms (compile: 61ms, proxy.ts: 291ms, render: 93ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 26ms
+ GET /dashboard/settings 200 in 376ms (compile: 56ms, proxy.ts: 248ms, render: 72ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 33ms
+ GET /dashboard/settings 200 in 586ms (compile: 37ms, proxy.ts: 468ms, render: 80ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 41ms
+ GET /dashboard/settings 200 in 346ms (compile: 40ms, proxy.ts: 228ms, render: 77ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/ar.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 30ms
+ GET /dashboard/settings 200 in 645ms (compile: 158ms, proxy.ts: 354ms, render: 134ms)
+⚠ Fast Refresh had to perform a full reload when ./src/i18n/en.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 25ms
+ GET /dashboard/settings 200 in 308ms (compile: 36ms, proxy.ts: 173ms, render: 99ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)

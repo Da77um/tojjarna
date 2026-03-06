@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { createClient } from '@/lib/supabase/client'
 import { TrendingUp, ShoppingBag, Package, Users } from 'lucide-react'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 const STAT_ICONS = [TrendingUp, ShoppingBag, Package, Users]
 const STAT_COLORS = ['#C6A75E', '#10B981', '#3B82F6', '#8B5CF6']
 
 export default function AnalyticsPage() {
     const supabase = createClient()
+    const { t, dir } = useLanguage()
     const [loading, setLoading] = useState(true)
     const [stats, setStats] = useState([
         { label: 'إجمالي الإيرادات', value: '0', symbol: 'د.أ' },
@@ -50,11 +52,10 @@ export default function AnalyticsPage() {
                 const { data: orders } = await supabase.from('orders').select('status').in('store_id', storeIds)
                 const statusCounts: any = {}
                 orders?.forEach(o => { statusCounts[o.status] = (statusCounts[o.status] || 0) + 1 })
-                const statusLabels: any = { delivered: 'تم التسليم', pending: 'قيد الانتظار', processing: 'قيد المعالجة', cancelled: 'ملغي', shipped: 'قيد الشحن', refunded: 'مسترجع' }
                 const statusColors: any = { delivered: '#10B981', pending: '#F59E0B', processing: '#3B82F6', cancelled: '#EF4444', shipped: '#8B5CF6', refunded: '#6B7280' }
 
                 setOrderStatuses(Object.entries(statusCounts).map(([status, count]) => ({
-                    name: statusLabels[status] || status,
+                    statusKey: status,
                     value: Math.round(((count as number) / (orders?.length || 1)) * 100),
                     color: statusColors[status] || '#6B7280'
                 })))
@@ -74,7 +75,7 @@ export default function AnalyticsPage() {
     }, [supabase])
 
     if (loading) return (
-        <div className="page-container" dir="rtl">
+        <div className="page-container" dir={dir}>
             <div style={{ marginBottom: 20 }}>
                 <div className="skeleton skeleton-text" style={{ width: 180, height: 24, marginBottom: 8 }} />
             </div>
@@ -87,11 +88,11 @@ export default function AnalyticsPage() {
     )
 
     return (
-        <div className="page-container" dir="rtl">
+        <div className="page-container" dir={dir}>
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">التحليلات والتقارير</h1>
-                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>إحصائيات متجرك المباشرة</p>
+                    <h1 className="page-title">{t.analytics.title}</h1>
+                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>{t.analytics.subtitle}</p>
                 </div>
             </div>
 
@@ -99,17 +100,19 @@ export default function AnalyticsPage() {
             <div className="mobile-grid-2" style={{ marginBottom: 24 }}>
                 {stats.map((s, i) => {
                     const Icon = STAT_ICONS[i] || TrendingUp
+                    const labels = [t.analytics.totalRevenue, t.analytics.totalOrders, t.analytics.totalProducts, t.analytics.totalCustomers]
+                    const symbols = [t.common.currency, '', '', '']
                     return (
-                        <div key={s.label} className="card card-body" style={{ padding: '16px' }}>
+                        <div key={i} className="card card-body" style={{ padding: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                                 <div style={{ width: 36, height: 36, borderRadius: 10, background: `${STAT_COLORS[i]}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                     <Icon size={18} color={STAT_COLORS[i]} />
                                 </div>
-                                <span style={{ fontSize: 12, color: '#6B6058', fontWeight: 600, lineHeight: 1.3 }}>{s.label}</span>
+                                <span style={{ fontSize: 12, color: '#6B6058', fontWeight: 600, lineHeight: 1.3 }}>{labels[i]}</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                                 <span style={{ fontSize: 24, fontWeight: 900, color: '#111', lineHeight: 1 }}>{s.value}</span>
-                                {s.symbol && <span style={{ fontSize: 13, color: '#6B6058', fontWeight: 600 }}>{s.symbol}</span>}
+                                {symbols[i] && <span style={{ fontSize: 13, color: '#6B6058', fontWeight: 600 }}>{symbols[i]}</span>}
                             </div>
                         </div>
                     )
@@ -118,7 +121,7 @@ export default function AnalyticsPage() {
 
             {/* Revenue Chart — full width */}
             <div className="card card-body" style={{ marginBottom: 16 }}>
-                <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 16, color: '#111' }}>الإيرادات (آخر 30 يوم)</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 16, color: '#111' }}>{t.analytics.revenue30Days}</h3>
                 {monthlyRevenue.length > 0 ? (
                     <ResponsiveContainer width="100%" height={220}>
                         <BarChart data={monthlyRevenue} margin={{ top: 4, right: 0, left: -22, bottom: 0 }}>
@@ -126,8 +129,8 @@ export default function AnalyticsPage() {
                             <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#A09080' }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fontSize: 11, fill: '#A09080' }} axisLine={false} tickLine={false} />
                             <Tooltip
-                                contentStyle={{ background: '#FFF', border: '1px solid #E0D6C8', borderRadius: 10, fontSize: 13 }}
-                                formatter={(v: any) => [`${v || 0} د.أ`, 'الإيرادات']}
+                                contentStyle={{ background: '#FFF', border: '1px solid #E0D6C8', borderRadius: 10, fontSize: 13, textAlign: dir === 'rtl' ? 'right' : 'left' }}
+                                formatter={(v: any) => [`${v || 0} ${t.common.currency}`, t.analytics.revenue]}
                             />
                             <Bar dataKey="revenue" fill="#C6A75E" radius={[6, 6, 0, 0]} />
                         </BarChart>
@@ -135,7 +138,7 @@ export default function AnalyticsPage() {
                 ) : (
                     <div style={{ height: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#A09080', gap: 8 }}>
                         <TrendingUp size={36} color="#D4C8BB" />
-                        <span style={{ fontSize: 14 }}>لا توجد بيانات إيرادات بعد</span>
+                        <span style={{ fontSize: 14 }}>{t.analytics.noRevenueData}</span>
                     </div>
                 )}
             </div>
@@ -144,7 +147,7 @@ export default function AnalyticsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 16 }}>
                 {/* Order Status Donut */}
                 <div className="card card-body">
-                    <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 12, color: '#111' }}>توزيع الطلبات</h3>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 12, color: '#111' }}>{t.analytics.ordersDistribution}</h3>
                     {orderStatuses.length > 0 ? (
                         <>
                             <ResponsiveContainer width="100%" height={160}>
@@ -159,10 +162,10 @@ export default function AnalyticsPage() {
                             </ResponsiveContainer>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
                                 {orderStatuses.map((s: any) => (
-                                    <div key={s.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
+                                    <div key={s.statusKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                             <div style={{ width: 10, height: 10, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
-                                            <span style={{ color: '#4A4036' }}>{s.name}</span>
+                                            <span style={{ color: '#4A4036' }}>{t.orders[s.statusKey as keyof typeof t.orders] || s.statusKey}</span>
                                         </div>
                                         <span style={{ fontWeight: 700, color: '#111' }}>{s.value}%</span>
                                     </div>
@@ -172,26 +175,26 @@ export default function AnalyticsPage() {
                     ) : (
                         <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A09080', flexDirection: 'column', gap: 8 }}>
                             <ShoppingBag size={32} color="#D4C8BB" />
-                            <span style={{ fontSize: 13 }}>لا توجد طلبات بعد</span>
+                            <span style={{ fontSize: 13 }}>{t.analytics.noOrdersData}</span>
                         </div>
                     )}
                 </div>
 
                 {/* Top Products */}
                 <div className="card card-body">
-                    <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 12, color: '#111' }}>أكثر المنتجات مبيعاً</h3>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 12, color: '#111' }}>{t.analytics.topProducts}</h3>
                     {topProducts.length === 0 ? (
-                        <div style={{ padding: '32px 0', textAlign: 'center', color: '#A09080', fontSize: 13 }}>لا توجد بيانات</div>
+                        <div style={{ padding: '32px 0', textAlign: 'center', color: '#A09080', fontSize: 13 }}>{t.analytics.noDataAvailable}</div>
                     ) : topProducts.map((p: any, i) => (
                         <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: i < topProducts.length - 1 ? '1px solid #F0EBE3' : 'none' }}>
                             <div style={{ width: 32, height: 32, borderRadius: 8, background: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, color: '#C6A75E', flexShrink: 0 }}>
                                 {i + 1}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: 600, fontSize: 14, color: '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
-                                <div style={{ fontSize: 12, color: '#A09080', marginTop: 2 }}>{p.sold} وحدة مباعة</div>
+                                <div style={{ fontWeight: 600, fontSize: 14, color: '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{p.name}</div>
+                                <div style={{ fontSize: 12, color: '#A09080', marginTop: 2, textAlign: dir === 'rtl' ? 'right' : 'left' }}>{p.sold} {t.analytics.unitsSold}</div>
                             </div>
-                            <div style={{ fontWeight: 800, fontSize: 14, color: '#C6A75E', flexShrink: 0 }}>{p.revenue} <span style={{ fontWeight: 500, fontSize: 11, color: '#6B6058' }}>د.أ</span></div>
+                            <div style={{ fontWeight: 800, fontSize: 14, color: '#C6A75E', flexShrink: 0 }}>{p.revenue} <span style={{ fontWeight: 500, fontSize: 11, color: '#6B6058' }}>{t.common.currency}</span></div>
                         </div>
                     ))}
                 </div>

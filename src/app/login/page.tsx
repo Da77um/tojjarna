@@ -5,9 +5,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, Store } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 export default function LoginPage() {
     const router = useRouter()
+    const { t, dir } = useLanguage()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [rememberMe, setRememberMe] = useState(true)
@@ -32,7 +34,7 @@ export default function LoginPage() {
                 router.push('/dashboard')
             }
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'حدث خطأ في تسجيل الدخول'
+            const message = err instanceof Error ? err.message : t.auth.loginError
             setError(message)
         } finally {
             setLoading(false)
@@ -40,11 +42,11 @@ export default function LoginPage() {
     }
 
     return (
-        <div dir="rtl" className="mobile-stack" style={{
+        <div dir={dir} className="mobile-stack" style={{
             minHeight: '100vh',
             display: 'flex',
             background: '#EFE8DD',
-            fontFamily: 'Tajawal, sans-serif',
+            fontFamily: 'Tajawal, Inter, sans-serif',
         }}>
             {/* Left: Form */}
             <div style={{
@@ -71,10 +73,10 @@ export default function LoginPage() {
 
                     {/* Headline */}
                     <h1 style={{ fontSize: 30, fontWeight: 900, color: '#111111', marginBottom: 8, letterSpacing: '-0.02em' }}>
-                        أهلاً بعودتك
+                        {t.auth.welcomeBack}
                     </h1>
                     <p style={{ color: '#6B6058', marginBottom: 36, fontSize: 15, lineHeight: 1.6 }}>
-                        سجّل دخولك لإدارة متجرك
+                        {t.auth.loginDesc}
                     </p>
 
                     <form onSubmit={handleLogin}>
@@ -90,36 +92,36 @@ export default function LoginPage() {
                         )}
 
                         <div className="form-group">
-                            <label className="form-label">البريد الإلكتروني</label>
+                            <label className="form-label">{t.auth.email}</label>
                             <div style={{ position: 'relative' }}>
-                                <Mail size={17} color="#A09080" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }} />
+                                <Mail size={17} color="#A09080" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }} />
                                 <input
                                     type="email"
                                     className="form-control"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
-                                    placeholder="example@email.com"
+                                    placeholder={t.auth.emailPlaceholder}
                                     required
-                                    style={{ paddingRight: 44 }}
+                                    style={{ [dir === 'rtl' ? 'paddingRight' : 'paddingLeft']: 44 }}
                                 />
                             </div>
                         </div>
 
                         <div className="form-group">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                <label className="form-label" style={{ margin: 0 }}>كلمة المرور</label>
+                                <label className="form-label" style={{ margin: 0 }}>{t.auth.password}</label>
                                 <Link href="/forgot-password" style={{ color: '#555147', fontSize: 13, textDecoration: 'none', fontWeight: 700, borderBottom: '1px solid rgba(85,81,71,0.35)' }}>
-                                    نسيت كلمة المرور؟
+                                    {t.auth.forgotPassword}
                                 </Link>
                             </div>
                             <div style={{ position: 'relative' }}>
-                                <Lock size={17} color="#A09080" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }} />
+                                <Lock size={17} color="#A09080" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }} />
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     className="form-control"
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
-                                    placeholder="••••••••"
+                                    placeholder={t.auth.passwordPlaceholder}
                                     required
                                     style={{ paddingRight: 44, paddingLeft: 44 }}
                                 />
@@ -128,7 +130,7 @@ export default function LoginPage() {
                                     id="toggle-password-btn"
                                     onClick={() => setShowPassword(!showPassword)}
                                     style={{
-                                        position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: 14,
+                                        position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'left' : 'right']: 14,
                                         background: 'none', border: 'none', cursor: 'pointer', color: '#A09080',
                                         display: 'flex', alignItems: 'center',
                                     }}
@@ -146,7 +148,7 @@ export default function LoginPage() {
                                 onChange={e => setRememberMe(e.target.checked)}
                                 style={{ width: 18, height: 18, accentColor: '#C6A75E', cursor: 'pointer' }}
                             />
-                            <label htmlFor="rememberMe" style={{ color: '#6B6058', fontSize: 14, cursor: 'pointer' }}>تذكرني</label>
+                            <label htmlFor="rememberMe" style={{ color: '#6B6058', fontSize: 14, cursor: 'pointer' }}>{t.auth.rememberMe}</label>
                         </div>
 
                         <button
@@ -165,14 +167,14 @@ export default function LoginPage() {
                             onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = '#111111' }}
                             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#222222' }}
                         >
-                            {loading ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : 'تسجيل الدخول'}
+                            {loading ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : t.auth.loginBtn}
                         </button>
                     </form>
 
                     <p style={{ textAlign: 'center', marginTop: 28, color: '#6B6058', fontSize: 14 }}>
-                        ليس لديك حساب؟{' '}
+                        {t.auth.noAccount}{' '}
                         <Link href="/register" style={{ color: '#222222', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid #222222' }}>
-                            أنشئ حسابك مجاناً
+                            {t.auth.createFreeAccount}
                         </Link>
                     </p>
                 </div>
@@ -204,20 +206,20 @@ export default function LoginPage() {
                         <Store size={40} color="#C6A75E" />
                     </div>
                     <h2 style={{ color: 'white', fontSize: 30, fontWeight: 900, marginBottom: 16, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                        متجرك بانتظارك
+                        {t.auth.storeWaiting}
                     </h2>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, lineHeight: 1.8 }}>
-                        أكثر من 2,500 تاجر أردني يديرون متاجرهم ويحققون أرباحاً يومية عبر تجارنا.
+                        {t.auth.storeWaitingDesc}
                     </p>
 
                     {/* Stat pills */}
                     <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
-                        {[{ v: '2,500+', l: 'متجر' }, { v: '98%', l: 'رضا' }, { v: '50K+', l: 'طلب/شهر' }].map(s => (
+                        {[{ v: '2,500+', l: t.auth.stores }, { v: '98%', l: t.auth.satisfaction }, { v: '50K+', l: t.auth.ordersPerMonth }].map(s => (
                             <div key={s.l} style={{
                                 background: 'rgba(198,167,94,0.1)', border: '1px solid rgba(198,167,94,0.2)',
                                 borderRadius: 12, padding: '12px 20px', textAlign: 'center',
                             }}>
-                                <div style={{ color: '#C6A75E', fontWeight: 900, fontSize: 20 }}>{s.v}</div>
+                                <div style={{ color: '#C6A75E', fontWeight: 900, fontSize: 20, direction: 'ltr' }}>{s.v}</div>
                                 <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: 12, marginTop: 2 }}>{s.l}</div>
                             </div>
                         ))}

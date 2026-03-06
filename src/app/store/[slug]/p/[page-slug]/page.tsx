@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import CmsPageClient from './CmsPageClient'
 
 interface Props {
     params: Promise<{ slug: string; 'page-slug': string }>
@@ -41,35 +42,5 @@ export default async function StorefrontCmsPage({ params }: Props) {
 
     const primaryColor = store.theme?.global?.primary_color || store.theme?.primary_color || '#6C3CE1'
 
-    return (
-        <div style={{ fontFamily: 'Tajawal, sans-serif', direction: 'rtl', minHeight: '100vh', background: '#F9FAFB' }}>
-            {/* Header */}
-            <header style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <a href={`/store/${slug}`} style={{ fontWeight: 900, fontSize: 20, color: primaryColor, textDecoration: 'none' }}>
-                    {store.name_ar}
-                </a>
-                <a href={`/store/${slug}`} style={{ fontSize: 13, color: '#6B7280', textDecoration: 'none' }}>العودة للمتجر</a>
-            </header>
-
-            {/* Page content */}
-            <main style={{ maxWidth: 800, margin: '0 auto', padding: '48px 24px' }}>
-                <h1 style={{ fontSize: 28, fontWeight: 800, color: '#111827', marginBottom: 24, lineHeight: 1.4 }}>
-                    {page.title_ar}
-                </h1>
-                <div style={{ height: 3, width: 60, background: primaryColor, borderRadius: 2, marginBottom: 32 }} />
-                {page.content_ar ? (
-                    <div style={{ fontSize: 16, lineHeight: 1.9, color: '#374151', whiteSpace: 'pre-wrap' }}>
-                        {page.content_ar}
-                    </div>
-                ) : (
-                    <p style={{ color: '#9CA3AF', fontSize: 14 }}>لا يوجد محتوى لهذه الصفحة بعد.</p>
-                )}
-            </main>
-
-            {/* Footer */}
-            <footer style={{ background: '#111827', color: '#9CA3AF', padding: '24px', textAlign: 'center', marginTop: 80, fontSize: 13 }}>
-                &copy; {new Date().getFullYear()} {store.name_ar} — جميع الحقوق محفوظة
-            </footer>
-        </div>
-    )
+    return <CmsPageClient store={store} page={page} slug={slug} />
 }

@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lock, Store, Eye, EyeOff, CheckCircle, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 export default function ResetPasswordPage() {
     const router = useRouter()
+    const { t, dir } = useLanguage()
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -30,7 +32,7 @@ export default function ResetPasswordPage() {
                     const hash = window.location.hash
                     if (!hash || !hash.includes('access_token')) {
                         setSessionStatus('invalid')
-                        setError('رابط إعادة التعيين غير صالح أو منتهي الصلاحية')
+                        setError(t.auth.resetLinkExpired)
                     } else {
                         // Sometimes Supabase takes a moment to process the fragment
                         setSessionStatus('valid')
@@ -52,13 +54,13 @@ export default function ResetPasswordPage() {
         setError('')
 
         if (password !== confirmPassword) {
-            setError('كلمتا المرور غير متطابقتين')
+            setError(t.auth.passwordMismatch)
             setLoading(false)
             return
         }
 
         if (password.length < 6) {
-            setError('يجب أن تكون كلمة المرور 6 أحرف على الأقل')
+            setError(t.auth.passwordLength)
             setLoading(false)
             return
         }
@@ -69,7 +71,7 @@ export default function ResetPasswordPage() {
             // Re-verify session exactly before update
             const { data: { session } } = await supabase.auth.getSession()
             if (!session) {
-                throw new Error('انتهت جلسة التحقق. يرجى طلب رابط جديد لإعادة تعيين كلمة المرور')
+                throw new Error(t.auth.sessionExpired)
             }
 
             const { error: updateError } = await supabase.auth.updateUser({
@@ -84,7 +86,7 @@ export default function ResetPasswordPage() {
                 router.push('/login')
             }, 3000)
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'حدث خطأ في تعيين كلمة المرور الجديدة'
+            const message = err instanceof Error ? err.message : t.auth.updatePasswordError
             setError(message)
         } finally {
             setLoading(false)
@@ -105,7 +107,7 @@ export default function ResetPasswordPage() {
 
     return (
         <div
-            dir="rtl"
+            dir={dir}
             style={{
                 minHeight: '100vh',
                 background: '#0B0D17',
@@ -113,7 +115,7 @@ export default function ResetPasswordPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 20,
-                fontFamily: 'Tajawal, sans-serif',
+                fontFamily: 'Tajawal, Inter, sans-serif',
             }}
         >
             <div
@@ -157,10 +159,10 @@ export default function ResetPasswordPage() {
                     </Link>
 
                     <h1 style={{ fontSize: 26, fontWeight: 900, color: 'white', marginBottom: 12 }}>
-                        تعيين كلمة مرور جديدة 🔐
+                        {t.auth.setNewPassword}
                     </h1>
                     <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 36, fontSize: 15 }}>
-                        يرجى إدخال كلمة المرور الجديدة الخاصة بك أدناه.
+                        {t.auth.enterNewPassword}
                     </p>
 
                     {checkingSession ? (
@@ -168,23 +170,23 @@ export default function ResetPasswordPage() {
                             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
                                 <span className="spinner" style={{ width: 40, height: 40, borderWidth: 3, borderTopColor: '#6C3CE1' }} />
                             </div>
-                            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15 }}>جاري التحقق من الرابط...</p>
+                            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15 }}>{t.auth.checkingLink}</p>
                         </div>
                     ) : sessionStatus === 'invalid' ? (
                         <div style={{ textAlign: 'center', padding: '20px 0' }}>
                             <div style={{ marginBottom: 20 }}>
                                 <AlertTriangle size={64} color="#EF4444" style={{ margin: '0 auto' }} />
                             </div>
-                            <h2 style={{ color: 'white', fontSize: 20, marginBottom: 12 }}>رابط غير صالح</h2>
+                            <h2 style={{ color: 'white', fontSize: 20, marginBottom: 12 }}>{t.auth.invalidLink}</h2>
                             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: 32, fontSize: 15 }}>
-                                {error || 'يبدو أن الرابط الذي استخدمته غير صالح أو منتهي الصلاحية.'}
+                                {error || t.auth.invalidLinkDesc}
                             </p>
                             <Link
                                 href="/forgot-password"
                                 className="btn btn-primary"
                                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', textDecoration: 'none' }}
                             >
-                                طلب رابط جديد
+                                {t.auth.requestNewLink}
                             </Link>
                         </div>
                     ) : success ? (
@@ -192,9 +194,9 @@ export default function ResetPasswordPage() {
                             <div style={{ marginBottom: 20 }}>
                                 <CheckCircle size={64} color="#10B981" style={{ margin: '0 auto' }} />
                             </div>
-                            <h2 style={{ color: 'white', fontSize: 20, marginBottom: 12 }}>تم تغيير كلمة المرور!</h2>
+                            <h2 style={{ color: 'white', fontSize: 20, marginBottom: 12 }}>{t.auth.passwordChanged}</h2>
                             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: 0, fontSize: 15 }}>
-                                سنقوم بتحويلك لتسجيل الدخول خلال لحظات...
+                                {t.auth.redirectingLogin}
                             </p>
                         </div>
                     ) : (
@@ -216,22 +218,22 @@ export default function ResetPasswordPage() {
                                 </div>
                             )}
 
-                            <div className="form-group" style={{ textAlign: 'right', marginBottom: 20 }}>
+                            <div className="form-group" style={{ textAlign: dir === 'rtl' ? 'right' : 'left', marginBottom: 20 }}>
                                 <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)', marginBottom: 8, display: 'block' }}>
-                                    كلمة المرور الجديدة
+                                    {t.auth.newPassword}
                                 </label>
                                 <div style={{ position: 'relative' }}>
                                     <Lock
                                         size={18}
                                         color="rgba(255,255,255,0.3)"
-                                        style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
+                                        style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }}
                                     />
                                     <input
                                         type={showPassword ? 'text' : 'password'}
                                         className="form-control"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
+                                        placeholder={t.auth.passwordPlaceholder}
                                         required
                                         style={{ ...inputStyle, paddingRight: 44, paddingLeft: 44 }}
                                     />
@@ -242,7 +244,7 @@ export default function ResetPasswordPage() {
                                             position: 'absolute',
                                             top: '50%',
                                             transform: 'translateY(-50%)',
-                                            left: 14,
+                                            [dir === 'rtl' ? 'left' : 'right']: 14,
                                             background: 'none',
                                             border: 'none',
                                             cursor: 'pointer',
@@ -254,24 +256,24 @@ export default function ResetPasswordPage() {
                                 </div>
                             </div>
 
-                            <div className="form-group" style={{ textAlign: 'right', marginBottom: 32 }}>
+                            <div className="form-group" style={{ textAlign: dir === 'rtl' ? 'right' : 'left', marginBottom: 32 }}>
                                 <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)', marginBottom: 8, display: 'block' }}>
-                                    تأكيد كلمة المرور
+                                    {t.auth.confirmPassword}
                                 </label>
                                 <div style={{ position: 'relative' }}>
                                     <Lock
                                         size={18}
                                         color="rgba(255,255,255,0.3)"
-                                        style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
+                                        style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }}
                                     />
                                     <input
                                         type={showPassword ? 'text' : 'password'}
                                         className="form-control"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        placeholder="••••••••"
+                                        placeholder={t.auth.passwordPlaceholder}
                                         required
-                                        style={{ ...inputStyle, paddingRight: 44 }}
+                                        style={{ ...inputStyle, [dir === 'rtl' ? 'paddingRight' : 'paddingLeft']: 44 }}
                                     />
                                 </div>
                             </div>
@@ -285,7 +287,7 @@ export default function ResetPasswordPage() {
                                 {loading ? (
                                     <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
                                 ) : (
-                                    'تحديث كلمة المرور'
+                                    t.auth.updatePassword
                                 )}
                             </button>
                         </form>

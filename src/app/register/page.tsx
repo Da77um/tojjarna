@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Store, Eye, EyeOff, ArrowLeft, Mail, Lock, User, Phone } from 'lucide-react'
+import { User, Phone, Store, Eye, EyeOff, ArrowLeft, Mail, Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 export default function RegisterPage() {
     const router = useRouter()
+    const { t, dir } = useLanguage()
     const [step, setStep] = useState<'signup' | 'otp'>('signup')
     const [formData, setFormData] = useState({
         name: '',
@@ -32,13 +34,13 @@ export default function RegisterPage() {
         setError('')
 
         if (formData.password !== formData.confirmPassword) {
-            setError('كلمتا المرور غير متطابقتين')
+            setError(t.auth.passwordMismatch)
             setLoading(false)
             return
         }
 
         if (formData.password.length < 6) {
-            setError('يجب أن تكون كلمة المرور 6 أحرف على الأقل')
+            setError(t.auth.passwordLength)
             setLoading(false)
             return
         }
@@ -63,7 +65,7 @@ export default function RegisterPage() {
             // Move to OTP step
             setStep('otp')
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'حدث خطأ في إنشاء الحساب'
+            const message = err instanceof Error ? err.message : t.auth.registerError
             setError(message)
         } finally {
             setLoading(false)
@@ -73,7 +75,7 @@ export default function RegisterPage() {
     async function handleVerifyOtp(e: React.FormEvent) {
         e.preventDefault()
         if (otp.length !== 6) {
-            setError('يرجى إدخال رمز التحقق المكون من 6 أرقام')
+            setError(t.auth.verifyError)
             return
         }
 
@@ -94,7 +96,7 @@ export default function RegisterPage() {
             // Redirect to dashboard onboarding
             router.push('/dashboard/setup')
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'رمز التحقق غير صحيح'
+            const message = err instanceof Error ? err.message : t.auth.verifyError
             setError(message)
         } finally {
             setLoading(false)
@@ -111,9 +113,9 @@ export default function RegisterPage() {
                 email: formData.email
             })
             if (resendError) throw resendError
-            toast.success('تم إعادة إرسال الرمز بنجاح')
+            toast.success(t.auth.resendSuccess)
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'حدث خطأ في إعادة إرسال الرمز'
+            const message = err instanceof Error ? err.message : t.auth.resendError
             setError(message)
         } finally {
             setLoading(false)
@@ -128,7 +130,7 @@ export default function RegisterPage() {
 
     return (
         <div
-            dir="rtl"
+            dir={dir}
             style={{
                 minHeight: '100vh',
                 display: 'flex',
@@ -136,7 +138,7 @@ export default function RegisterPage() {
                 justifyContent: 'center',
                 background: '#EFE8DD',
                 padding: '48px 24px',
-                fontFamily: 'Tajawal, sans-serif',
+                fontFamily: 'Tajawal, Inter, sans-serif',
             }}
         >
             <div style={{ width: '100%', maxWidth: 500 }}>
@@ -169,10 +171,10 @@ export default function RegisterPage() {
                 </Link>
 
                 <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111111', marginBottom: 8, letterSpacing: '-0.02em' }}>
-                    أنشئ متجرك اليوم
+                    {t.auth.createStoreToday}
                 </h1>
                 <p style={{ color: '#6B6058', marginBottom: 36, fontSize: 15 }}>
-                    ابدأ مجاناً، لا حاجة لبطاقة ائتمانية
+                    {t.auth.startFree}
                 </p>
 
                 <div
@@ -203,12 +205,12 @@ export default function RegisterPage() {
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                                 <div className="form-group">
-                                    <label className="form-label" style={labelStyle}>الاسم الكامل</label>
+                                    <label className="form-label" style={labelStyle}>{t.auth.fullName}</label>
                                     <div style={{ position: 'relative' }}>
                                         <User
                                             size={16}
                                             color="rgba(255,255,255,0.3)"
-                                            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
+                                            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }}
                                         />
                                         <input
                                             type="text"
@@ -216,7 +218,7 @@ export default function RegisterPage() {
                                             className="form-control"
                                             value={formData.name}
                                             onChange={handleChange}
-                                            placeholder="محمد أحمد"
+                                            placeholder={t.auth.fullNamePlaceholder}
                                             required
                                             style={inputStyle}
                                         />
@@ -224,12 +226,12 @@ export default function RegisterPage() {
                                 </div>
 
                                 <div className="form-group">
-                                    <label className="form-label" style={labelStyle}>رقم الهاتف</label>
+                                    <label className="form-label" style={labelStyle}>{t.auth.phone}</label>
                                     <div style={{ position: 'relative' }}>
                                         <Phone
                                             size={16}
                                             color="rgba(255,255,255,0.3)"
-                                            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
+                                            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }}
                                         />
                                         <input
                                             type="tel"
@@ -237,8 +239,8 @@ export default function RegisterPage() {
                                             className="form-control"
                                             value={formData.phone}
                                             onChange={handleChange}
-                                            placeholder="07XXXXXXXX"
-                                            style={inputStyle}
+                                            placeholder={t.auth.phonePlaceholder}
+                                            style={{ ...inputStyle, textAlign: dir === 'rtl' ? 'right' : 'left' }}
                                             dir="ltr"
                                         />
                                     </div>
@@ -246,12 +248,12 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="form-group">
-                                <label className="form-label" style={labelStyle}>البريد الإلكتروني</label>
+                                <label className="form-label" style={labelStyle}>{t.auth.email}</label>
                                 <div style={{ position: 'relative' }}>
                                     <Mail
                                         size={16}
                                         color="rgba(255,255,255,0.3)"
-                                        style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
+                                        style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }}
                                     />
                                     <input
                                         type="email"
@@ -259,9 +261,9 @@ export default function RegisterPage() {
                                         className="form-control"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        placeholder="example@email.com"
+                                        placeholder={t.auth.emailPlaceholder}
                                         required
-                                        style={inputStyle}
+                                        style={{ ...inputStyle, textAlign: dir === 'rtl' ? 'right' : 'left' }}
                                         dir="ltr"
                                     />
                                 </div>
@@ -269,12 +271,12 @@ export default function RegisterPage() {
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                                 <div className="form-group">
-                                    <label className="form-label" style={labelStyle}>كلمة المرور</label>
+                                    <label className="form-label" style={labelStyle}>{t.auth.password}</label>
                                     <div style={{ position: 'relative' }}>
                                         <Lock
                                             size={16}
                                             color="rgba(255,255,255,0.3)"
-                                            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
+                                            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }}
                                         />
                                         <input
                                             type={showPassword ? 'text' : 'password'}
@@ -282,9 +284,9 @@ export default function RegisterPage() {
                                             className="form-control"
                                             value={formData.password}
                                             onChange={handleChange}
-                                            placeholder="6+ أحرف"
+                                            placeholder={t.auth.registerPasswordPlaceholder}
                                             required
-                                            style={{ ...inputStyle, paddingLeft: 40 }}
+                                            style={{ ...inputStyle, [dir === 'rtl' ? 'paddingLeft' : 'paddingRight']: 40 }}
                                         />
                                         <button
                                             type="button"
@@ -293,7 +295,7 @@ export default function RegisterPage() {
                                                 position: 'absolute',
                                                 top: '50%',
                                                 transform: 'translateY(-50%)',
-                                                left: 14,
+                                                [dir === 'rtl' ? 'left' : 'right']: 14,
                                                 background: 'none',
                                                 border: 'none',
                                                 cursor: 'pointer',
@@ -306,12 +308,12 @@ export default function RegisterPage() {
                                 </div>
 
                                 <div className="form-group">
-                                    <label className="form-label" style={labelStyle}>تأكيد كلمة المرور</label>
+                                    <label className="form-label" style={labelStyle}>{t.auth.confirmPassword}</label>
                                     <div style={{ position: 'relative' }}>
                                         <Lock
                                             size={16}
                                             color="rgba(255,255,255,0.3)"
-                                            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 14 }}
+                                            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }}
                                         />
                                         <input
                                             type={showPassword ? 'text' : 'password'}
@@ -319,7 +321,7 @@ export default function RegisterPage() {
                                             className="form-control"
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
-                                            placeholder="••••••••"
+                                            placeholder={t.auth.passwordPlaceholder}
                                             required
                                             style={inputStyle}
                                         />
@@ -336,24 +338,24 @@ export default function RegisterPage() {
                                 {loading ? (
                                     <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
                                 ) : (
-                                    'إنشاء الحساب مجاناً'
+                                    t.auth.registerBtn
                                 )}
                             </button>
 
                             <p style={{ color: '#6B6058', fontSize: 12, textAlign: 'center', marginTop: 16 }}>
-                                بإنشاء حساب، أنت توافق على{' '}
-                                <Link href="/terms" style={{ color: '#222222', textDecoration: 'underline', fontWeight: 700 }}>شروط الخدمة</Link>
-                                {' '}و{' '}
-                                <Link href="/privacy" style={{ color: '#222222', textDecoration: 'underline', fontWeight: 700 }}>سياسة الخصوصية</Link>
+                                {t.auth.agreeTerms}{' '}
+                                <Link href="/terms" style={{ color: '#222222', textDecoration: 'underline', fontWeight: 700 }}>{t.auth.terms}</Link>
+                                {' '}{t.auth.and}{' '}
+                                <Link href="/privacy" style={{ color: '#222222', textDecoration: 'underline', fontWeight: 700 }}>{t.auth.privacy}</Link>
                             </p>
                         </form>
                     ) : (
                         <form onSubmit={handleVerifyOtp}>
                             <h3 style={{ color: '#111111', fontSize: 20, fontWeight: 900, marginBottom: 12, textAlign: 'center', letterSpacing: '-0.01em' }}>
-                                تحقق من بريدك الإلكتروني
+                                {t.auth.verifyEmail}
                             </h3>
                             <p style={{ color: '#6B6058', fontSize: 14, textAlign: 'center', marginBottom: 24 }}>
-                                أرسلنا رمز تحقق مكون من 6 أرقام إلى <br />
+                                {t.auth.sentOtp} <br />
                                 <strong style={{ color: '#111111', fontWeight: 800 }}>{formData.email}</strong>
                             </p>
 
@@ -376,7 +378,7 @@ export default function RegisterPage() {
 
                             <div className="form-group">
                                 <label className="form-label" style={{ ...labelStyle, textAlign: 'center', display: 'block' }}>
-                                    رمز التحقق
+                                    {t.auth.verificationCode}
                                 </label>
                                 <input
                                     type="text"
@@ -384,7 +386,7 @@ export default function RegisterPage() {
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
                                     className="form-control"
-                                    placeholder="000000"
+                                    placeholder={t.auth.otpPlaceholder}
                                     required
                                     style={{
                                         ...inputStyle,
@@ -406,7 +408,7 @@ export default function RegisterPage() {
                                 {loading ? (
                                     <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
                                 ) : (
-                                    'تأكيد الحساب'
+                                    t.auth.confirmAccountBtn
                                 )}
                             </button>
 
@@ -424,7 +426,7 @@ export default function RegisterPage() {
                                         fontFamily: 'inherit',
                                     }}
                                 >
-                                    تغيير البريد الإلكتروني
+                                    {t.auth.changeEmail}
                                 </button>
 
                                 <button
@@ -444,7 +446,7 @@ export default function RegisterPage() {
                                         fontWeight: 700,
                                     }}
                                 >
-                                    إعادة إرسال الرمز
+                                    {t.auth.resendCode}
                                 </button>
                             </div>
                         </form>
@@ -452,9 +454,9 @@ export default function RegisterPage() {
                 </div>
 
                 <div style={{ textAlign: 'center', marginTop: 24, color: '#6B6058', fontSize: 14 }}>
-                    لديك حساب بالفعل؟;{' '}
+                    {t.auth.haveAccount}{' '}
                     <Link href="/login" style={{ color: '#222222', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid #222222' }}>
-                        سجّل دخولك
+                        {t.auth.loginLink}
                     </Link>
                 </div>
 
@@ -468,10 +470,11 @@ export default function RegisterPage() {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: 6,
+                            flexDirection: dir === 'rtl' ? 'row' : 'row-reverse',
                         }}
                     >
-                        <ArrowLeft size={14} />
-                        العودة للرئيسية
+                        <ArrowLeft size={14} style={{ transform: dir === 'rtl' ? 'none' : 'rotate(180deg)' }} />
+                        {t.auth.backToHome}
                     </Link>
                 </div>
             </div>

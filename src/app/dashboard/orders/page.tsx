@@ -2,33 +2,36 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Search, Clock, CheckCircle, Truck, XCircle, AlertCircle, Eye, ChevronLeft } from 'lucide-react'
+import { Search, Clock, CheckCircle, Truck, XCircle, AlertCircle, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-
-const statusConfig = {
-    pending: { label: 'قيد الانتظار', color: '#92400E', bg: '#FEF3C7', Icon: Clock },
-    processing: { label: 'قيد المعالجة', color: '#1D4ED8', bg: '#DBEAFE', Icon: AlertCircle },
-    shipped: { label: 'تم الشحن', color: '#5B21B6', bg: '#EDE9FE', Icon: Truck },
-    delivered: { label: 'تم التسليم', color: '#065F46', bg: '#D1FAE5', Icon: CheckCircle },
-    cancelled: { label: 'ملغي', color: '#B91C1C', bg: '#FEE2E2', Icon: XCircle },
-    refunded: { label: 'مسترجع', color: '#374151', bg: '#F3F4F6', Icon: XCircle },
-}
-
-const statusTabs = [
-    { key: 'all', label: 'الكل' },
-    { key: 'pending', label: 'انتظار' },
-    { key: 'processing', label: 'معالجة' },
-    { key: 'shipped', label: 'شحن' },
-    { key: 'delivered', label: 'تسليم' },
-    { key: 'cancelled', label: 'ملغي' },
-]
+import { useLanguage } from '@/i18n/LanguageContext'
 
 export default function OrdersPage() {
     const supabase = createClient()
+    const { t, lang, dir } = useLanguage()
+
     const [search, setSearch] = useState('')
     const [activeTab, setActiveTab] = useState('all')
     const [orders, setOrders] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+
+    const statusConfig = {
+        pending: { label: t.orders.pending, color: '#92400E', bg: '#FEF3C7', Icon: Clock },
+        processing: { label: t.orders.processing, color: '#1D4ED8', bg: '#DBEAFE', Icon: AlertCircle },
+        shipped: { label: t.orders.shipped, color: '#5B21B6', bg: '#EDE9FE', Icon: Truck },
+        delivered: { label: t.orders.delivered, color: '#065F46', bg: '#D1FAE5', Icon: CheckCircle },
+        cancelled: { label: t.orders.cancelled, color: '#B91C1C', bg: '#FEE2E2', Icon: XCircle },
+        refunded: { label: t.orders.refunded, color: '#374151', bg: '#F3F4F6', Icon: XCircle },
+    }
+
+    const statusTabs = [
+        { key: 'all', label: t.orders.all },
+        { key: 'pending', label: t.orders.pending },
+        { key: 'processing', label: t.orders.processing },
+        { key: 'shipped', label: t.orders.shipped },
+        { key: 'delivered', label: t.orders.delivered },
+        { key: 'cancelled', label: t.orders.cancelled },
+    ]
 
     useEffect(() => {
         async function fetchOrders() {
@@ -43,7 +46,7 @@ export default function OrdersPage() {
 
                 if (!stores || stores.length === 0) return
 
-                const storeIds = stores.map(s => s.id)
+                const storeIds = stores.map((s: any) => s.id)
 
                 const { data: ordersData, error } = await supabase
                     .from('orders')
@@ -54,7 +57,7 @@ export default function OrdersPage() {
                 if (error) throw error
 
                 if (ordersData) {
-                    setOrders(ordersData.map(o => ({
+                    setOrders(ordersData.map((o: any) => ({
                         id: `#${o.order_number || o.id.slice(0, 6).toUpperCase()}`,
                         realId: o.id,
                         customer: o.customer_name,
@@ -62,7 +65,7 @@ export default function OrdersPage() {
                         total: Number(o.total),
                         status: o.status,
                         payment: o.payment_method,
-                        date: new Date(o.created_at).toLocaleDateString('ar-JO'),
+                        date: new Date(o.created_at).toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-GB'),
                         city: o.shipping_address?.city || '-'
                     })))
                 }
@@ -73,7 +76,7 @@ export default function OrdersPage() {
             }
         }
         fetchOrders()
-    }, [supabase])
+    }, [supabase, lang])
 
     const filtered = orders.filter((o) => {
         const matchesTab = activeTab === 'all' || o.status === activeTab
@@ -107,24 +110,27 @@ export default function OrdersPage() {
     )
 
     return (
-        <div className="page-container" dir="rtl">
+        <div className="page-container">
             {/* Page header */}
             <div style={{ marginBottom: 20 }}>
-                <h1 className="page-title">الطلبات</h1>
+                <h1 className="page-title">{t.orders.title}</h1>
                 <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>
-                    {orders.length} طلب إجمالي
+                    {orders.length} {t.orders.subtitle}
                 </p>
             </div>
 
             {/* Search */}
             <div className="mobile-search" style={{ marginBottom: 16 }}>
-                <Search size={17} className="search-icon" />
+                <Search size={17} className="search-icon" style={{ left: dir === 'ltr' ? 14 : 'auto', right: dir === 'rtl' ? 14 : 'auto' }} />
                 <input
                     type="search"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    placeholder="ابحث باسم العميل أو رقم الطلب..."
-                    style={{ paddingRight: 44 }}
+                    placeholder={t.orders.searchPlaceholder}
+                    style={{
+                        paddingInlineEnd: 44,
+                        paddingInlineStart: 14
+                    }}
                 />
             </div>
 
@@ -158,9 +164,9 @@ export default function OrdersPage() {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                         <tr>
-                            {['رقم الطلب', 'العميل', 'المدينة', 'الإجمالي', 'الدفع', 'الحالة', 'التاريخ', ''].map(h => (
-                                <th key={h} style={{
-                                    textAlign: 'right', padding: '14px 16px',
+                            {[t.orders.orderNumber, t.orders.customer, t.orders.city, t.orders.total, t.orders.payment, t.orders.orderStatus, t.common.date, ''].map((h, i) => (
+                                <th key={i} style={{
+                                    textAlign: dir === 'rtl' ? 'right' : 'left', padding: '14px 16px',
                                     background: '#F5F0E8', fontSize: 12,
                                     color: '#6B6058', fontWeight: 700, whiteSpace: 'nowrap',
                                 }}>{h}</th>
@@ -176,10 +182,12 @@ export default function OrdersPage() {
                                     <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14, color: '#222' }}>{order.id}</td>
                                     <td style={{ padding: '14px 16px' }}>
                                         <div style={{ fontWeight: 600, fontSize: 13 }}>{order.customer}</div>
-                                        <div style={{ fontSize: 12, color: '#A09080', marginTop: 2, direction: 'ltr', textAlign: 'right' }}>{order.phone}</div>
+                                        <div style={{ fontSize: 12, color: '#A09080', marginTop: 2, direction: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{order.phone}</div>
                                     </td>
                                     <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{order.city}</td>
-                                    <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }}>{order.total.toFixed(2)} د.أ</td>
+                                    <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }}>
+                                        {order.total.toFixed(2)} <span style={{ fontSize: 12 }}>{t.common.currency}</span>
+                                    </td>
                                     <td style={{ padding: '14px 16px' }}>
                                         <span style={{
                                             fontSize: 12,
@@ -187,7 +195,7 @@ export default function OrdersPage() {
                                             color: order.payment === 'cod' ? '#92400E' : '#1D4ED8',
                                             padding: '3px 8px', borderRadius: 100, fontWeight: 600,
                                         }}>
-                                            {order.payment === 'cod' ? 'عند الاستلام' : 'بطاقة'}
+                                            {order.payment === 'cod' ? t.orders.cod : t.orders.online}
                                         </span>
                                     </td>
                                     <td style={{ padding: '14px 16px' }}>
@@ -213,7 +221,7 @@ export default function OrdersPage() {
                 </table>
                 {filtered.length === 0 && (
                     <div style={{ padding: '60px', textAlign: 'center' }}>
-                        <p style={{ color: '#6B6058' }}>لا توجد طلبات مطابقة</p>
+                        <p style={{ color: '#6B6058' }}>{t.orders.noOrders}</p>
                     </div>
                 )}
             </div>
@@ -222,7 +230,7 @@ export default function OrdersPage() {
             <div className="show-on-mobile" style={{ flexDirection: 'column', gap: 10 }}>
                 {filtered.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '48px 0', color: '#A09080' }}>
-                        لا توجد طلبات مطابقة
+                        {t.orders.noOrders}
                     </div>
                 ) : filtered.map(order => {
                     const s = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
@@ -253,7 +261,7 @@ export default function OrdersPage() {
                                         <div style={{ fontWeight: 600, fontSize: 14, color: '#222' }}>{order.customer}</div>
                                         <div style={{ fontSize: 12, color: '#A09080', marginTop: 2 }}>{order.city} • {order.phone}</div>
                                     </div>
-                                    <ChevronLeft size={16} color="#A09080" />
+                                    {dir === 'rtl' ? <ChevronLeft size={16} color="#A09080" /> : <ChevronRight size={16} color="#A09080" />}
                                 </div>
 
                                 {/* Bottom: total + payment + date */}
@@ -262,7 +270,7 @@ export default function OrdersPage() {
                                     paddingTop: 10, borderTop: '1px solid #F0EBE3', marginTop: 2,
                                 }}>
                                     <span style={{ fontWeight: 800, fontSize: 16, color: '#222' }}>
-                                        {order.total.toFixed(2)} <span style={{ fontSize: 12, fontWeight: 600, color: '#6B6058' }}>د.أ</span>
+                                        {order.total.toFixed(2)} <span style={{ fontSize: 12, fontWeight: 600, color: '#6B6058' }}>{t.common.currency}</span>
                                     </span>
                                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                         <span style={{
@@ -271,7 +279,7 @@ export default function OrdersPage() {
                                             color: order.payment === 'cod' ? '#92400E' : '#1D4ED8',
                                             padding: '2px 8px', borderRadius: 100,
                                         }}>
-                                            {order.payment === 'cod' ? 'عند الاستلام' : 'بطاقة'}
+                                            {order.payment === 'cod' ? t.orders.cod : t.orders.online}
                                         </span>
                                         <span style={{ fontSize: 11, color: '#A09080' }}>{order.date}</span>
                                     </div>

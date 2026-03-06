@@ -479,6 +479,10 @@ tr:hover td {
   border-inline-end: 2.5px solid var(--gold);
 }
 
+[dir="ltr"] .nav-item.active {
+  border-inline-end: 2.5px solid var(--gold);
+}
+
 /* ── Stat Cards ── */
 .stat-card {
   background: var(--surface);
