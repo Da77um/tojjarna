@@ -160,7 +160,7 @@ export default function ProductsPage() {
                 ))}
             </div>
 
-            {/* ── Desktop Table (hidden on mobile) ── */}
+            {/* ── Desktop Table (hidden on desktop) ── */}
             <div className="card hide-on-mobile" style={{ padding: 0, overflow: 'hidden' }}>
                 {filtered.length === 0 ? (
                     <div style={{ padding: 80, textAlign: 'center' }}>
@@ -172,53 +172,56 @@ export default function ProductsPage() {
                     </div>
                 ) : (
                     <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <table>
                             <thead>
                                 <tr>
                                     {[t.products.productDetails, 'SKU', t.common.price, t.products.stock, t.analytics.sales, t.common.status, t.common.actions].map(h => (
-                                        <th key={h} style={{ textAlign: dir === 'rtl' ? 'right' : 'left', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
+                                        <th key={h} style={{ textAlign: 'inherit' }}>{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {filtered.map(product => {
                                     const stockBadge = getStockBadge(product.stock, t, lang)
+                                    const isLowStock = product.stock > 0 && product.stock <= 3
+                                    const isOutOfStock = product.stock === 0
+
                                     return (
-                                        <tr key={product.id} style={{ borderTop: '1px solid #E0D6C8' }}>
-                                            <td style={{ padding: '14px 16px' }}>
+                                        <tr key={product.id}>
+                                            <td>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                                    <div style={{ width: 48, height: 48, borderRadius: 10, background: '#F5F0E8', border: '1px solid #E0D6C8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                    <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                                                         {product.image_url
-                                                            ? <img src={product.image_url} alt={product.name} style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} />
-                                                            : <Package size={22} color="#A09080" />
+                                                            ? <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                            : <Package size={20} color="var(--text-muted)" />
                                                         }
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontWeight: 700, fontSize: 14, color: '#111' }}>{product.name}</div>
-                                                        <div style={{ fontSize: 12, color: '#A09080', marginTop: 2 }}>{product.category}</div>
+                                                        <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>{product.name}</div>
+                                                        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{product.category}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sku || '—'}</td>
-                                            <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }} dir="ltr">{product.price?.toFixed(2)} {t.common.currency}</td>
-                                            <td style={{ padding: '14px 16px' }}>
-                                                <span style={{ background: stockBadge.bg, color: stockBadge.color, padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
+                                            <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{product.sku || '—'}</td>
+                                            <td style={{ fontWeight: 700, fontSize: 14 }} dir="ltr">{product.price?.toFixed(2)} {t.common.currency}</td>
+                                            <td>
+                                                <span className={`badge ${isOutOfStock ? 'badge-error' : isLowStock ? 'badge-warning' : 'badge-success'}`}>
                                                     {stockBadge.label}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{product.sales} {t.analytics.sold}</td>
-                                            <td style={{ padding: '14px 16px' }}>
-                                                <span style={{ background: product.status === 'active' ? '#D1FAE5' : '#F3F4F6', color: product.status === 'active' ? '#065F46' : '#374151', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
+                                            <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{product.sales} {t.analytics.sold}</td>
+                                            <td>
+                                                <span className={`badge ${product.status === 'active' ? 'badge-success' : 'badge-gray'}`}>
                                                     {product.status === 'active' ? t.common.active : t.common.inactive}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '14px 16px' }}>
-                                                <div style={{ display: 'flex', gap: 6, justifyContent: dir === 'rtl' ? 'flex-start' : 'flex-start' }}>
-                                                    <Link href={`/dashboard/products/${product.id}/edit`} style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #E0D6C8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B6058' }}>
+                                            <td>
+                                                <div style={{ display: 'flex', gap: 6 }}>
+                                                    <Link href={`/dashboard/products/${product.id}/edit`} className="btn btn-ghost btn-sm" style={{ border: '1px solid var(--border)', width: 34, height: 34, padding: 0 }}>
                                                         <Edit size={14} />
                                                     </Link>
-                                                    <button onClick={() => setItemToDelete(product.id)} style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #FEE2E2', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                        <Trash2 size={14} color="#B91C1C" />
+                                                    <button onClick={() => setItemToDelete(product.id)} className="btn btn-ghost btn-sm" style={{ border: '1px solid #FEE2E2', width: 34, height: 34, padding: 0, color: 'var(--error)' }}>
+                                                        <Trash2 size={14} />
                                                     </button>
                                                 </div>
                                             </td>

@@ -163,19 +163,15 @@ export default function OrdersPage() {
             <div className="card hide-on-mobile" style={{ padding: 0, overflow: 'hidden' }}>
                 {filtered.length === 0 ? (
                     <div style={{ padding: '60px', textAlign: 'center' }}>
-                        <p style={{ color: '#6B6058' }}>{t.orders.noOrders}</p>
+                        <p style={{ color: 'var(--text-secondary)' }}>{t.orders.noOrders}</p>
                     </div>
                 ) : (
                     <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <table>
                             <thead>
                                 <tr>
                                     {[t.orders.orderNumber, t.orders.customer, t.orders.city, t.orders.total, t.orders.payment, t.orders.orderStatus, t.common.date, ''].map((h, i) => (
-                                        <th key={i} style={{
-                                            textAlign: dir === 'rtl' ? 'right' : 'left', padding: '14px 16px',
-                                            background: '#F5F0E8', fontSize: 12,
-                                            color: '#6B6058', fontWeight: 700, whiteSpace: 'nowrap',
-                                        }}>{h}</th>
+                                        <th key={i} style={{ textAlign: 'inherit', whiteSpace: 'nowrap' }}>{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -183,40 +179,39 @@ export default function OrdersPage() {
                                 {filtered.map(order => {
                                     const s = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
                                     const StatusIcon = s.Icon
+
+                                    // Map status to badge class
+                                    const badgeClass =
+                                        order.status === 'delivered' ? 'badge-success' :
+                                            order.status === 'pending' ? 'badge-warning' :
+                                                order.status === 'cancelled' || order.status === 'refunded' ? 'badge-error' :
+                                                    order.status === 'processing' ? 'badge-info' :
+                                                        order.status === 'shipped' ? 'badge-purple' : 'badge-gray'
+
                                     return (
-                                        <tr key={order.realId} style={{ borderTop: '1px solid #E0D6C8' }}>
-                                            <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14, color: '#222' }}>{order.id}</td>
-                                            <td style={{ padding: '14px 16px' }}>
+                                        <tr key={order.realId}>
+                                            <td style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>{order.id}</td>
+                                            <td>
                                                 <div style={{ fontWeight: 600, fontSize: 13 }}>{order.customer}</div>
-                                                <div style={{ fontSize: 12, color: '#A09080', marginTop: 2, direction: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{order.phone}</div>
+                                                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2, direction: 'ltr', textAlign: 'inherit' }}>{order.phone}</div>
                                             </td>
-                                            <td style={{ padding: '14px 16px', color: '#6B6058', fontSize: 13 }}>{order.city}</td>
-                                            <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14 }}>
+                                            <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{order.city}</td>
+                                            <td style={{ fontWeight: 700, fontSize: 14 }}>
                                                 {order.total.toFixed(2)} <span style={{ fontSize: 12 }}>{t.common.currency}</span>
                                             </td>
-                                            <td style={{ padding: '14px 16px' }}>
-                                                <span style={{
-                                                    fontSize: 12,
-                                                    background: order.payment === 'cod' ? '#FEF3C7' : '#DBEAFE',
-                                                    color: order.payment === 'cod' ? '#92400E' : '#1D4ED8',
-                                                    padding: '3px 8px', borderRadius: 100, fontWeight: 600,
-                                                }}>
+                                            <td>
+                                                <span className={`badge ${order.payment === 'cod' ? 'badge-warning' : 'badge-info'}`}>
                                                     {order.payment === 'cod' ? t.orders.cod : t.orders.online}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '14px 16px' }}>
-                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 600 }}>
+                                            <td>
+                                                <span className={`badge ${badgeClass}`} style={{ gap: 4 }}>
                                                     <StatusIcon size={12} />{s.label}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '14px 16px', color: '#A09080', fontSize: 12 }}>{order.date}</td>
-                                            <td style={{ padding: '14px 16px' }}>
-                                                <Link href={`/dashboard/orders/${order.realId}`} style={{
-                                                    width: 34, height: 34, borderRadius: 8,
-                                                    border: '1px solid #E0D6C8', display: 'flex',
-                                                    alignItems: 'center', justifyContent: 'center',
-                                                    color: '#6B6058',
-                                                }}>
+                                            <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{order.date}</td>
+                                            <td>
+                                                <Link href={`/dashboard/orders/${order.realId}`} className="btn btn-ghost btn-sm" style={{ border: '1px solid var(--border)', width: 34, height: 34, padding: 0 }}>
                                                     <Eye size={14} />
                                                 </Link>
                                             </td>

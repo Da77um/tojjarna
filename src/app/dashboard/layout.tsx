@@ -271,10 +271,10 @@ export default function DashboardLayout({
                     <div style={{ flex: 1 }} />
 
                     {/* Right side: lang switcher + notifs + user */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
 
                         {/* Language Switcher */}
-                        <div>
+                        <div className="hide-on-mobile">
                             <LanguageSwitcher compact />
                         </div>
 
