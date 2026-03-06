@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowRight, Upload, Plus, Trash2, Sparkles, Package, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import CategorySelector, { CategoryItem } from '@/components/CategorySelector'
 
 interface Variant { name: string; price: string; stock: string }
 
@@ -20,6 +21,7 @@ export default function NewProductPage() {
     const [stock, setStock] = useState('')
     const [sku, setSku] = useState('')
     const [categoryId, setCategoryId] = useState('')
+    const [categoryLabel, setCategoryLabel] = useState('')
     const [isActive, setIsActive] = useState(true)
     const [isFeatured, setIsFeatured] = useState(false)
     const [variants, setVariants] = useState<Variant[]>([])
@@ -65,7 +67,7 @@ export default function NewProductPage() {
                 .select('*')
                 .order('name_ar')
 
-            if (cats) setCategories(cats)
+            if (cats) setCategories(cats as CategoryItem[])
         }
         init()
     }, [supabase, router])
@@ -276,18 +278,12 @@ export default function NewProductPage() {
                         <h3 style={{ fontWeight: 700, marginBottom: 16, fontSize: 15 }}>التصنيف والخيارات</h3>
                         <div className="form-group">
                             <label className="form-label">التصنيف</label>
-                            <select
-                                className="form-control"
+                            <CategorySelector
+                                categories={categories}
                                 value={categoryId}
-                                onChange={(e) => setCategoryId(e.target.value)}
-                            >
-                                <option value="">اختر تصنيفاً...</option>
-                                {categories.map((cat) => (
-                                    <option key={cat.id} value={cat.id}>
-                                        {cat.name_ar}
-                                    </option>
-                                ))}
-                            </select>
+                                onChange={(id, label) => { setCategoryId(id); setCategoryLabel(label) }}
+                                placeholder="اختر تصنيف المنتج..."
+                            />
                         </div>
 
                         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -327,7 +323,7 @@ export default function NewProductPage() {
                     </div>
 
                     {/* Tip box */}
-                    <div style={{ background: 'rgba(108,60,225,0.06)', border: '1px solid rgba(108,60,225,0.15)', borderRadius: 12, padding: 16 }}>
+                    <div style={{ background: '#FDF8F0', border: '1px solid #E8D9BC', borderRadius: 12, padding: 16 }}>
                         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                             <Package size={18} color="var(--primary)" style={{ flexShrink: 0, marginTop: 2 }} />
                             <div>
