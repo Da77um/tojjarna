@@ -698,7 +698,11 @@ tr:hover td {
 .page-container {
   padding: var(--page-padding);
   max-width: 1400px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
+
 
 /* ════════════════════════════════
    Mobile Utility Classes
@@ -814,12 +818,17 @@ tr:hover td {
   display: flex;
   gap: 24px;
   align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Full-width column for mobile chips — hidden on desktop */
 .settings-chip-tabs {
   display: none;
   width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   margin-bottom: 20px;
 }
 
@@ -833,7 +842,10 @@ tr:hover td {
 .settings-page-content {
   flex: 1;
   min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
+
 
 
 

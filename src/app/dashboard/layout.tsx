@@ -379,7 +379,8 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Page content */}
-                <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+                <main style={{ flex: 1, overflowX: 'hidden', overflowY: 'auto', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+
                     {activeStore?.status === 'pending' && (
                         <div style={{ background: '#FEF3C7', color: '#92400E', padding: '14px 24px', fontSize: 14, fontWeight: 700, borderBottom: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <AlertTriangle size={18} /> متجرك حالياً قيد المراجعة من قبل الإدارة. يمكن للعملاء زيارة المتجر ولكن لا يمكنهم الطلب.
