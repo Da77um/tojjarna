@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { useLanguage } from '@/i18n/LanguageContext'
 import {
     Search, Star, Smartphone, Zap, TrendingUp, Check, X,
-    Monitor, Tablet, Crown, Sparkles, ChevronRight,
+    Monitor, Tablet, Sparkles,
     Grid3X3, Eye, Download, Palette
 } from 'lucide-react'
 
@@ -447,14 +447,19 @@ export default function ThemesPage() {
 
                     {/* Search */}
                     <div style={{ maxWidth: 480, margin: '0 auto', position: 'relative' }}>
-                        <Search size={17} style={{ position: 'absolute', top: '50%', [isAr ? 'right' : 'left']: 16, transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+                        <Search size={17} style={{
+                            position: 'absolute', top: '50%',
+                            ...(isAr ? { right: 16 } : { left: 16 }),
+                            transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none'
+                        }} />
                         <input
                             type="text"
                             placeholder={isAr ? 'ابحث عن قالب...' : 'Search themes...'}
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             style={{
-                                width: '100%', padding: `13px ${isAr ? '16px' : '44px'} 13px ${isAr ? '44px' : '16px'}`,
+                                width: '100%',
+                                padding: isAr ? '13px 16px 13px 44px' : '13px 44px 13px 16px',
                                 borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)',
                                 background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)',
                                 color: 'white', fontSize: 15, fontFamily: 'inherit', outline: 'none',
@@ -636,7 +641,8 @@ function ThemeCard({
             {/* Active badge */}
             {isActive && (
                 <div style={{
-                    position: 'absolute', top: 10, [isAr ? 'left' : 'right']: 10, zIndex: 10,
+                    position: 'absolute', top: 10,
+                    ...(isAr ? { left: 10 } : { right: 10 }), zIndex: 10,
                     background: '#6C3CE1', color: 'white', padding: '4px 10px',
                     borderRadius: 50, fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4,
                 }}>
@@ -645,7 +651,7 @@ function ThemeCard({
             )}
 
             {/* Badges */}
-            <div style={{ position: 'absolute', top: 10, [isAr ? 'right' : 'left']: 10, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ position: 'absolute', top: 10, ...(isAr ? { right: 10 } : { left: 10 }), zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {theme.is_new && (
                     <span style={{ background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: 50, fontSize: 10, fontWeight: 700 }}>
                         {isAr ? 'جديد' : 'NEW'}
