@@ -15,7 +15,7 @@ export default async function StorefrontLayout({
     const adminClient = createAdminClient()
     const { data: store } = await adminClient
         .from('stores')
-        .select('id, status, user_id, is_approved, is_active')
+        .select('id, user_id, is_approved, is_active')
         .eq('slug', slug)
         .single()
 
@@ -29,13 +29,12 @@ export default async function StorefrontLayout({
         )
     }
 
-    const isPubliclyAccessible = store.is_active && store.is_approved && store.status === 'approved'
-
-    if (isPubliclyAccessible) {
+    // Store is publicly accessible if both flags are true
+    if (store.is_active && store.is_approved) {
         return <>{children}</>
     }
 
-    // Store is not publicly accessible — check if the logged-in user is the owner
+    // Store is not public — check if the logged-in user is the owner
     const authClient = await createClient()
     const { data: { user } } = await authClient.auth.getUser()
     const isOwner = user?.id === store.user_id
@@ -45,7 +44,7 @@ export default async function StorefrontLayout({
             <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFAFA', fontFamily: 'Tajawal, Inter, sans-serif' }}>
                 <div style={{ fontSize: 60, marginBottom: 16 }}>🛠️</div>
                 <h2 style={{ marginBottom: 8, color: '#111827', fontWeight: 900, textAlign: 'center' }}>المتجر غير متاح حالياً<br /><span style={{ fontSize: 20, color: '#6B7280' }}>Store currently unavailable</span></h2>
-                <p style={{ color: '#6B7280', margin: 0, marginBottom: 24, fontSize: 16, textAlign: 'center' }}>عذراً، هذا المتجر غير متاح في الوقت الحالي. يرجى المحاولة لاحقاً.<br />Sorry, this store is currently unavailable. Please try again later.</p>
+                <p style={{ color: '#6B7280', margin: 0, marginBottom: 24, fontSize: 16, textAlign: 'center' }}>عذراً، هذا المتجر غير متاح في الوقت الحالي.<br />Sorry, this store is currently unavailable.</p>
                 <Link href="/" style={{ background: '#222222', color: 'white', padding: '10px 24px', borderRadius: 8, fontWeight: 700, textDecoration: 'none' }}>تصفح متاجر أخرى / Browse other stores</Link>
             </div>
         )
@@ -62,11 +61,7 @@ export default async function StorefrontLayout({
                 borderBottom: '1px solid #FCD34D',
             }}>
                 <span>🔒</span>
-                <span>
-                    {store.status === 'pending' || !store.is_approved
-                        ? 'متجرك قيد المراجعة — هذا عرض أولي خاص بك فقط / Your store is under review — this is a private preview'
-                        : 'متجرك موقوف حالياً — هذا عرض أولي خاص بك فقط / Your store is suspended — this is a private preview'}
-                </span>
+                <span>متجرك قيد المراجعة — هذا عرض أولي خاص بك فقط / Your store is under review — this is a private preview</span>
                 <Link href="/dashboard" style={{ color: '#92400E', fontWeight: 800, borderBottom: '1.5px solid #92400E', textDecoration: 'none', marginInlineStart: 8 }}>
                     لوحة التحكم / Dashboard
                 </Link>
