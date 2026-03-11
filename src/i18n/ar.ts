@@ -9,6 +9,7 @@ const ar = {
         analytics: 'التحليلات',
         coupons: 'الخصومات',
         themeEditor: 'محرر القوالب',
+        themes: 'سوق القوالب',
         abandonedCarts: 'السلات المهجورة',
         pages: 'صفحات المتجر',
         settings: 'الإعدادات',

@@ -10,6 +10,7 @@ const en: Translations = {
         analytics: 'Analytics',
         coupons: 'Coupons',
         themeEditor: 'Theme Editor',
+        themes: 'Themes Marketplace',
         abandonedCarts: 'Abandoned Carts',
         pages: 'Store Pages',
         settings: 'Settings',

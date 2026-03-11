@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
     LayoutDashboard, Package, ShoppingCart, Users, BarChart3,
     Tag, Settings, Store, LogOut, Menu, X, Bell, ChevronDown,
-    Palette, ShoppingBag, FileText, Check, AlertTriangle, Ban
+    Palette, ShoppingBag, FileText, Check, AlertTriangle, Ban, Layers3
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
@@ -40,6 +40,7 @@ export default function DashboardLayout({
         { href: '/dashboard/analytics', label: t.nav.analytics, icon: BarChart3 },
         { href: '/dashboard/coupons', label: t.nav.coupons, icon: Tag },
         { href: '/dashboard/theme-editor', label: t.nav.themeEditor, icon: Palette },
+        { href: '/dashboard/themes', label: t.nav.themes, icon: Layers3 },
         { href: '/dashboard/abandoned-carts', label: t.nav.abandonedCarts, icon: ShoppingBag },
         { href: '/dashboard/pages', label: t.nav.pages, icon: FileText },
         { href: '/dashboard/settings', label: t.nav.settings, icon: Settings },
