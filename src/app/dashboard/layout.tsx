@@ -167,17 +167,32 @@ export default function DashboardLayout({
                 </div>
 
                 {/* Store selector */}
-                <div style={{
-                    margin: '16px 12px',
-                    padding: '12px 14px',
-                    background: 'linear-gradient(135deg, rgba(198,167,94,0.08), rgba(198,167,94,0.04))',
-                    border: '1px solid rgba(198,167,94,0.18)',
-                    borderRadius: 12,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                }}>
+                <a
+                    href={activeStore?.slug ? `/store/${activeStore.slug}` : '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                        margin: '16px 12px',
+                        padding: '12px 14px',
+                        background: 'linear-gradient(135deg, rgba(198,167,94,0.08), rgba(198,167,94,0.04))',
+                        border: '1px solid rgba(198,167,94,0.18)',
+                        borderRadius: 12,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        textDecoration: 'none',
+                        transition: 'background 0.15s, border-color 0.15s',
+                    }}
+                    onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.background = 'linear-gradient(135deg, rgba(198,167,94,0.15), rgba(198,167,94,0.08))'
+                            ; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(198,167,94,0.4)'
+                    }}
+                    onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.background = 'linear-gradient(135deg, rgba(198,167,94,0.08), rgba(198,167,94,0.04))'
+                            ; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(198,167,94,0.18)'
+                    }}
+                >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 34, height: 34, borderRadius: 8, background: '#222222', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <span style={{ color: '#C6A75E', fontWeight: 800, fontSize: 14 }}>م</span>
@@ -191,8 +206,8 @@ export default function DashboardLayout({
                             </div>
                         </div>
                     </div>
-                    <ChevronDown size={16} color="#6B6058" />
-                </div>
+                    <Store size={15} color="#C6A75E" />
+                </a>
 
                 {/* Nav */}
                 <nav style={{ flex: 1, padding: '8px 0' }}>
@@ -278,6 +293,30 @@ export default function DashboardLayout({
                         <div className="hide-on-mobile">
                             <LanguageSwitcher compact />
                         </div>
+
+                        {/* View Store button */}
+                        {activeStore?.slug && (
+                            <a
+                                href={`/store/${activeStore.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hide-on-mobile"
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: 6,
+                                    padding: '7px 14px', borderRadius: 9,
+                                    background: '#222222', color: '#C6A75E',
+                                    textDecoration: 'none', fontSize: 12, fontWeight: 700,
+                                    border: '1px solid #333333',
+                                    transition: 'background 0.15s',
+                                    whiteSpace: 'nowrap',
+                                }}
+                                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#333333'}
+                                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#222222'}
+                            >
+                                <Store size={13} />
+                                {t.nav.viewStore}
+                            </a>
+                        )}
 
                         {/* Notifications */}
                         <div style={{ position: 'relative' }} ref={notifsRef}>
