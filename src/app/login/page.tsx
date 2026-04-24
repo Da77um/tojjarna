@@ -46,7 +46,7 @@ export default function LoginPage() {
         <div dir={dir} className="mobile-stack" style={{
             minHeight: '100vh',
             display: 'flex',
-            background: '#EFE8DD',
+            background: 'var(--background)',
             fontFamily: 'Tajawal, Inter, sans-serif',
         }}>
             {/* Left: Form */}
@@ -64,23 +64,23 @@ export default function LoginPage() {
                         <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                             <div style={{
                                 width: 42, height: 42, borderRadius: 10,
-                                background: '#222222',
+                                background: 'var(--primary)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
                             }}>
                                 <Store size={20} color="#C6A75E" />
                             </div>
-                            <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
+                            <span style={{ fontSize: 22, fontWeight: 900, color: 'var(--text-primary)' }}>تجارنا</span>
                         </Link>
 
                         <LanguageSwitcher compact />
                     </div>
 
                     {/* Headline */}
-                    <h1 style={{ fontSize: 30, fontWeight: 900, color: '#111111', marginBottom: 8, letterSpacing: '-0.02em' }}>
+                    <h1 style={{ fontSize: 30, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.02em' }}>
                         {t.auth.welcomeBack}
                     </h1>
-                    <p style={{ color: '#6B6058', marginBottom: 36, fontSize: 15, lineHeight: 1.6 }}>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: 36, fontSize: 15, lineHeight: 1.6 }}>
                         {t.auth.loginDesc}
                     </p>
 
@@ -90,7 +90,7 @@ export default function LoginPage() {
                                 background: 'rgba(192,57,43,0.08)',
                                 border: '1px solid rgba(192,57,43,0.25)',
                                 borderRadius: 10, padding: '12px 16px',
-                                color: '#8B1A1A', fontSize: 14, marginBottom: 20,
+                                color: 'var(--surface)', fontSize: 14, marginBottom: 20,
                             }}>
                                 {error}
                             </div>
@@ -99,7 +99,7 @@ export default function LoginPage() {
                         <div className="form-group">
                             <label className="form-label">{t.auth.email}</label>
                             <div style={{ position: 'relative' }}>
-                                <Mail size={17} color="#A09080" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }} />
+                                <Mail size={17} color="var(--text-secondary)" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }} />
                                 <input
                                     type="email"
                                     className="form-control"
@@ -115,12 +115,12 @@ export default function LoginPage() {
                         <div className="form-group">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                                 <label className="form-label" style={{ margin: 0 }}>{t.auth.password}</label>
-                                <Link href="/forgot-password" style={{ color: '#555147', fontSize: 13, textDecoration: 'none', fontWeight: 700, borderBottom: '1px solid rgba(85,81,71,0.35)' }}>
+                                <Link href="/forgot-password" style={{ color: 'var(--text-secondary)', fontSize: 13, textDecoration: 'none', fontWeight: 700, borderBottom: '1px solid var(--text-secondary)' }}>
                                     {t.auth.forgotPassword}
                                 </Link>
                             </div>
                             <div style={{ position: 'relative' }}>
-                                <Lock size={17} color="#A09080" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }} />
+                                <Lock size={17} color="var(--text-secondary)" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }} />
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     className="form-control"
@@ -136,7 +136,7 @@ export default function LoginPage() {
                                     onClick={() => setShowPassword(!showPassword)}
                                     style={{
                                         position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'left' : 'right']: 14,
-                                        background: 'none', border: 'none', cursor: 'pointer', color: '#A09080',
+                                        background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)',
                                         display: 'flex', alignItems: 'center',
                                     }}
                                 >
@@ -151,9 +151,9 @@ export default function LoginPage() {
                                 id="rememberMe"
                                 checked={rememberMe}
                                 onChange={e => setRememberMe(e.target.checked)}
-                                style={{ width: 18, height: 18, accentColor: '#C6A75E', cursor: 'pointer' }}
+                                style={{ width: 18, height: 18, accentColor: 'var(--info)', cursor: 'pointer' }}
                             />
-                            <label htmlFor="rememberMe" style={{ color: '#6B6058', fontSize: 14, cursor: 'pointer' }}>{t.auth.rememberMe}</label>
+                            <label htmlFor="rememberMe" style={{ color: 'var(--text-secondary)', fontSize: 14, cursor: 'pointer' }}>{t.auth.rememberMe}</label>
                         </div>
 
                         <button
@@ -162,23 +162,23 @@ export default function LoginPage() {
                             disabled={loading}
                             style={{
                                 width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                                background: '#222222', color: 'white',
+                                background: 'var(--primary)', color: 'var(--surface)',
                                 border: 'none', padding: '14px 24px', borderRadius: 10,
                                 fontWeight: 800, fontSize: 16, cursor: loading ? 'not-allowed' : 'pointer',
                                 fontFamily: 'inherit', letterSpacing: '0.01em',
                                 opacity: loading ? 0.6 : 1,
                                 transition: 'all 0.2s ease',
                             }}
-                            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = '#111111' }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#222222' }}
+                            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = 'var(--primary-dark)' }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--primary)' }}
                         >
                             {loading ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : t.auth.loginBtn}
                         </button>
                     </form>
 
-                    <p style={{ textAlign: 'center', marginTop: 28, color: '#6B6058', fontSize: 14 }}>
+                    <p style={{ textAlign: 'center', marginTop: 28, color: 'var(--text-secondary)', fontSize: 14 }}>
                         {t.auth.noAccount}{' '}
-                        <Link href="/register" style={{ color: '#222222', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid #222222' }}>
+                        <Link href="/register" style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid var(--primary)' }}>
                             {t.auth.createFreeAccount}
                         </Link>
                     </p>
@@ -188,7 +188,7 @@ export default function LoginPage() {
             {/* Right: Dark decorative panel */}
             <div className="hide-on-mobile" style={{
                 flex: 1,
-                background: 'linear-gradient(160deg, #1C1C1C 0%, #2A2A2A 100%)',
+                background: 'linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -197,20 +197,20 @@ export default function LoginPage() {
                 overflow: 'hidden',
             }}>
                 {/* Background orbs */}
-                <div style={{ position: 'absolute', top: '-10%', left: '-15%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(198,167,94,0.1) 0%, transparent 70%)', borderRadius: '50%' }} />
-                <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: 350, height: 350, background: 'radial-gradient(circle, rgba(198,167,94,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
+                <div style={{ position: 'absolute', top: '-10%', left: '-15%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)', borderRadius: '50%' }} />
+                <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: 350, height: 350, background: 'radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
 
                 <div style={{ position: 'relative', textAlign: 'center', maxWidth: 380 }}>
                     {/* Icon container */}
                     <div style={{
                         width: 88, height: 88, borderRadius: '50%',
-                        background: 'rgba(198,167,94,0.12)', border: '1px solid rgba(198,167,94,0.25)',
+                        background: 'var(--info)', border: '1px solid rgba(255,255,255,0.25)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         margin: '0 auto 32px',
                     }}>
-                        <Store size={40} color="#C6A75E" />
+                        <Store size={40} color="var(--surface)" />
                     </div>
-                    <h2 style={{ color: 'white', fontSize: 30, fontWeight: 900, marginBottom: 16, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                    <h2 style={{ color: 'var(--surface)', fontSize: 30, fontWeight: 900, marginBottom: 16, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                         {t.auth.storeWaiting}
                     </h2>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, lineHeight: 1.8 }}>
@@ -224,7 +224,7 @@ export default function LoginPage() {
                                 background: 'rgba(198,167,94,0.1)', border: '1px solid rgba(198,167,94,0.2)',
                                 borderRadius: 12, padding: '12px 20px', textAlign: 'center',
                             }}>
-                                <div style={{ color: '#C6A75E', fontWeight: 900, fontSize: 20, direction: 'ltr' }}>{s.v}</div>
+                                <div style={{ color: 'var(--info)', fontWeight: 900, fontSize: 20, direction: 'ltr' }}>{s.v}</div>
                                 <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: 12, marginTop: 2 }}>{s.l}</div>
                             </div>
                         ))}

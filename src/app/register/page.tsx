@@ -72,7 +72,7 @@ export default function RegisterPage() {
 
             // Catch the case where user is already logged in (confirmation disabled)
             if (data?.session) {
-                toast.success(t.auth.loginSuccess)
+                toast.success('Successfully registered')
                 router.push('/dashboard/setup')
                 return
             }
@@ -147,7 +147,7 @@ export default function RegisterPage() {
         paddingRight: 44,
     }
 
-    const labelStyle = { color: '#6B6058' }
+    const labelStyle = { color: 'var(--text-secondary)' }
 
     return (
         <div
@@ -157,7 +157,7 @@ export default function RegisterPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: '#EFE8DD',
+                background: 'var(--background)',
                 padding: '48px 24px',
                 fontFamily: 'Tajawal, Inter, sans-serif',
             }}
@@ -179,32 +179,32 @@ export default function RegisterPage() {
                                 width: 40,
                                 height: 40,
                                 borderRadius: 10,
-                                background: '#222222',
+                                background: 'var(--primary)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
                             }}
                         >
-                            <Store size={20} color="#C6A75E" />
+                            <Store size={20} color="var(--info)" />
                         </div>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: '#111111' }}>تجارنا</span>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: 'var(--text-primary)' }}>تجارنا</span>
                     </Link>
 
                     <LanguageSwitcher compact />
                 </div>
 
-                <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111111', marginBottom: 8, letterSpacing: '-0.02em' }}>
+                <h1 style={{ fontSize: 28, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.02em' }}>
                     {t.auth.createStoreToday}
                 </h1>
-                <p style={{ color: '#6B6058', marginBottom: 36, fontSize: 15 }}>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: 36, fontSize: 15 }}>
                     {t.auth.startFree}
                 </p>
 
                 <div
                     style={{
-                        background: '#FFFFFF',
-                        border: '1px solid #E0D6C8',
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
                         borderRadius: 20,
                         padding: 32,
                     }}
@@ -366,21 +366,21 @@ export default function RegisterPage() {
                                 )}
                             </button>
 
-                            <p style={{ color: '#6B6058', fontSize: 12, textAlign: 'center', marginTop: 16 }}>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: 12, textAlign: 'center', marginTop: 16 }}>
                                 {t.auth.agreeTerms}{' '}
-                                <Link href="/terms" style={{ color: '#222222', textDecoration: 'underline', fontWeight: 700 }}>{t.auth.terms}</Link>
+                                <Link href="/terms" style={{ color: 'var(--primary)', textDecoration: 'underline', fontWeight: 700 }}>{t.auth.terms}</Link>
                                 {' '}{t.auth.and}{' '}
-                                <Link href="/privacy" style={{ color: '#222222', textDecoration: 'underline', fontWeight: 700 }}>{t.auth.privacy}</Link>
+                                <Link href="/privacy" style={{ color: 'var(--primary)', textDecoration: 'underline', fontWeight: 700 }}>{t.auth.privacy}</Link>
                             </p>
                         </form>
                     ) : (
                         <form onSubmit={handleVerifyOtp}>
-                            <h3 style={{ color: '#111111', fontSize: 20, fontWeight: 900, marginBottom: 12, textAlign: 'center', letterSpacing: '-0.01em' }}>
+                            <h3 style={{ color: 'var(--text-primary)', fontSize: 20, fontWeight: 900, marginBottom: 12, textAlign: 'center', letterSpacing: '-0.01em' }}>
                                 {t.auth.verifyEmail}
                             </h3>
-                            <p style={{ color: '#6B6058', fontSize: 14, textAlign: 'center', marginBottom: 24 }}>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: 14, textAlign: 'center', marginBottom: 24 }}>
                                 {t.auth.sentOtp} <br />
-                                <strong style={{ color: '#111111', fontWeight: 800 }}>{formData.email}</strong>
+                                <strong style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{formData.email}</strong>
                                 <br />
                                 <span style={{ fontSize: 12, opacity: 0.7, marginTop: 8, display: 'block' }}>
                                     Did you receive a link? You can also click the link in your email to verify.
@@ -394,7 +394,7 @@ export default function RegisterPage() {
                                         border: '1px solid rgba(192,57,43,0.25)',
                                         borderRadius: 10,
                                         padding: '12px 16px',
-                                        color: '#8B1A1A',
+                                        color: 'var(--primary-dark)',
                                         fontSize: 14,
                                         marginBottom: 20,
                                         textAlign: 'center'
@@ -447,7 +447,7 @@ export default function RegisterPage() {
                                     style={{
                                         background: 'none',
                                         border: 'none',
-                                        color: '#6B6058',
+                                        color: 'var(--text-secondary)',
                                         fontSize: 13,
                                         cursor: 'pointer',
                                         textDecoration: 'underline',
@@ -464,7 +464,7 @@ export default function RegisterPage() {
                                     style={{
                                         background: 'none',
                                         border: 'none',
-                                        color: '#C6A75E',
+                                        color: 'var(--info)',
                                         fontSize: 13,
                                         cursor: 'pointer',
                                         display: 'block',
@@ -481,9 +481,9 @@ export default function RegisterPage() {
                     )}
                 </div>
 
-                <div style={{ textAlign: 'center', marginTop: 24, color: '#6B6058', fontSize: 14 }}>
+                <div style={{ textAlign: 'center', marginTop: 24, color: 'var(--text-secondary)', fontSize: 14 }}>
                     {t.auth.haveAccount}{' '}
-                    <Link href="/login" style={{ color: '#222222', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid #222222' }}>
+                    <Link href="/login" style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid #222222' }}>
                         {t.auth.loginLink}
                     </Link>
                 </div>
@@ -492,7 +492,7 @@ export default function RegisterPage() {
                     <Link
                         href="/"
                         style={{
-                            color: '#6B6058',
+                            color: 'var(--text-secondary)',
                             fontSize: 13,
                             textDecoration: 'none',
                             display: 'inline-flex',
