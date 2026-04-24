@@ -3,13 +3,13 @@
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { ShoppingCart, Heart, Star, ChevronRight, ChevronLeft, Minus, Plus, ArrowRight, ArrowLeft } from 'lucide-react'
+import { ShoppingCart, Heart, Star, ChevronRight, ChevronLeft, Minus, Plus, ArrowRight, ArrowLeft, MessageCircle, Phone, Truck, Shield, RotateCcw } from 'lucide-react'
 import { useLanguage } from '@/i18n/LanguageContext'
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string; id: string }> }) {
     const { slug, id } = use(params)
     const supabase = createClient()
-    const { t, dir } = useLanguage()
+    const { t, lang, dir } = useLanguage()
 
     const [store, setStore] = useState<any>(null)
     const [product, setProduct] = useState<any>(null)
@@ -18,6 +18,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     const [activeImg, setActiveImg] = useState(0)
     const [wished, setWished] = useState(false)
     const [addedToCart, setAddedToCart] = useState(false)
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768)
+        const handleResize = () => setIsMobile(window.innerWidth < 768)
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
 
     useEffect(() => {
         async function fetchData() {
@@ -66,6 +74,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         setTimeout(() => setAddedToCart(false), 2000)
     }
 
+    const handleWhatsAppOrder = () => {
+        const storeWhatsApp = store.whatsapp || '+962791234567'
+        const productName = dir === 'rtl' ? product.name_ar : product.name_en || product.name_ar
+        const message = lang === 'ar' 
+            ? `مرحباً! أريد طلب:\n\n🛍️ ${productName}\n💰 السعر: ${Number(product.price).toFixed(3)} ${t.common.currency}\n📦 الكمية: ${qty}\n\nأرجو تأكيد الطلب.`
+            : `Hello! I want to order:\n\n🛍️ ${productName}\n💰 Price: ${Number(product.price).toFixed(3)} ${t.common.currency}\n📦 Quantity: ${qty}\n\nPlease confirm the order.`
+        const whatsappUrl = `https://wa.me/${storeWhatsApp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`
+        window.open(whatsappUrl, '_blank')
+    }
+
     const productName = dir === 'rtl' ? product.name_ar : product.name_en || product.name_ar
 
     return (
@@ -96,8 +114,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </div>
             </div>
 
-            <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', padding: '36px 20px', width: '100%', boxSizing: 'border-box' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52, alignItems: 'start' }}>
+            <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', padding: isMobile ? '20px 16px' : '36px 20px', width: '100%', boxSizing: 'border-box' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 24 : 52, alignItems: 'start' }}>
 
                     {/* ─── Images ────────────────────────────────────────────────── */}
                     <div>
@@ -194,10 +212,42 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                             </button>
                         </div>
 
+                        {/* WhatsApp Order Button */}
+                        <button 
+                            onClick={handleWhatsAppOrder}
+                            style={{ 
+                                width: '100%', 
+                                background: '#25D366', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: radius, 
+                                padding: '14px 24px', 
+                                fontSize: 15, 
+                                fontWeight: 700, 
+                                cursor: 'pointer', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                gap: 10, 
+                                fontFamily: 'inherit',
+                                marginBottom: 20,
+                                boxShadow: '0 4px 14px rgba(37, 211, 102, 0.3)',
+                            }}
+                        >
+                            <MessageCircle size={20} />
+                            {lang === 'ar' ? 'اطلب عبر واتساب' : 'Order via WhatsApp'}
+                        </button>
+
                         {/* Trust chips */}
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            {[t.storefront.fastShipping, t.storefront.freeReturn, t.storefront.authenticProduct].map(l => (
-                                <span key={l} style={{ fontSize: 12, background: '#F3F4F6', padding: '5px 14px', borderRadius: 100, color: '#374151', fontWeight: 500 }}>{l}</span>
+                            {[
+                                { icon: Truck, label: lang === 'ar' ? 'توصيل سريع' : 'Fast Shipping' },
+                                { icon: RotateCcw, label: lang === 'ar' ? 'إرجاع مجاني' : 'Free Return' },
+                                { icon: Shield, label: lang === 'ar' ? 'منتج أصلي' : 'Authentic' },
+                            ].map(({ icon: Icon, label }) => (
+                                <span key={label} style={{ fontSize: 12, background: '#F3F4F6', padding: '5px 14px', borderRadius: 100, color: '#374151', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <Icon size={12} /> {label}
+                                </span>
                             ))}
                         </div>
                     </div>

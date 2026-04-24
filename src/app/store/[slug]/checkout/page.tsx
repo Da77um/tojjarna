@@ -1,13 +1,27 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, use, useEffect } from 'react'
 import Link from 'next/link'
-import { CheckCircle, ChevronRight, ChevronLeft, MapPin, CreditCard, Package } from 'lucide-react'
+import { CheckCircle, ChevronRight, ChevronLeft, MapPin, CreditCard, Package, Phone, MessageCircle, Truck, Shield, Clock, Banknote } from 'lucide-react'
 import { useLanguage } from '@/i18n/LanguageContext'
 
 type Step = 'address' | 'payment' | 'confirm'
 
-const CITIES = ['عمّان', 'الزرقاء', 'إربد', 'العقبة', 'الكرك', 'السلط', 'مأدبا', 'جرش', 'عجلون']
+// Comprehensive Jordan cities with delivery zones
+const CITIES = [
+    { name: 'عمّان', nameEn: 'Amman', fee: 2.5, days: '1-2' },
+    { name: 'الزرقاء', nameEn: 'Zarqa', fee: 3.0, days: '1-2' },
+    { name: 'إربد', nameEn: 'Irbid', fee: 3.5, days: '2-3' },
+    { name: 'العقبة', nameEn: 'Aqaba', fee: 5.0, days: '3-4' },
+    { name: 'الكرك', nameEn: 'Karak', fee: 4.0, days: '2-3' },
+    { name: 'السلط', nameEn: 'Salt', fee: 3.0, days: '1-2' },
+    { name: 'مادبا', nameEn: 'Madaba', fee: 3.0, days: '1-2' },
+    { name: 'جرش', nameEn: 'Jerash', fee: 3.5, days: '2-3' },
+    { name: 'عجلون', nameEn: 'Ajloun', fee: 4.0, days: '2-3' },
+    { name: 'المفرق', nameEn: 'Mafraq', fee: 4.0, days: '2-3' },
+    { name: 'معان', nameEn: 'Maan', fee: 5.0, days: '3-4' },
+    { name: 'الطفيلة', nameEn: 'Tafilah', fee: 4.5, days: '2-3' },
+]
 
 const cartSummary = [
     { name: 'قميص قطني أبيض', variant: 'L — أبيض', price: 25.0, qty: 2 },
@@ -17,20 +31,32 @@ const cartSummary = [
 export default function CheckoutPage({ params }: { params: Promise<{ slug: string }> }) {
     const unwrappedParams = use(params)
     const slug = unwrappedParams.slug
-    const { t, dir } = useLanguage()
+    const { t, lang, dir } = useLanguage()
     const [step, setStep] = useState<Step>('address')
     const [name, setName] = useState('')
     const [phone, setPhone] = useState('')
     const [city, setCity] = useState('')
     const [address, setAddress] = useState('')
+    const [landmark, setLandmark] = useState('')
     const [notes, setNotes] = useState('')
     const [payment, setPayment] = useState<'cod' | 'card'>('cod')
     const [placing, setPlacing] = useState(false)
     const [placed, setPlaced] = useState(false)
+    const [isMobile, setIsMobile] = useState(false)
 
-    const primaryColor = '#6C3CE1'
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768)
+        const handleResize = () => setIsMobile(window.innerWidth < 768)
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
+
+    const primaryColor = '#222222'
+    const goldColor = '#C6A75E'
     const subtotal = cartSummary.reduce((s, i) => s + i.price * i.qty, 0)
-    const shipping = subtotal >= 50 ? 0 : 3.0
+    const selectedCity = CITIES.find(c => c.name === city)
+    const shipping = subtotal >= 50 ? 0 : (selectedCity?.fee || 3.0)
+    const deliveryDays = selectedCity?.days || '1-3'
     const total = subtotal + shipping
 
     const placeOrder = async () => {
@@ -127,15 +153,33 @@ export default function CheckoutPage({ params }: { params: Promise<{ slug: strin
                                         <label className="form-label">{t.storefront.city}</label>
                                         <select className="form-control" value={city} onChange={(e) => setCity(e.target.value)}>
                                             <option value="">{t.storefront.selectCity}</option>
-                                            {CITIES.map((c) => <option key={c}>{c}</option>)}
+                                            {CITIES.map((c) => (
+                                                <option key={c.name} value={c.name}>
+                                                    {lang === 'ar' ? c.name : c.nameEn} ({c.fee.toFixed(2)} {t.common.currency})
+                                                </option>
+                                            ))}
                                         </select>
+                                        {selectedCity && (
+                                            <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12, color: '#6B7280' }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                    <Truck size={12} /> {deliveryDays} {lang === 'ar' ? 'أيام' : 'days'}
+                                                </span>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                    <Banknote size={12} /> {shipping === 0 ? (lang === 'ar' ? 'توصيل مجاني' : 'Free delivery') : `${shipping.toFixed(2)} ${t.common.currency}`}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                     <div style={{ gridColumn: '1 / -1' }} className="form-group">
                                         <label className="form-label">{t.storefront.detailedAddress}</label>
                                         <input className="form-control" value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t.storefront.addressPlaceholder} />
                                     </div>
                                     <div style={{ gridColumn: '1 / -1' }} className="form-group">
-                                        <label className="form-label">{t.storefront.notes}</label>
+                                        <label className="form-label">{lang === 'ar' ? 'نقطة دالة / معلم قريب' : 'Landmark / Nearby Location'}</label>
+                                        <input className="form-control" value={landmark} onChange={(e) => setLandmark(e.target.value)} placeholder={lang === 'ar' ? 'مثال: قرب مسجد الحسين، بجانب مول عمّان' : 'e.g. Near Al-Hussein Mosque, next to Amman Mall'} />
+                                    </div>
+                                    <div style={{ gridColumn: '1 / -1' }} className="form-group">
+                                        <label className="form-label">{t.storefront.notes} ({t.common.optional})</label>
                                         <textarea className="form-control" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t.storefront.notesPlaceholder} />
                                     </div>
                                 </div>
@@ -154,29 +198,66 @@ export default function CheckoutPage({ params }: { params: Promise<{ slug: strin
                                 <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 24 }}>{t.storefront.paymentMethod}</h2>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                                     {[
-                                        { key: 'cod', title: t.storefront.cod, desc: t.storefront.codDesc, icon: '💵' },
-                                        { key: 'card', title: t.storefront.creditCard, desc: t.storefront.cardDesc, icon: '💳' },
-                                    ].map((p) => (
-                                        <div
-                                            key={p.key}
-                                            onClick={() => setPayment(p.key as 'cod' | 'card')}
-                                            style={{
-                                                border: `2px solid ${payment === p.key ? primaryColor : '#E5E7EB'}`,
-                                                borderRadius: 14, padding: 16, cursor: 'pointer', display: 'flex', gap: 14, alignItems: 'center',
-                                                background: payment === p.key ? `${primaryColor}08` : 'white',
-                                                transition: 'all 0.15s ease',
-                                            }}
-                                        >
-                                            <div style={{ fontSize: 32 }}>{p.icon}</div>
-                                            <div>
-                                                <div style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>{p.title}</div>
-                                                <div style={{ fontSize: 13, color: '#9CA3AF', marginTop: 2 }}>{p.desc}</div>
+                                        { key: 'cod', title: t.storefront.cod, desc: t.storefront.codDesc, icon: Banknote, recommended: true },
+                                        { key: 'card', title: t.storefront.creditCard, desc: t.storefront.cardDesc, icon: CreditCard, recommended: false },
+                                    ].map((p) => {
+                                        const Icon = p.icon
+                                        return (
+                                            <div
+                                                key={p.key}
+                                                onClick={() => setPayment(p.key as 'cod' | 'card')}
+                                                style={{
+                                                    border: `2px solid ${payment === p.key ? goldColor : '#E5E7EB'}`,
+                                                    borderRadius: 14, padding: 16, cursor: 'pointer', display: 'flex', gap: 14, alignItems: 'center',
+                                                    background: payment === p.key ? `rgba(198,167,94,0.08)` : 'white',
+                                                    transition: 'all 0.15s ease',
+                                                    position: 'relative',
+                                                }}
+                                            >
+                                                {p.recommended && (
+                                                    <div style={{ 
+                                                        position: 'absolute', 
+                                                        top: -10, 
+                                                        [dir === 'rtl' ? 'left' : 'right']: 12, 
+                                                        background: goldColor, 
+                                                        color: '#111', 
+                                                        padding: '2px 10px', 
+                                                        borderRadius: 100, 
+                                                        fontSize: 11, 
+                                                        fontWeight: 700 
+                                                    }}>
+                                                        {lang === 'ar' ? 'موصى به' : 'Recommended'}
+                                                    </div>
+                                                )}
+                                                <div style={{ width: 44, height: 44, borderRadius: 12, background: payment === p.key ? goldColor : '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                    <Icon size={22} color={payment === p.key ? '#111' : '#6B7280'} />
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>{p.title}</div>
+                                                    <div style={{ fontSize: 13, color: '#9CA3AF', marginTop: 2 }}>{p.desc}</div>
+                                                </div>
+                                                <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${payment === p.key ? goldColor : '#E5E7EB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                    {payment === p.key && <div style={{ width: 12, height: 12, borderRadius: '50%', background: goldColor }} />}
+                                                </div>
                                             </div>
-                                            <div style={{ [dir === 'rtl' ? 'marginRight' : 'marginLeft']: 'auto', width: 20, height: 20, borderRadius: '50%', border: `2px solid ${payment === p.key ? primaryColor : '#E5E7EB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                {payment === p.key && <div style={{ width: 10, height: 10, borderRadius: '50%', background: primaryColor }} />}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
+                                </div>
+                                
+                                {/* Trust badges */}
+                                <div style={{ display: 'flex', gap: 16, marginTop: 20, padding: 16, background: '#F9FAFB', borderRadius: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6B7280' }}>
+                                        <Shield size={14} color="#10B981" />
+                                        {lang === 'ar' ? 'دفع آمن' : 'Secure Payment'}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6B7280' }}>
+                                        <Truck size={14} color="#10B981" />
+                                        {lang === 'ar' ? 'توصيل سريع' : 'Fast Delivery'}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6B7280' }}>
+                                        <Phone size={14} color="#10B981" />
+                                        {lang === 'ar' ? 'دعم متواصل' : '24/7 Support'}
+                                    </div>
                                 </div>
                                 <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                                     <button onClick={() => setStep('address')} style={{ flex: 1, background: 'white', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -194,11 +275,20 @@ export default function CheckoutPage({ params }: { params: Promise<{ slug: strin
                                 <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 24 }}>{t.storefront.reviewConfirmOrder}</h2>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                                     <div style={{ background: '#F9FAFB', borderRadius: 12, padding: 16 }}>
-                                        <div style={{ fontWeight: 700, marginBottom: 10 }}>📍 {t.storefront.deliveryInfo}</div>
+                                        <div style={{ fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <MapPin size={16} color={goldColor} /> {t.storefront.deliveryInfo}
+                                        </div>
                                         <div style={{ fontSize: 14, color: '#4B5563', lineHeight: 2 }}>
-                                            <div>{name} — <span dir="ltr">{phone}</span></div>
-                                            <div>{city}، {address}</div>
-                                            {notes && <div style={{ color: '#9CA3AF' }}>{t.storefront.noteLabel} {notes}</div>}
+                                            <div style={{ fontWeight: 600 }}>{name}</div>
+                                            <div style={{ direction: 'ltr', textAlign: dir === 'rtl' ? 'right' : 'left' }}>{phone}</div>
+                                            <div>{city} — {address}</div>
+                                            {landmark && <div style={{ color: '#6B7280' }}>{lang === 'ar' ? 'المعلم:' : 'Landmark:'} {landmark}</div>}
+                                            {notes && <div style={{ color: '#9CA3AF', fontStyle: 'italic' }}>{notes}</div>}
+                                        </div>
+                                        <div style={{ marginTop: 12, display: 'flex', gap: 12, fontSize: 12, color: '#6B7280' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <Clock size={12} /> {deliveryDays} {lang === 'ar' ? 'أيام عمل' : 'business days'}
+                                            </span>
                                         </div>
                                     </div>
                                     <div style={{ background: '#F9FAFB', borderRadius: 12, padding: 16 }}>

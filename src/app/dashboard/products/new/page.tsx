@@ -18,6 +18,7 @@ export default function NewProductPage() {
     const [nameAr, setNameAr] = useState('')
     const [nameEn, setNameEn] = useState('')
     const [descAr, setDescAr] = useState('')
+    const [descEn, setDescEn] = useState('')
     const [price, setPrice] = useState('')
     const [comparePrice, setComparePrice] = useState('')
     const [stock, setStock] = useState('')
@@ -79,7 +80,8 @@ export default function NewProductPage() {
         setSaving(true)
         try {
             const { error } = await supabase.from('products').insert([{
-                store_id: storeId, name_ar: nameAr, name_en: nameEn, description_ar: descAr,
+                store_id: storeId, name_ar: nameAr, name_en: nameEn, 
+                description_ar: descAr, description_en: descEn,
                 price: parseFloat(price), compare_price: comparePrice ? parseFloat(comparePrice) : null,
                 stock: parseInt(stock) || 0, sku, category_id: categoryId || null,
                 is_active: isActive, is_featured: isFeatured,
@@ -135,13 +137,17 @@ export default function NewProductPage() {
                         </div>
                         <div className="form-group" style={{ marginTop: 16 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 8 }}>
-                                <label className="form-label" style={{ margin: 0 }}>{t.products.description}</label>
+                                <label className="form-label" style={{ margin: 0 }}>{t.products.descriptionAr}</label>
                                 <button onClick={generateDesc} disabled={generatingAI || !nameAr}
                                     style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#C6A75E', background: 'rgba(198,167,94,0.08)', border: '1px solid rgba(198,167,94,0.3)', borderRadius: 8, padding: '5px 12px', cursor: nameAr ? 'pointer' : 'not-allowed', opacity: nameAr ? 1 : 0.4 }}>
                                     <Sparkles size={13} /> {generatingAI ? t.products.aiWriting : t.products.aiWrite}
                                 </button>
                             </div>
-                            <textarea className="form-control" rows={4} value={descAr} onChange={e => setDescAr(e.target.value)} placeholder={t.products.descPlaceholder} style={{ resize: 'vertical' }} />
+                            <textarea className="form-control" rows={3} value={descAr} onChange={e => setDescAr(e.target.value)} placeholder={t.products.descPlaceholder} style={{ resize: 'vertical' }} />
+                        </div>
+                        <div className="form-group" style={{ marginTop: 16 }}>
+                            <label className="form-label">{t.products.descriptionEn}</label>
+                            <textarea className="form-control" rows={3} value={descEn} onChange={e => setDescEn(e.target.value)} placeholder="Product description in English..." dir="ltr" style={{ resize: 'vertical', textAlign: dir === 'rtl' ? 'left' : 'left' }} />
                         </div>
                     </div>
 

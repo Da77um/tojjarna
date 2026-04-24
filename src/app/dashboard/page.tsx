@@ -8,18 +8,107 @@ import {
     TrendingUp,
     AlertCircle,
     ArrowUpRight,
+    ArrowDownRight,
     Clock,
     CheckCircle,
     Truck,
     XCircle,
+    DollarSign,
+    Percent,
+    Eye,
+    MessageCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
 
+// Simple bar chart component
+function MiniBarChart({ data, color }: { data: number[]; color: string }) {
+    const max = Math.max(...data, 1)
+    return (
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 40 }}>
+            {data.map((value, i) => (
+                <div
+                    key={i}
+                    style={{
+                        width: 8,
+                        height: `${(value / max) * 100}%`,
+                        minHeight: 4,
+                        background: color,
+                        borderRadius: 2,
+                        opacity: 0.3 + (i / data.length) * 0.7,
+                    }}
+                />
+            ))}
+        </div>
+    )
+}
+
+// Sales trend line chart
+function SalesChart({ data, labels, dir }: { data: number[]; labels: string[]; dir: string }) {
+    const max = Math.max(...data, 1)
+    const height = 180
+    const width = '100%'
+    
+    return (
+        <div style={{ width, height, position: 'relative' }}>
+            {/* Y-axis labels */}
+            <div style={{ position: 'absolute', [dir === 'rtl' ? 'right' : 'left']: 0, top: 0, bottom: 30, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: 45 }}>
+                {[max, max * 0.75, max * 0.5, max * 0.25, 0].map((val, i) => (
+                    <span key={i} style={{ fontSize: 10, color: '#A09080', textAlign: dir === 'rtl' ? 'left' : 'right' }}>
+                        {val >= 1000 ? `${(val/1000).toFixed(1)}K` : val.toFixed(0)}
+                    </span>
+                ))}
+            </div>
+            
+            {/* Chart area */}
+            <div style={{ [dir === 'rtl' ? 'marginRight' : 'marginLeft']: 50, height: height - 30, position: 'relative', display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+                {/* Grid lines */}
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    {[0, 1, 2, 3, 4].map(i => (
+                        <div key={i} style={{ height: 1, background: '#F0EBE3', width: '100%' }} />
+                    ))}
+                </div>
+                
+                {/* Bars */}
+                {data.map((value, i) => (
+                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, position: 'relative', zIndex: 1 }}>
+                        <div
+                            style={{
+                                width: '80%',
+                                maxWidth: 32,
+                                height: `${(value / max) * 100}%`,
+                                minHeight: 4,
+                                background: 'linear-gradient(180deg, #C6A75E 0%, #A8883C 100%)',
+                                borderRadius: '4px 4px 0 0',
+                                transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLElement).style.transform = 'scaleY(1.05)'
+                                ;(e.currentTarget as HTMLElement).style.boxShadow = '0 -4px 12px rgba(198,167,94,0.3)'
+                            }}
+                            onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLElement).style.transform = 'scaleY(1)'
+                                ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                            }}
+                        />
+                    </div>
+                ))}
+            </div>
+            
+            {/* X-axis labels */}
+            <div style={{ [dir === 'rtl' ? 'marginRight' : 'marginLeft']: 50, display: 'flex', justifyContent: 'space-around', marginTop: 8 }}>
+                {labels.map((label, i) => (
+                    <span key={i} style={{ fontSize: 10, color: '#A09080', flex: 1, textAlign: 'center' }}>{label}</span>
+                ))}
+            </div>
+        </div>
+    )
+}
+
 export default function DashboardHomePage() {
     const supabase = createClient()
-    const { t, dir } = useLanguage()
+    const { t, lang, dir } = useLanguage()
 
     const statusConfig = {
         pending: { label: t.orders.pending, color: '#F59E0B', bg: '#FEF3C7', Icon: Clock },
@@ -35,6 +124,9 @@ export default function DashboardHomePage() {
     const [lowStockProducts, setLowStockProducts] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [userName, setUserName] = useState('')
+    const [salesData, setSalesData] = useState<number[]>([])
+    const [salesLabels, setSalesLabels] = useState<string[]>([])
+    const [orderStats, setOrderStats] = useState({ pending: 0, processing: 0, shipped: 0, delivered: 0 })
 
     useEffect(() => {
         async function fetchDashboardData() {
@@ -92,6 +184,47 @@ export default function DashboardHomePage() {
                             time: o.created_at
                         }
                     }))
+                }
+
+                // Fetch orders for the last 7 days for the chart
+                const sevenDaysAgo = new Date()
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+                
+                const { data: chartOrders } = await supabase
+                    .from('orders')
+                    .select('total_jod, created_at, status')
+                    .in('store_id', storeIds)
+                    .gte('created_at', sevenDaysAgo.toISOString())
+                    .order('created_at', { ascending: true })
+
+                if (chartOrders) {
+                    // Group by day
+                    const dailySales: { [key: string]: number } = {}
+                    const orderCounts = { pending: 0, processing: 0, shipped: 0, delivered: 0 }
+                    
+                    chartOrders.forEach(order => {
+                        const date = new Date(order.created_at).toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-GB', { weekday: 'short' })
+                        dailySales[date] = (dailySales[date] || 0) + Number(order.total_jod || 0)
+                        
+                        if (order.status in orderCounts) {
+                            orderCounts[order.status as keyof typeof orderCounts]++
+                        }
+                    })
+                    
+                    // Generate last 7 days labels
+                    const labels: string[] = []
+                    const data: number[] = []
+                    for (let i = 6; i >= 0; i--) {
+                        const d = new Date()
+                        d.setDate(d.getDate() - i)
+                        const label = d.toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-GB', { weekday: 'short' })
+                        labels.push(label)
+                        data.push(dailySales[label] || 0)
+                    }
+                    
+                    setSalesLabels(labels)
+                    setSalesData(data)
+                    setOrderStats(orderCounts)
                 }
 
                 // Low stock
@@ -165,6 +298,35 @@ export default function DashboardHomePage() {
                         </div>
                     )
                 })}
+            </div>
+
+            {/* Sales Chart Section */}
+            <div className="card card-body" style={{ marginBottom: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <div>
+                        <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>{t.analytics.salesChart || 'Sales Overview'}</h2>
+                        <p style={{ fontSize: 13, color: '#6B6058' }}>{t.dashboard.last30Days || 'Last 7 days'}</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: 16 }}>
+                        {Object.entries(orderStats).map(([status, count]) => {
+                            const config = statusConfig[status as keyof typeof statusConfig]
+                            if (!config || count === 0) return null
+                            return (
+                                <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: config.color }} />
+                                    <span style={{ fontSize: 12, color: '#6B6058' }}>{config.label}: <strong>{count}</strong></span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+                {salesData.length > 0 ? (
+                    <SalesChart data={salesData} labels={salesLabels} dir={dir} />
+                ) : (
+                    <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A09080', fontSize: 14 }}>
+                        {t.analytics.noData || 'No sales data yet'}
+                    </div>
+                )}
             </div>
 
             {/* Content grid: stacked on mobile, side-by-side on desktop */}

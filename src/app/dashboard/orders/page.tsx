@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Search, Clock, CheckCircle, Truck, XCircle, AlertCircle, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Clock, CheckCircle, Truck, XCircle, AlertCircle, Eye, ChevronLeft, ChevronRight, Filter, MapPin, CreditCard, Banknote, Phone, Calendar } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
+
+// Jordan cities list
+const JO_CITIES = ['عمّان', 'الزرقاء', 'إربد', 'العقبة', 'الكرك', 'مادبا', 'السلط', 'عجلون', 'جرش', 'المفرق', 'الطفيلة', 'معان']
 
 export default function OrdersPage() {
     const supabase = createClient()
@@ -14,6 +17,13 @@ export default function OrdersPage() {
     const [activeTab, setActiveTab] = useState('all')
     const [orders, setOrders] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+    
+    // Advanced filters
+    const [showFilters, setShowFilters] = useState(false)
+    const [cityFilter, setCityFilter] = useState<string>('')
+    const [paymentFilter, setPaymentFilter] = useState<string>('')
+    const [dateFrom, setDateFrom] = useState<string>('')
+    const [dateTo, setDateTo] = useState<string>('')
 
     const statusConfig = {
         pending: { label: t.orders.pending, color: '#92400E', bg: '#FEF3C7', Icon: Clock },
@@ -66,7 +76,11 @@ export default function OrdersPage() {
                         status: o.status,
                         payment: o.payment_method,
                         date: new Date(o.created_at).toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-GB'),
-                        city: o.shipping_address?.city || '-'
+                        rawDate: o.created_at,
+                        city: o.shipping_address?.city || '-',
+                        address: o.shipping_address?.address || '',
+                        notes: o.shipping_address?.notes || '',
+                        codStatus: o.payment_method === 'cod' ? (o.status === 'delivered' ? 'collected' : 'pending') : null
                     })))
                 }
             } catch (err) {
@@ -84,8 +98,21 @@ export default function OrdersPage() {
             o.id.includes(search) ||
             (o.customer || '').toLowerCase().includes(search.toLowerCase()) ||
             (o.phone || '').includes(search)
-        return matchesTab && matchesSearch
+        const matchesCity = !cityFilter || o.city === cityFilter
+        const matchesPayment = !paymentFilter || o.payment === paymentFilter
+        const matchesDateFrom = !dateFrom || new Date(o.rawDate) >= new Date(dateFrom)
+        const matchesDateTo = !dateTo || new Date(o.rawDate) <= new Date(dateTo + 'T23:59:59')
+        return matchesTab && matchesSearch && matchesCity && matchesPayment && matchesDateFrom && matchesDateTo
     })
+    
+    const hasActiveFilters = cityFilter || paymentFilter || dateFrom || dateTo
+    
+    const clearFilters = () => {
+        setCityFilter('')
+        setPaymentFilter('')
+        setDateFrom('')
+        setDateTo('')
+    }
 
     const counts: any = {
         all: orders.length,
@@ -134,28 +161,140 @@ export default function OrdersPage() {
                 />
             </div>
 
-            {/* Status chips */}
-            <div className="chips-row" style={{ marginBottom: 20 }}>
-                {statusTabs.map(tab => (
-                    <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
-                        className={`chip ${activeTab === tab.key ? 'active' : ''}`}
-                    >
-                        {tab.label}
-                        {counts[tab.key] > 0 && (
-                            <span style={{
-                                background: activeTab === tab.key ? 'rgba(255,255,255,0.25)' : '#F0EBE3',
-                                color: activeTab === tab.key ? 'white' : '#6B6058',
-                                fontSize: 11, fontWeight: 800,
-                                padding: '1px 6px', borderRadius: 100,
-                            }}>
-                                {counts[tab.key]}
-                            </span>
-                        )}
-                    </button>
-                ))}
+            {/* Status chips + Filter toggle */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 12 }}>
+                <div className="chips-row" style={{ flex: 1 }}>
+                    {statusTabs.map(tab => (
+                        <button
+                            key={tab.key}
+                            onClick={() => setActiveTab(tab.key)}
+                            className={`chip ${activeTab === tab.key ? 'active' : ''}`}
+                        >
+                            {tab.label}
+                            {counts[tab.key] > 0 && (
+                                <span style={{
+                                    background: activeTab === tab.key ? 'rgba(255,255,255,0.25)' : '#F0EBE3',
+                                    color: activeTab === tab.key ? 'white' : '#6B6058',
+                                    fontSize: 11, fontWeight: 800,
+                                    padding: '1px 6px', borderRadius: 100,
+                                }}>
+                                    {counts[tab.key]}
+                                </span>
+                            )}
+                        </button>
+                    ))}
+                </div>
+                <button 
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`chip ${showFilters || hasActiveFilters ? 'active' : ''}`}
+                    style={{ flexShrink: 0 }}
+                >
+                    <Filter size={14} />
+                    {lang === 'ar' ? 'تصفية' : 'Filter'}
+                    {hasActiveFilters && (
+                        <span style={{ 
+                            background: 'rgba(255,255,255,0.25)', 
+                            padding: '1px 6px', 
+                            borderRadius: 100, 
+                            fontSize: 11, 
+                            fontWeight: 800 
+                        }}>!</span>
+                    )}
+                </button>
             </div>
+            
+            {/* Advanced Filters Panel */}
+            {showFilters && (
+                <div className="card card-body" style={{ marginBottom: 20, padding: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+                        {/* City Filter */}
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6058', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                                <MapPin size={12} />
+                                {t.orders.city}
+                            </label>
+                            <select 
+                                className="form-control" 
+                                value={cityFilter} 
+                                onChange={e => setCityFilter(e.target.value)}
+                                style={{ padding: '8px 12px', minHeight: 40 }}
+                            >
+                                <option value="">{t.common.all}</option>
+                                {JO_CITIES.map(city => (
+                                    <option key={city} value={city}>{city}</option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        {/* Payment Method Filter */}
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6058', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                                <CreditCard size={12} />
+                                {t.orders.payment}
+                            </label>
+                            <select 
+                                className="form-control" 
+                                value={paymentFilter} 
+                                onChange={e => setPaymentFilter(e.target.value)}
+                                style={{ padding: '8px 12px', minHeight: 40 }}
+                            >
+                                <option value="">{t.common.all}</option>
+                                <option value="cod">{t.orders.cod}</option>
+                                <option value="online">{t.orders.online}</option>
+                            </select>
+                        </div>
+                        
+                        {/* Date From */}
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6058', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                                <Calendar size={12} />
+                                {lang === 'ar' ? 'من تاريخ' : 'From Date'}
+                            </label>
+                            <input 
+                                type="date" 
+                                className="form-control" 
+                                value={dateFrom} 
+                                onChange={e => setDateFrom(e.target.value)}
+                                style={{ padding: '8px 12px', minHeight: 40 }}
+                            />
+                        </div>
+                        
+                        {/* Date To */}
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6058', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                                <Calendar size={12} />
+                                {lang === 'ar' ? 'إلى تاريخ' : 'To Date'}
+                            </label>
+                            <input 
+                                type="date" 
+                                className="form-control" 
+                                value={dateTo} 
+                                onChange={e => setDateTo(e.target.value)}
+                                style={{ padding: '8px 12px', minHeight: 40 }}
+                            />
+                        </div>
+                    </div>
+                    
+                    {hasActiveFilters && (
+                        <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+                            <button 
+                                onClick={clearFilters}
+                                style={{ 
+                                    background: 'none', 
+                                    border: 'none', 
+                                    color: '#B91C1C', 
+                                    fontSize: 13, 
+                                    fontWeight: 600, 
+                                    cursor: 'pointer',
+                                    fontFamily: 'inherit'
+                                }}
+                            >
+                                {lang === 'ar' ? 'مسح الفلاتر' : 'Clear Filters'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Orders — Mobile Cards on mobile, Table on desktop */}
 
@@ -170,7 +309,17 @@ export default function OrdersPage() {
                         <table>
                             <thead>
                                 <tr>
-                                    {[t.orders.orderNumber, t.orders.customer, t.orders.city, t.orders.total, t.orders.payment, t.orders.orderStatus, t.common.date, ''].map((h, i) => (
+                                    {[
+                                        t.orders.orderNumber, 
+                                        t.orders.customer, 
+                                        t.orders.city, 
+                                        t.orders.total, 
+                                        t.orders.payment, 
+                                        lang === 'ar' ? 'حالة COD' : 'COD Status',
+                                        t.orders.orderStatus, 
+                                        t.common.date, 
+                                        ''
+                                    ].map((h, i) => (
                                         <th key={i} style={{ textAlign: 'inherit', whiteSpace: 'nowrap' }}>{h}</th>
                                     ))}
                                 </tr>
@@ -200,9 +349,22 @@ export default function OrdersPage() {
                                                 {order.total.toFixed(2)} <span style={{ fontSize: 12 }}>{t.common.currency}</span>
                                             </td>
                                             <td>
-                                                <span className={`badge ${order.payment === 'cod' ? 'badge-warning' : 'badge-info'}`}>
+                                                <span className={`badge ${order.payment === 'cod' ? 'badge-warning' : 'badge-info'}`} style={{ gap: 4 }}>
+                                                    {order.payment === 'cod' ? <Banknote size={12} /> : <CreditCard size={12} />}
                                                     {order.payment === 'cod' ? t.orders.cod : t.orders.online}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                {order.codStatus ? (
+                                                    <span className={`badge ${order.codStatus === 'collected' ? 'badge-success' : 'badge-warning'}`} style={{ gap: 4 }}>
+                                                        {order.codStatus === 'collected' 
+                                                            ? <><CheckCircle size={12} /> {lang === 'ar' ? 'تم التحصيل' : 'Collected'}</>
+                                                            : <><Clock size={12} /> {lang === 'ar' ? 'بانتظار التحصيل' : 'Pending'}</>
+                                                        }
+                                                    </span>
+                                                ) : (
+                                                    <span style={{ color: '#A09080', fontSize: 12 }}>—</span>
+                                                )}
                                             </td>
                                             <td>
                                                 <span className={`badge ${badgeClass}`} style={{ gap: 4 }}>
