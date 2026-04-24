@@ -50,7 +50,7 @@ export default function RegisterPage() {
             const supabase = createClient()
 
             // Sign up with email and password
-            const { error: signUpError } = await supabase.auth.signUp({
+            const { data, error: signUpError } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
                 options: {
@@ -61,7 +61,21 @@ export default function RegisterPage() {
                 },
             })
 
-            if (signUpError) throw signUpError
+            if (signUpError) {
+                // If user started registration but didn't confirm, move to OTP step
+                if (signUpError.message.includes('already registered')) {
+                   setStep('otp')
+                   return
+                }
+                throw signUpError
+            }
+
+            // Catch the case where user is already logged in (confirmation disabled)
+            if (data?.session) {
+                toast.success(t.auth.loginSuccess)
+                router.push('/dashboard/setup')
+                return
+            }
 
             // Move to OTP step
             setStep('otp')
@@ -92,7 +106,13 @@ export default function RegisterPage() {
                 type: 'signup'
             })
 
-            if (verifyError) throw verifyError
+            if (verifyError) {
+                // If it's a "token expired" or "invalid", give a clearer message
+                if (verifyError.message.includes('expired')) {
+                    throw new Error('Verification code expired. Please request a new one.')
+                }
+                throw verifyError
+            }
 
             // Redirect to dashboard onboarding
             router.push('/dashboard/setup')
@@ -361,6 +381,10 @@ export default function RegisterPage() {
                             <p style={{ color: '#6B6058', fontSize: 14, textAlign: 'center', marginBottom: 24 }}>
                                 {t.auth.sentOtp} <br />
                                 <strong style={{ color: '#111111', fontWeight: 800 }}>{formData.email}</strong>
+                                <br />
+                                <span style={{ fontSize: 12, opacity: 0.7, marginTop: 8, display: 'block' }}>
+                                    Did you receive a link? You can also click the link in your email to verify.
+                                </span>
                             </p>
 
                             {error && (
