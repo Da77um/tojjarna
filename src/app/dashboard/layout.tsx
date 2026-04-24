@@ -30,7 +30,7 @@ export default function DashboardLayout({
         { href: '/dashboard/orders', label: t.nav.orders || 'Orders', icon: 'shopping_cart' },
         { href: '/dashboard/customers', label: t.nav.customers || 'Customers', icon: 'group' },
         { href: '/dashboard/analytics', label: t.nav.analytics || 'Analytics', icon: 'analytics' },
-        { href: '/dashboard/apps', label: t.nav.apps || 'Apps', icon: 'grid_view' },
+        { href: '/dashboard/apps', label: (t.nav as any).apps || 'Apps', icon: 'grid_view' },
         { href: '/dashboard/settings', label: t.nav.settings || 'Settings', icon: 'settings' },
     ]
 
