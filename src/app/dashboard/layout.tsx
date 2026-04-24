@@ -3,11 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import {
-    LayoutDashboard, Package, ShoppingCart, Users, BarChart3,
-    Tag, Settings, Store, LogOut, Menu, X, Bell, ChevronDown,
-    Palette, ShoppingBag, FileText, Check, AlertTriangle, Ban
-} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
@@ -28,21 +23,15 @@ export default function DashboardLayout({
     const [activeStore, setActiveStore] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [notifications, setNotifications] = useState<any[]>([])
-    const [showNotifs, setShowNotifs] = useState(false)
-    const notifsRef = useRef<HTMLDivElement>(null)
-    const unreadCount = notifications.filter(n => !n.is_read).length
 
     const navItems = [
-        { href: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
-        { href: '/dashboard/products', label: t.nav.products, icon: Package },
-        { href: '/dashboard/orders', label: t.nav.orders, icon: ShoppingCart },
-        { href: '/dashboard/customers', label: t.nav.customers, icon: Users },
-        { href: '/dashboard/analytics', label: t.nav.analytics, icon: BarChart3 },
-        { href: '/dashboard/coupons', label: t.nav.coupons, icon: Tag },
-        { href: '/dashboard/theme-editor', label: t.nav.themeEditor, icon: Palette },
-        { href: '/dashboard/abandoned-carts', label: t.nav.abandonedCarts, icon: ShoppingBag },
-        { href: '/dashboard/pages', label: t.nav.pages, icon: FileText },
-        { href: '/dashboard/settings', label: t.nav.settings, icon: Settings },
+        { href: '/dashboard', label: t.nav.dashboard || 'Overview', icon: 'dashboard' },
+        { href: '/dashboard/products', label: t.nav.products || 'Products', icon: 'inventory_2' },
+        { href: '/dashboard/orders', label: t.nav.orders || 'Orders', icon: 'shopping_cart' },
+        { href: '/dashboard/customers', label: t.nav.customers || 'Customers', icon: 'group' },
+        { href: '/dashboard/analytics', label: t.nav.analytics || 'Analytics', icon: 'analytics' },
+        { href: '/dashboard/apps', label: t.nav.apps || 'Apps', icon: 'grid_view' },
+        { href: '/dashboard/settings', label: t.nav.settings || 'Settings', icon: 'settings' },
     ]
 
     useEffect(() => {
@@ -99,278 +88,143 @@ export default function DashboardLayout({
         return () => subscription.unsubscribe()
     }, [supabase, router, pathname])
 
-    // Close notifs when clicking outside
-    useEffect(() => {
-        function handleClick(e: MouseEvent) {
-            if (notifsRef.current && !notifsRef.current.contains(e.target as Node)) {
-                setShowNotifs(false)
-            }
-        }
-        document.addEventListener('mousedown', handleClick)
-        return () => document.removeEventListener('mousedown', handleClick)
-    }, [])
-
     const handleLogout = async () => {
         await supabase.auth.signOut()
         router.push('/login')
     }
 
-    const markAllRead = async () => {
-        if (!activeStore) return
-        await supabase.from('store_notifications').update({ is_read: true }).eq('store_id', activeStore.id).eq('is_read', false)
-        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
-    }
-
     if (loading) return (
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F9FAFB' }}>
-            <div className="spinner" style={{ width: 40, height: 40, border: '3px solid #C6A75E', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-background)' }}>
+            <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
         </div>
     )
 
     return (
-        <div dir={dir} style={{ display: 'flex', minHeight: '100vh', background: '#F2EDE4' }}>
-            {/* Mobile overlay */}
-            {sidebarOpen && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.45)',
-                        backdropFilter: 'blur(2px)',
-                        zIndex: 199,
-                    }}
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
-
-            {/* Sidebar */}
-            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                {/* Logo */}
-                <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid #E0D6C8' }}>
-                    <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-                        <div style={{
-                            width: 38, height: 38, borderRadius: 10,
-                            background: '#222222', display: 'flex',
-                            alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 4px 12px rgba(34,34,34,0.3)', flexShrink: 0,
-                        }}>
-                            <Store size={20} color="#C6A75E" />
-                        </div>
-                        <div>
-                            <div style={{ fontWeight: 900, fontSize: 17, color: '#111111' }}>تجارنا</div>
-                            <div style={{ fontSize: 11, color: '#6B6058', marginTop: 1 }}>
-                                {lang === 'ar' ? 'لوحة التاجر' : 'Merchant Dashboard'}
-                            </div>
-                        </div>
-                    </Link>
-                </div>
-
-                {/* Store selector */}
-                <div style={{
-                    margin: '16px 12px',
-                    padding: '12px 14px',
-                    background: 'linear-gradient(135deg, rgba(198,167,94,0.08), rgba(198,167,94,0.04))',
-                    border: '1px solid rgba(198,167,94,0.18)',
-                    borderRadius: 12,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 34, height: 34, borderRadius: 8, background: '#222222', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ color: '#C6A75E', fontWeight: 800, fontSize: 14 }}>م</span>
-                        </div>
-                        <div>
-                            <div style={{ fontWeight: 700, fontSize: 13, color: '#111111' }}>
-                                {activeStore?.name_ar || t.common.loading}
-                            </div>
-                            <div style={{ fontSize: 11, color: '#6B6058' }}>
-                                {activeStore?.slug ? `tojjarna.com/store/${activeStore.slug}` : (lang === 'ar' ? 'متجر جديد' : 'New Store')}
-                            </div>
+        <div dir={dir} className="bg-background text-on-background min-h-screen flex flex-col md:flex-row antialiased">
+            {/* Desktop Navigation Drawer */}
+            <aside className="hidden md:flex flex-col py-6 px-4 space-y-2 h-screen w-72 border-r border-surface-variant rounded-r-lg bg-surface-container-lowest shadow-[0px_12px_32px_rgba(26,43,60,0.05)] sticky top-0 shrink-0 z-50">
+                <div className="flex items-center gap-3 mb-8 px-2">
+                    <div className="h-10 w-10 rounded-lg bg-surface-variant overflow-hidden border border-outline-variant shrink-0 flex items-center justify-center text-on-surface font-h3 font-bold">
+                        {activeStore?.name_ar ? activeStore.name_ar[0] : 'S'}
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-bold text-primary font-h3 text-h3 leading-none truncate max-w-[180px]">
+                            {activeStore?.name_ar || 'My Store'}
+                        </h2>
+                        <div className="flex flex-col gap-0.5 mt-1">
+                            <span className="font-caption text-caption text-on-surface-variant">Premium Merchant</span>
+                            <span className="font-caption text-caption text-on-surface-variant/70 truncate max-w-[180px]">
+                                {activeStore?.slug ? `${activeStore.slug}.tojjarna.com` : 'Amman, JO'}
+                            </span>
                         </div>
                     </div>
-                    <ChevronDown size={16} color="#6B6058" />
                 </div>
 
-                {/* Nav */}
-                <nav style={{ flex: 1, padding: '8px 0' }}>
+                <nav className="flex flex-col gap-1 flex-grow overflow-y-auto pb-4">
                     {navItems.map((item) => {
-                        const Icon = item.icon
-                        const isActive =
-                            item.href === '/dashboard'
-                                ? pathname === '/dashboard'
-                                : pathname.startsWith(item.href)
-
+                        const isActive = item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href)
                         return (
-                            <Link
-                                key={item.href}
+                            <Link 
+                                key={item.href} 
                                 href={item.href}
-                                className={`nav-item ${isActive ? 'active' : ''}`}
-                                onClick={() => setSidebarOpen(false)}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-manrope text-sm font-medium ease-out duration-200 ${
+                                    isActive 
+                                    ? 'bg-primary/10 text-primary border-l-4 border-primary rtl:border-l-0 rtl:border-r-4' 
+                                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50'
+                                }`}
                             >
-                                <Icon size={18} />
+                                <span className="material-symbols-outlined text-[20px]" data-icon={item.icon} style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
                                 {item.label}
                             </Link>
                         )
                     })}
                 </nav>
 
-                {/* Sidebar bottom */}
-                <div style={{ padding: '16px 12px', borderTop: '1px solid #E0D6C8' }}>
-                    <a
-                        href={activeStore?.slug ? `/store/${activeStore.slug}` : '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="nav-item"
-                        style={{ marginBottom: 4, textDecoration: 'none' }}
-                    >
-                        <Store size={18} />
-                        {t.nav.viewStore}
-                    </a>
-                    <button
-                        onClick={handleLogout}
-                        className="nav-item"
-                        style={{ width: '100%', textAlign: 'inherit', background: 'none', border: 'none', cursor: 'pointer', color: '#C0392B' }}
-                    >
-                        <LogOut size={18} />
-                        {t.nav.logout}
+                <div className="pt-4 border-t border-surface-variant mt-auto">
+                    <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 w-full rounded-lg font-manrope text-sm font-medium text-error hover:bg-error-container/50 text-left transition-colors">
+                        <span className="material-symbols-outlined text-[20px]">logout</span>
+                        {t.nav.logout || 'Logout'}
                     </button>
                 </div>
             </aside>
 
-            {/* Main */}
-            <div className="main-with-sidebar" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                {/* Topbar */}
-                <header style={{
-                    height: 64,
-                    background: '#FDFAF6',
-                    borderBottom: '1px solid #E0D6C8',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0 20px',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 40,
-                    gap: 12,
-                }}>
-                    {/* Mobile menu button — always on the leading side */}
-                    <button
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        style={{
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            color: '#111111', padding: 4, flexShrink: 0,
-                        }}
-                        className="show-on-mobile"
-                    >
-                        {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-                    </button>
+            {/* Mobile Top AppBar */}
+            <header className="md:hidden flex justify-between items-center w-full px-6 h-16 bg-surface-container-lowest border-b border-surface-variant shadow-sm sticky top-0 z-40">
+                <button onClick={() => setSidebarOpen(true)} className="text-on-surface-variant hover:bg-primary/5 transition-colors p-2 rounded-full active:opacity-80">
+                    <span className="material-symbols-outlined">menu</span>
+                </button>
+                <span className="font-manrope font-semibold tracking-tight text-xl font-bold text-primary tracking-wide">
+                    {activeStore?.name_ar || 'Merchant Central'}
+                </span>
+                <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant flex items-center justify-center font-bold text-sm text-on-surface">
+                        {user?.name ? user.name[0] : 'U'}
+                    </div>
+                </div>
+            </header>
 
-                    {/* Spacer */}
-                    <div style={{ flex: 1 }} />
-
-                    {/* Right side: lang switcher + notifs + user */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
-
-                        {/* Language Switcher */}
-                        <div className="hide-on-mobile">
-                            <LanguageSwitcher compact />
-                        </div>
-
-                        {/* Notifications */}
-                        <div style={{ position: 'relative' }} ref={notifsRef}>
-                            <button
-                                onClick={() => setShowNotifs(!showNotifs)}
-                                style={{
-                                    width: 38, height: 38, borderRadius: 10,
-                                    border: '1px solid #E0D6C8', background: '#FDFAF6',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    cursor: 'pointer', position: 'relative', flexShrink: 0,
-                                }}
-                            >
-                                <Bell size={18} color="#6B6058" />
-                                {unreadCount > 0 && (
-                                    <div style={{
-                                        position: 'absolute', top: -4, right: -4, minWidth: 18, height: 18,
-                                        borderRadius: 9, background: '#EF4444', border: '2px solid #FDFAF6',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: 10, fontWeight: 700, color: 'white', padding: '0 4px',
-                                    }}>{unreadCount}</div>
-                                )}
-                            </button>
-
-                            {showNotifs && (
-                                <div style={{
-                                    position: 'absolute', top: 48,
-                                    insetInlineEnd: 0,
-                                    width: 300, background: '#FDFAF6',
-                                    border: '1px solid #E0D6C8', borderRadius: 14,
-                                    boxShadow: '0 12px 48px rgba(34,34,34,0.13)',
-                                    zIndex: 200, overflow: 'hidden',
-                                }}>
-                                    <div style={{ padding: '14px 16px', borderBottom: '1px solid #E0D6C8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontWeight: 700, fontSize: 14 }}>{t.common.notifications}</span>
-                                        {unreadCount > 0 && (
-                                            <button onClick={markAllRead} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C6A75E', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                <Check size={12} /> {t.common.markAllRead}
-                                            </button>
-                                        )}
-                                    </div>
-                                    <div style={{ maxHeight: 320, overflow: 'auto' }}>
-                                        {notifications.length === 0 ? (
-                                            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#A09080', fontSize: 13 }}>{t.common.noNotifications}</div>
-                                        ) : notifications.map(n => (
-                                            <div key={n.id} style={{
-                                                padding: '12px 16px', borderBottom: '1px solid #E0D6C8',
-                                                background: n.is_read ? 'transparent' : 'rgba(198,167,94,0.07)',
-                                                display: 'flex', gap: 10, alignItems: 'flex-start',
-                                            }}>
-                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.is_read ? 'transparent' : '#C6A75E', marginTop: 6, flexShrink: 0 }} />
-                                                <div style={{ flex: 1 }}>
-                                                    <div style={{ fontSize: 13, fontWeight: 600, color: '#111111' }}>{n.title_ar}</div>
-                                                    {n.message_ar && <div style={{ fontSize: 12, color: '#6B6058', marginTop: 2 }}>{n.message_ar}</div>}
-                                                    <div style={{ fontSize: 11, color: '#A09080', marginTop: 4 }}>{new Date(n.created_at).toLocaleString(lang === 'ar' ? 'ar-JO' : 'en-GB')}</div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* User avatar */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flexShrink: 0 }}>
-                            <div className="avatar">{user?.name ? user.name[0] : 'U'}</div>
-                            <div style={{ display: 'flex', flexDirection: 'column' }} className="hide-on-mobile">
-                                <span style={{ fontSize: 13, fontWeight: 700, color: '#111111' }}>
-                                    {user?.name || (lang === 'ar' ? 'المستخدم' : 'User')}
-                                </span>
-                                <span style={{ fontSize: 11, color: '#6B6058' }}>
-                                    {user?.role === 'admin' ? t.common.platformAdmin : t.common.merchant}
-                                </span>
+            {/* Mobile Sidebar Overlay */}
+            {sidebarOpen && (
+                <div className="md:hidden fixed inset-0 z-[100] flex">
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+                    <aside className="relative flex flex-col py-6 px-4 space-y-2 h-screen w-72 bg-surface-container-lowest border-r border-surface-variant shadow-xl">
+                        <button onClick={() => setSidebarOpen(false)} className="absolute top-4 right-4 p-2 text-on-surface-variant">
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
+                        <div className="flex items-center gap-3 mb-8 px-2 mt-8">
+                            <div className="w-12 h-12 rounded-lg bg-surface-variant border border-outline-variant shrink-0 flex items-center justify-center font-h3 font-bold">{activeStore?.name_ar ? activeStore.name_ar[0] : 'S'}</div>
+                            <div>
+                                <h2 className="text-lg font-bold text-primary font-h3 leading-none truncate max-w-[160px]">{activeStore?.name_ar || 'My Store'}</h2>
                             </div>
                         </div>
-                    </div>
-                </header>
+                        <nav className="flex flex-col gap-1 flex-grow overflow-y-auto">
+                            {navItems.map((item) => {
+                                const isActive = item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href)
+                                return (
+                                    <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}
+                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-manrope text-sm font-medium ${isActive ? 'bg-primary/10 text-primary border-l-4 border-primary rtl:border-l-0 rtl:border-r-4' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50'}`}>
+                                        <span className="material-symbols-outlined text-[20px]" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
+                                        {item.label}
+                                    </Link>
+                                )
+                            })}
+                            <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 w-full rounded-lg font-manrope text-sm font-medium text-error hover:bg-error-container/50 text-left mt-auto">
+                                <span className="material-symbols-outlined text-[20px]">logout</span>
+                                {t.nav.logout || 'Logout'}
+                            </button>
+                        </nav>
+                    </aside>
+                </div>
+            )}
 
-                {/* Page content */}
-                <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', minWidth: 0, maxWidth: '100vw' }}>
-                    {activeStore?.status === 'pending' && (
-                        <div style={{ background: '#FEF3C7', color: '#92400E', padding: '14px 24px', fontSize: 14, fontWeight: 700, borderBottom: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <AlertTriangle size={18} /> {t.dashboard.pendingApproval}
-                        </div>
-                    )}
-                    {activeStore?.status === 'suspended' && (
-                        <div style={{ background: '#FEE2E2', color: '#B91C1C', padding: '14px 24px', fontSize: 14, fontWeight: 700, borderBottom: '1px solid #FCA5A5', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Ban size={18} /> {t.dashboard.storeSuspended}
-                        </div>
-                    )}
-                    <div style={{ flex: 1 }}>
-                        {children}
-                    </div>
-                </main>
-            </div>
+            {/* Main Content Area */}
+            <main className="flex-1 flex flex-col min-h-screen w-full relative pb-24 md:pb-0 min-w-0 bg-background">
+                {children}
+            </main>
+
+            {/* Mobile Bottom Navigation */}
+            <nav className="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-surface-container-lowest/95 backdrop-blur-md border-t border-surface-variant rounded-t-2xl z-50 shadow-[0px_-4px_20px_rgba(26,43,60,0.08)]">
+                {[
+                    { href: '/dashboard', icon: 'home', label: t.nav.dashboard || 'Home' },
+                    { href: '/dashboard/products', icon: 'inventory_2', label: t.nav.products || 'Catalog' },
+                    { href: '/dashboard/orders', icon: 'shopping_cart', label: t.nav.orders || 'Orders' },
+                    { href: '/dashboard/settings', icon: 'person', label: t.nav.settings || 'Account' },
+                ].map((item) => {
+                    const isActive = item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href)
+                    return (
+                        <Link key={item.href} href={item.href} className={`flex flex-col items-center justify-center font-manrope text-[10px] uppercase tracking-widest active:scale-95 duration-150 ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}>
+                            {isActive ? (
+                                <div className="bg-primary/10 rounded-xl px-4 py-1 mb-1">
+                                    <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
+                                </div>
+                            ) : (
+                                <span className="material-symbols-outlined mb-1">{item.icon}</span>
+                            )}
+                            <span className="mt-0.5">{item.label}</span>
+                        </Link>
+                    )
+                })}
+            </nav>
         </div>
     )
 }

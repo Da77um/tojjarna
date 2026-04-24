@@ -1,91 +1,125 @@
 @import "tailwindcss";
 
 /* ============================
-   CSS Custom Properties — Luxury Amman Palette
+   Tailwind CSS v4 inline theme for Merchant Central MD3
    ============================ */
-:root {
-  /* Brand Colors */
-  --primary: #000000;
-  --primary-dark: #1b1b1d;
-  --primary-light: #45464d;
-  --gold: #131b2e;
-  --gold-dark: #0b1c30;
-  --gold-light: #bec6e0;
-  --gold-muted: rgba(19, 27, 46, 0.15);
+@theme inline {
+  --color-inverse-surface: #31302e;
+  --color-on-tertiary-container: #cdf8ff;
+  --color-on-secondary-fixed-variant: #38485a;
+  --color-on-background: #1c1c1a;
+  --color-on-error: #ffffff;
+  --color-primary: #933436;
+  --color-on-tertiary: #ffffff;
+  --color-surface-container-highest: #e5e2de;
+  --color-on-secondary-container: #556679;
+  --color-secondary-fixed: #d2e4fb;
+  --color-on-primary-container: #ffebea;
+  --color-surface-bright: #fcf9f5;
+  --color-primary-fixed-dim: #ffb3b0;
+  --color-surface-container-high: #eae8e4;
+  --color-secondary-fixed-dim: #b7c8de;
+  --color-on-primary-fixed-variant: #80272a;
+  --color-surface-variant: #e5e2de;
+  --color-tertiary-fixed-dim: #a1ced6;
+  --color-secondary-container: #d2e4fb;
+  --color-on-error-container: #93000a;
+  --color-surface: #fcf9f5;
+  --color-on-secondary: #ffffff;
+  --color-outline-variant: #dcc0be;
+  --color-surface-tint: #a03e3f;
+  --color-on-surface: #1c1c1a;
+  --color-tertiary-container: #48747b;
+  --color-primary-fixed: #ffdad8;
+  --color-on-surface-variant: #564241;
+  --color-on-tertiary-fixed: #001f24;
+  --color-on-primary: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-surface-container: #f0ede9;
+  --color-inverse-primary: #ffb3b0;
+  --color-surface-container-low: #f6f3ef;
+  --color-on-secondary-fixed: #0b1d2d;
+  --color-surface-container-lowest: #ffffff;
+  --color-secondary: #4f6073;
+  --color-primary-container: #b24c4c;
+  --color-outline: #897270;
+  --color-error: #ba1a1a;
+  --color-tertiary-fixed: #bcebf3;
+  --color-background: #fcf9f5;
+  --color-on-primary-fixed: #410006;
+  --color-on-tertiary-fixed-variant: #1f4d54;
+  --color-inverse-on-surface: #f3f0ec;
+  --color-tertiary: #2e5b62;
+  --color-surface-dim: #dcdad6;
 
-  /* Surfaces */
-  --background: #fcf8fa;
-  --surface: #ffffff;
-  --surface-2: #f6f3f5;
-  --surface-3: #f0edef;
-  --border: #e4e2e4;
-  --border-active: #000000;
-
-  /* Text */
-  --text-primary: #1b1b1d;
-  --text-secondary: #45464d;
-  --text-muted: #76777d;
-  --text-inverse: #ffffff;
-  --text-gold: #131b2e;
-
-  /* Status */
-  --success: #10B981;
-  --warning: #F59E0B;
-  --error: #EF4444;
-  --info: #3B82F6;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.09);
-  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.13);
-  --shadow-gold: 0 4px 20px rgba(19, 27, 46, 0.3);
-
-  /* Border radius */
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
   --radius-full: 9999px;
 
-  /* Spacing tokens */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 40px;
-  --space-xxl: 64px;
+  --spacing-stack-xs: 8px;
+  --spacing-container-max: 1440px;
+  --spacing-gutter: 24px;
+  --spacing-stack-md: 24px;
+  --spacing-unit: 4px;
+  --spacing-margin-desktop: 48px;
+  --spacing-margin-mobile: 16px;
+  --spacing-stack-xl: 64px;
 
-  /* Page padding */
-  --page-padding: 32px;
+  --font-h1: "Manrope", sans-serif;
+  --font-label-sm: "Manrope", sans-serif;
+  --font-body-lg: "Manrope", sans-serif;
+  --font-h3: "Manrope", sans-serif;
+  --font-h2: "Manrope", sans-serif;
+  --font-caption: "Manrope", sans-serif;
+  --font-body-md: "Manrope", sans-serif;
+  --font-manrope: "Manrope", sans-serif;
 
-  /* Mobile breakpoints (reference) */
-  /* sm: 320px | md: 375px | lg: 414px | tablet: 768px | desktop: 1024px */
+  --text-h1: 40px;
+  --text-h1--line-height: 1.2;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h1--font-weight: 700;
 
-  /* Transitions */
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --text-label-sm: 14px;
+  --text-label-sm--line-height: 1.2;
+  --text-label-sm--letter-spacing: 0.05em;
+  --text-label-sm--font-weight: 600;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+  --text-body-lg--letter-spacing: 0;
+  --text-body-lg--font-weight: 400;
+
+  --text-h3: 24px;
+  --text-h3--line-height: 1.4;
+  --text-h3--letter-spacing: 0;
+  --text-h3--font-weight: 600;
+
+  --text-h2: 32px;
+  --text-h2--line-height: 1.3;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 600;
+
+  --text-caption: 12px;
+  --text-caption--line-height: 1.2;
+  --text-caption--letter-spacing: 0;
+  --text-caption--font-weight: 500;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.6;
+  --text-body-md--letter-spacing: 0;
+  --text-body-md--font-weight: 400;
 }
 
-/* Dashboard always renders in light mode regardless of OS preference */
-/* Dark mode only applies to the public storefront hero sections */
-
-@theme inline {
-  --color-primary: var(--primary);
-  --color-primary-dark: var(--primary-dark);
-  --color-secondary: var(--gold);
-  --color-accent: var(--gold);
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-border: var(--border);
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --font-arabic: 'Tajawal', sans-serif;
-  --font-latin: 'Inter', sans-serif;
+/* Material Symbols configuration */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.material-symbols-outlined[data-weight="fill"] {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* ============================
-   Base Styles
-   ============================ */
+/* Base Styles */
 * {
   box-sizing: border-box;
 }
@@ -95,17 +129,15 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--text-primary);
-  font-family: 'Tajawal', 'Inter', sans-serif;
+  background: var(--color-background);
+  color: var(--color-on-background);
+  font-family: 'Manrope', sans-serif;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* RTL direction for Arabic */
 [dir="rtl"] {
-  font-family: 'Tajawal', sans-serif;
   text-align: right;
 }
 
