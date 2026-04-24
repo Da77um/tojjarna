@@ -6,7 +6,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
     LayoutDashboard, Package, ShoppingCart, Users, BarChart3,
     Tag, Settings, Store, LogOut, Menu, X, Bell, ChevronDown,
-    Palette, ShoppingBag, FileText, Check, AlertTriangle, Ban
+    Palette, ShoppingBag, FileText, Check, AlertTriangle, Ban,
+    Search, ExternalLink, Sparkles
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
@@ -99,7 +100,6 @@ export default function DashboardLayout({
         return () => subscription.unsubscribe()
     }, [supabase, router, pathname])
 
-    // Close notifs when clicking outside
     useEffect(() => {
         function handleClick(e: MouseEvent) {
             if (notifsRef.current && !notifsRef.current.contains(e.target as Node)) {
@@ -122,85 +122,134 @@ export default function DashboardLayout({
     }
 
     if (loading) return (
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F9FAFB' }}>
-            <div className="spinner" style={{ width: 40, height: 40, border: '3px solid #C6A75E', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ 
+            minHeight: '100vh', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            background: 'var(--background)',
+            flexDirection: 'column',
+            gap: 16
+        }}>
+            <div className="spinner spinner-lg" />
+            <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>{t.common.loading}</p>
         </div>
     )
 
     return (
-        <div dir={dir} style={{ display: 'flex', minHeight: '100vh', background: '#F2EDE4' }}>
+        <div dir={dir} style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
             {/* Mobile overlay */}
             {sidebarOpen && (
                 <div
+                    onClick={() => setSidebarOpen(false)}
                     style={{
                         position: 'fixed',
                         inset: 0,
-                        background: 'rgba(0,0,0,0.45)',
-                        backdropFilter: 'blur(2px)',
+                        background: 'rgba(15, 23, 42, 0.5)',
+                        backdropFilter: 'blur(4px)',
                         zIndex: 199,
+                        animation: 'fadeIn 200ms ease',
                     }}
-                    onClick={() => setSidebarOpen(false)}
                 />
             )}
 
             {/* Sidebar */}
-            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                {/* Logo */}
-                <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid #E0D6C8' }}>
-                    <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} style={{ background: 'var(--surface)' }}>
+                {/* Logo Section */}
+                <div style={{ 
+                    padding: '24px 20px', 
+                    borderBottom: '1px solid var(--border)',
+                    background: 'linear-gradient(180deg, var(--surface) 0%, var(--surface-muted) 100%)'
+                }}>
+                    <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
                         <div style={{
-                            width: 38, height: 38, borderRadius: 10,
-                            background: '#222222', display: 'flex',
-                            alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 4px 12px rgba(34,34,34,0.3)', flexShrink: 0,
+                            width: 44, 
+                            height: 44, 
+                            borderRadius: 'var(--radius-lg)',
+                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)',
+                            display: 'flex',
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)',
                         }}>
-                            <Store size={20} color="#C6A75E" />
+                            <Store size={22} color="var(--accent)" />
                         </div>
                         <div>
-                            <div style={{ fontWeight: 900, fontSize: 17, color: '#111111' }}>تجارنا</div>
-                            <div style={{ fontSize: 11, color: '#6B6058', marginTop: 1 }}>
-                                {lang === 'ar' ? 'لوحة التاجر' : 'Merchant Dashboard'}
+                            <div style={{ 
+                                fontWeight: 800, 
+                                fontSize: 18, 
+                                color: 'var(--text-primary)',
+                                letterSpacing: '-0.02em'
+                            }}>
+                                Tojjarna
+                            </div>
+                            <div style={{ 
+                                fontSize: 12, 
+                                color: 'var(--text-muted)', 
+                                fontWeight: 500 
+                            }}>
+                                {lang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
                             </div>
                         </div>
                     </Link>
                 </div>
 
-                {/* Store selector */}
-                <div style={{
-                    margin: '16px 12px',
-                    padding: '12px 14px',
-                    background: 'linear-gradient(135deg, rgba(198,167,94,0.08), rgba(198,167,94,0.04))',
-                    border: '1px solid rgba(198,167,94,0.18)',
-                    borderRadius: 12,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 34, height: 34, borderRadius: 8, background: '#222222', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ color: '#C6A75E', fontWeight: 800, fontSize: 14 }}>م</span>
-                        </div>
-                        <div>
-                            <div style={{ fontWeight: 700, fontSize: 13, color: '#111111' }}>
-                                {activeStore?.name_ar || t.common.loading}
+                {/* Store Selector */}
+                <div style={{ padding: '16px 16px 8px' }}>
+                    <div style={{
+                        padding: '14px 16px',
+                        background: 'var(--accent-muted)',
+                        border: '1px solid var(--accent)',
+                        borderRadius: 'var(--radius-xl)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'all var(--transition-fast)',
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ 
+                                width: 36, 
+                                height: 36, 
+                                borderRadius: 'var(--radius-md)', 
+                                background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))',
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                            }}>
+                                <Sparkles size={18} color="white" />
                             </div>
-                            <div style={{ fontSize: 11, color: '#6B6058' }}>
-                                {activeStore?.slug ? `tojjarna.com/store/${activeStore.slug}` : (lang === 'ar' ? 'متجر جديد' : 'New Store')}
+                            <div>
+                                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
+                                    {activeStore?.name_ar || t.common.loading}
+                                </div>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+                                    {activeStore?.slug ? `/${activeStore.slug}` : (lang === 'ar' ? 'متجر جديد' : 'New Store')}
+                                </div>
                             </div>
                         </div>
+                        <ChevronDown size={16} color="var(--text-muted)" />
                     </div>
-                    <ChevronDown size={16} color="#6B6058" />
                 </div>
 
-                {/* Nav */}
-                <nav style={{ flex: 1, padding: '8px 0' }}>
-                    {navItems.map((item) => {
+                {/* Navigation */}
+                <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto' }}>
+                    <div style={{ 
+                        padding: '8px 20px 12px', 
+                        fontSize: 11, 
+                        fontWeight: 600, 
+                        color: 'var(--text-muted)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                    }}>
+                        {lang === 'ar' ? 'القائمة الرئيسية' : 'Main Menu'}
+                    </div>
+                    {navItems.slice(0, 6).map((item) => {
                         const Icon = item.icon
-                        const isActive =
-                            item.href === '/dashboard'
-                                ? pathname === '/dashboard'
-                                : pathname.startsWith(item.href)
+                        const isActive = item.href === '/dashboard' 
+                            ? pathname === '/dashboard' 
+                            : pathname.startsWith(item.href)
 
                         return (
                             <Link
@@ -210,69 +259,164 @@ export default function DashboardLayout({
                                 onClick={() => setSidebarOpen(false)}
                             >
                                 <Icon size={18} />
-                                {item.label}
+                                <span>{item.label}</span>
+                            </Link>
+                        )
+                    })}
+                    
+                    <div style={{ 
+                        padding: '20px 20px 12px', 
+                        fontSize: 11, 
+                        fontWeight: 600, 
+                        color: 'var(--text-muted)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                    }}>
+                        {lang === 'ar' ? 'المتجر' : 'Store'}
+                    </div>
+                    {navItems.slice(6).map((item) => {
+                        const Icon = item.icon
+                        const isActive = pathname.startsWith(item.href)
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`nav-item ${isActive ? 'active' : ''}`}
+                                onClick={() => setSidebarOpen(false)}
+                            >
+                                <Icon size={18} />
+                                <span>{item.label}</span>
                             </Link>
                         )
                     })}
                 </nav>
 
-                {/* Sidebar bottom */}
-                <div style={{ padding: '16px 12px', borderTop: '1px solid #E0D6C8' }}>
+                {/* Sidebar Footer */}
+                <div style={{ 
+                    padding: '16px', 
+                    borderTop: '1px solid var(--border)',
+                    background: 'var(--surface-muted)'
+                }}>
                     <a
                         href={activeStore?.slug ? `/store/${activeStore.slug}` : '#'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="nav-item"
-                        style={{ marginBottom: 4, textDecoration: 'none' }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            padding: '12px 14px',
+                            background: 'var(--surface)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 'var(--radius-lg)',
+                            textDecoration: 'none',
+                            color: 'var(--text-secondary)',
+                            fontSize: 14,
+                            fontWeight: 500,
+                            transition: 'all var(--transition-fast)',
+                            marginBottom: 8,
+                        }}
                     >
-                        <Store size={18} />
-                        {t.nav.viewStore}
+                        <ExternalLink size={16} />
+                        <span>{t.nav.viewStore}</span>
                     </a>
                     <button
                         onClick={handleLogout}
-                        className="nav-item"
-                        style={{ width: '100%', textAlign: 'inherit', background: 'none', border: 'none', cursor: 'pointer', color: '#C0392B' }}
+                        style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            padding: '12px 14px',
+                            background: 'var(--error-bg)',
+                            border: '1px solid transparent',
+                            borderRadius: 'var(--radius-lg)',
+                            color: 'var(--error)',
+                            fontSize: 14,
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                            transition: 'all var(--transition-fast)',
+                        }}
                     >
-                        <LogOut size={18} />
-                        {t.nav.logout}
+                        <LogOut size={16} />
+                        <span>{t.nav.logout}</span>
                     </button>
                 </div>
             </aside>
 
-            {/* Main */}
+            {/* Main Content Area */}
             <div className="main-with-sidebar" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                {/* Topbar */}
+                {/* Top Bar */}
                 <header style={{
-                    height: 64,
-                    background: '#FDFAF6',
-                    borderBottom: '1px solid #E0D6C8',
+                    height: 72,
+                    background: 'var(--surface)',
+                    borderBottom: '1px solid var(--border)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '0 20px',
+                    padding: '0 24px',
                     position: 'sticky',
                     top: 0,
                     zIndex: 40,
-                    gap: 12,
+                    gap: 16,
                 }}>
-                    {/* Mobile menu button — always on the leading side */}
-                    <button
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        style={{
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            color: '#111111', padding: 4, flexShrink: 0,
-                        }}
-                        className="show-on-mobile"
-                    >
-                        {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-                    </button>
+                    {/* Left: Menu + Search */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1 }}>
+                        <button
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className="show-on-mobile"
+                            style={{
+                                width: 44,
+                                height: 44,
+                                borderRadius: 'var(--radius-lg)',
+                                background: 'var(--surface-hover)',
+                                border: 'none',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'var(--text-primary)',
+                            }}
+                        >
+                            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                        </button>
 
-                    {/* Spacer */}
-                    <div style={{ flex: 1 }} />
+                        {/* Search Bar - Desktop */}
+                        <div className="hide-on-mobile" style={{ position: 'relative', maxWidth: 400, flex: 1 }}>
+                            <input
+                                type="text"
+                                placeholder={lang === 'ar' ? 'بحث...' : 'Search...'}
+                                style={{
+                                    width: '100%',
+                                    height: 44,
+                                    padding: dir === 'rtl' ? '0 16px 0 44px' : '0 44px 0 16px',
+                                    borderRadius: 'var(--radius-xl)',
+                                    border: '1px solid var(--border)',
+                                    background: 'var(--surface-muted)',
+                                    fontSize: 14,
+                                    fontFamily: 'inherit',
+                                    outline: 'none',
+                                    color: 'var(--text-primary)',
+                                    transition: 'all var(--transition-fast)',
+                                }}
+                            />
+                            <Search 
+                                size={18} 
+                                color="var(--text-muted)" 
+                                style={{ 
+                                    position: 'absolute', 
+                                    top: '50%', 
+                                    transform: 'translateY(-50%)',
+                                    [dir === 'rtl' ? 'left' : 'right']: 14,
+                                }} 
+                            />
+                        </div>
+                    </div>
 
-                    {/* Right side: lang switcher + notifs + user */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
-
+                    {/* Right: Actions */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                         {/* Language Switcher */}
                         <div className="hide-on-mobile">
                             <LanguageSwitcher compact />
@@ -283,54 +427,124 @@ export default function DashboardLayout({
                             <button
                                 onClick={() => setShowNotifs(!showNotifs)}
                                 style={{
-                                    width: 38, height: 38, borderRadius: 10,
-                                    border: '1px solid #E0D6C8', background: '#FDFAF6',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    cursor: 'pointer', position: 'relative', flexShrink: 0,
+                                    width: 44,
+                                    height: 44,
+                                    borderRadius: 'var(--radius-lg)',
+                                    border: '1px solid var(--border)',
+                                    background: showNotifs ? 'var(--surface-hover)' : 'var(--surface)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    transition: 'all var(--transition-fast)',
                                 }}
                             >
-                                <Bell size={18} color="#6B6058" />
+                                <Bell size={18} color="var(--text-secondary)" />
                                 {unreadCount > 0 && (
                                     <div style={{
-                                        position: 'absolute', top: -4, right: -4, minWidth: 18, height: 18,
-                                        borderRadius: 9, background: '#EF4444', border: '2px solid #FDFAF6',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: 10, fontWeight: 700, color: 'white', padding: '0 4px',
-                                    }}>{unreadCount}</div>
+                                        position: 'absolute',
+                                        top: 6,
+                                        right: 6,
+                                        minWidth: 18,
+                                        height: 18,
+                                        borderRadius: 9,
+                                        background: 'var(--error)',
+                                        border: '2px solid var(--surface)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: 10,
+                                        fontWeight: 700,
+                                        color: 'white',
+                                    }}>
+                                        {unreadCount}
+                                    </div>
                                 )}
                             </button>
 
+                            {/* Notifications Dropdown */}
                             {showNotifs && (
                                 <div style={{
-                                    position: 'absolute', top: 48,
+                                    position: 'absolute',
+                                    top: 52,
                                     insetInlineEnd: 0,
-                                    width: 300, background: '#FDFAF6',
-                                    border: '1px solid #E0D6C8', borderRadius: 14,
-                                    boxShadow: '0 12px 48px rgba(34,34,34,0.13)',
-                                    zIndex: 200, overflow: 'hidden',
+                                    width: 360,
+                                    background: 'var(--surface)',
+                                    border: '1px solid var(--border)',
+                                    borderRadius: 'var(--radius-xl)',
+                                    boxShadow: 'var(--shadow-xl)',
+                                    zIndex: 200,
+                                    overflow: 'hidden',
+                                    animation: 'fadeInScale 200ms ease',
                                 }}>
-                                    <div style={{ padding: '14px 16px', borderBottom: '1px solid #E0D6C8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontWeight: 700, fontSize: 14 }}>{t.common.notifications}</span>
+                                    <div style={{ 
+                                        padding: '16px 20px', 
+                                        borderBottom: '1px solid var(--border)', 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        alignItems: 'center' 
+                                    }}>
+                                        <span style={{ fontWeight: 700, fontSize: 15 }}>{t.common.notifications}</span>
                                         {unreadCount > 0 && (
-                                            <button onClick={markAllRead} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C6A75E', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                <Check size={12} /> {t.common.markAllRead}
+                                            <button 
+                                                onClick={markAllRead} 
+                                                style={{ 
+                                                    background: 'none', 
+                                                    border: 'none', 
+                                                    cursor: 'pointer', 
+                                                    color: 'var(--accent)', 
+                                                    fontSize: 13, 
+                                                    fontWeight: 600, 
+                                                    fontFamily: 'inherit', 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    gap: 4 
+                                                }}
+                                            >
+                                                <Check size={14} /> {t.common.markAllRead}
                                             </button>
                                         )}
                                     </div>
-                                    <div style={{ maxHeight: 320, overflow: 'auto' }}>
+                                    <div style={{ maxHeight: 360, overflow: 'auto' }}>
                                         {notifications.length === 0 ? (
-                                            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#A09080', fontSize: 13 }}>{t.common.noNotifications}</div>
+                                            <div style={{ padding: '48px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
+                                                {t.common.noNotifications}
+                                            </div>
                                         ) : notifications.map(n => (
-                                            <div key={n.id} style={{
-                                                padding: '12px 16px', borderBottom: '1px solid #E0D6C8',
-                                                background: n.is_read ? 'transparent' : 'rgba(198,167,94,0.07)',
-                                                display: 'flex', gap: 10, alignItems: 'flex-start',
-                                            }}>
-                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.is_read ? 'transparent' : '#C6A75E', marginTop: 6, flexShrink: 0 }} />
+                                            <div 
+                                                key={n.id} 
+                                                style={{
+                                                    padding: '14px 20px',
+                                                    borderBottom: '1px solid var(--border-light)',
+                                                    background: n.is_read ? 'transparent' : 'var(--accent-muted)',
+                                                    display: 'flex',
+                                                    gap: 12,
+                                                    alignItems: 'flex-start',
+                                                    cursor: 'pointer',
+                                                    transition: 'background var(--transition-fast)',
+                                                }}
+                                            >
+                                                <div style={{ 
+                                                    width: 8, 
+                                                    height: 8, 
+                                                    borderRadius: '50%', 
+                                                    background: n.is_read ? 'transparent' : 'var(--accent)', 
+                                                    marginTop: 6, 
+                                                    flexShrink: 0 
+                                                }} />
                                                 <div style={{ flex: 1 }}>
-                                                    <div style={{ fontSize: 13, fontWeight: 600, color: '#111111' }}>{n.title_ar}</div>
-                                                    {n.message_ar && <div style={{ fontSize: 12, color: '#6B6058', marginTop: 2 }}>{n.message_ar}</div>}
-                                                    <div style={{ fontSize: 11, color: '#A09080', marginTop: 4 }}>{new Date(n.created_at).toLocaleString(lang === 'ar' ? 'ar-JO' : 'en-GB')}</div>
+                                                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+                                                        {n.title_ar}
+                                                    </div>
+                                                    {n.message_ar && (
+                                                        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4, lineHeight: 1.5 }}>
+                                                            {n.message_ar}
+                                                        </div>
+                                                    )}
+                                                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>
+                                                        {new Date(n.created_at).toLocaleString(lang === 'ar' ? 'ar-JO' : 'en-GB')}
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
@@ -339,36 +553,69 @@ export default function DashboardLayout({
                             )}
                         </div>
 
-                        {/* User avatar */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flexShrink: 0 }}>
-                            <div className="avatar">{user?.name ? user.name[0] : 'U'}</div>
-                            <div style={{ display: 'flex', flexDirection: 'column' }} className="hide-on-mobile">
-                                <span style={{ fontSize: 13, fontWeight: 700, color: '#111111' }}>
+                        {/* User Profile */}
+                        <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 12, 
+                            cursor: 'pointer',
+                            padding: '6px 12px 6px 6px',
+                            borderRadius: 'var(--radius-xl)',
+                            border: '1px solid var(--border)',
+                            background: 'var(--surface)',
+                            transition: 'all var(--transition-fast)',
+                        }}>
+                            <div className="avatar" style={{ width: 36, height: 36 }}>
+                                {user?.name ? user.name[0].toUpperCase() : 'U'}
+                            </div>
+                            <div className="hide-on-mobile" style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                                     {user?.name || (lang === 'ar' ? 'المستخدم' : 'User')}
                                 </span>
-                                <span style={{ fontSize: 11, color: '#6B6058' }}>
+                                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                                     {user?.role === 'admin' ? t.common.platformAdmin : t.common.merchant}
                                 </span>
                             </div>
+                            <ChevronDown size={14} color="var(--text-muted)" className="hide-on-mobile" />
                         </div>
                     </div>
                 </header>
 
-                {/* Page content */}
-                <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', minWidth: 0, maxWidth: '100vw' }}>
-                    {activeStore?.status === 'pending' && (
-                        <div style={{ background: '#FEF3C7', color: '#92400E', padding: '14px 24px', fontSize: 14, fontWeight: 700, borderBottom: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <AlertTriangle size={18} /> {t.dashboard.pendingApproval}
-                        </div>
-                    )}
-                    {activeStore?.status === 'suspended' && (
-                        <div style={{ background: '#FEE2E2', color: '#B91C1C', padding: '14px 24px', fontSize: 14, fontWeight: 700, borderBottom: '1px solid #FCA5A5', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Ban size={18} /> {t.dashboard.storeSuspended}
-                        </div>
-                    )}
-                    <div style={{ flex: 1 }}>
-                        {children}
+                {/* Status Banners */}
+                {activeStore?.status === 'pending' && (
+                    <div style={{ 
+                        background: 'var(--warning-bg)', 
+                        color: 'var(--warning-text)', 
+                        padding: '12px 24px', 
+                        fontSize: 14, 
+                        fontWeight: 600, 
+                        borderBottom: '1px solid rgba(245, 158, 11, 0.2)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 10 
+                    }}>
+                        <AlertTriangle size={18} /> {t.dashboard.pendingApproval}
                     </div>
+                )}
+                {activeStore?.status === 'suspended' && (
+                    <div style={{ 
+                        background: 'var(--error-bg)', 
+                        color: 'var(--error-text)', 
+                        padding: '12px 24px', 
+                        fontSize: 14, 
+                        fontWeight: 600, 
+                        borderBottom: '1px solid rgba(239, 68, 68, 0.2)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 10 
+                    }}>
+                        <Ban size={18} /> {t.dashboard.storeSuspended}
+                    </div>
+                )}
+
+                {/* Main Page Content */}
+                <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                    {children}
                 </main>
             </div>
         </div>

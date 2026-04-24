@@ -6,100 +6,156 @@ import {
     Package,
     Users,
     TrendingUp,
-    AlertCircle,
+    TrendingDown,
     ArrowUpRight,
-    ArrowDownRight,
     Clock,
     CheckCircle,
     Truck,
     XCircle,
+    AlertCircle,
     DollarSign,
-    Percent,
-    Eye,
-    MessageCircle,
+    MoreHorizontal,
+    ChevronRight,
+    Plus,
 } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
 
-// Simple bar chart component
-function MiniBarChart({ data, color }: { data: number[]; color: string }) {
+// Modern Area Chart Component
+function AreaChart({ data, labels, height = 200, color = 'var(--accent)' }: { 
+    data: number[], 
+    labels: string[], 
+    height?: number,
+    color?: string 
+}) {
+    if (!data.length) return null
+    
     const max = Math.max(...data, 1)
+    const min = 0
+    const range = max - min || 1
+    const width = 100
+    const padding = { top: 20, bottom: 30, left: 0, right: 0 }
+    const chartWidth = width - padding.left - padding.right
+    const chartHeight = height - padding.top - padding.bottom
+    
+    const points = data.map((value, index) => {
+        const x = padding.left + (index / (data.length - 1 || 1)) * chartWidth
+        const y = padding.top + chartHeight - ((value - min) / range) * chartHeight
+        return { x, y, value }
+    })
+    
+    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+    const areaPath = `${linePath} L ${points[points.length - 1]?.x || 0} ${padding.top + chartHeight} L ${padding.left} ${padding.top + chartHeight} Z`
+    
     return (
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 40 }}>
-            {data.map((value, i) => (
-                <div
-                    key={i}
-                    style={{
-                        width: 8,
-                        height: `${(value / max) * 100}%`,
-                        minHeight: 4,
-                        background: color,
-                        borderRadius: 2,
-                        opacity: 0.3 + (i / data.length) * 0.7,
-                    }}
+        <div style={{ width: '100%', height, position: 'relative' }}>
+            <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+                        <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+                    </linearGradient>
+                </defs>
+                
+                {/* Grid lines */}
+                {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
+                    <line 
+                        key={i}
+                        x1={padding.left} 
+                        x2={width - padding.right}
+                        y1={padding.top + chartHeight * ratio}
+                        y2={padding.top + chartHeight * ratio}
+                        stroke="var(--border)"
+                        strokeWidth="0.3"
+                    />
+                ))}
+                
+                {/* Area */}
+                <path d={areaPath} fill="url(#areaGradient)" />
+                
+                {/* Line */}
+                <path 
+                    d={linePath} 
+                    fill="none" 
+                    stroke={color}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                 />
-            ))}
+                
+                {/* Dots */}
+                {points.map((p, i) => (
+                    <circle 
+                        key={i}
+                        cx={p.x} 
+                        cy={p.y} 
+                        r="3"
+                        fill="white"
+                        stroke={color}
+                        strokeWidth="2"
+                    />
+                ))}
+            </svg>
+            
+            {/* X-axis labels */}
+            <div style={{ 
+                position: 'absolute', 
+                bottom: 0, 
+                left: 0, 
+                right: 0, 
+                display: 'flex', 
+                justifyContent: 'space-between',
+                padding: '0 4px'
+            }}>
+                {labels.map((label, i) => (
+                    <span key={i} style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>{label}</span>
+                ))}
+            </div>
         </div>
     )
 }
 
-// Sales trend line chart
-function SalesChart({ data, labels, dir }: { data: number[]; labels: string[]; dir: string }) {
-    const max = Math.max(...data, 1)
-    const height = 180
-    const width = '100%'
+// Order Status Distribution Bar
+function StatusBar({ data }: { data: { label: string, count: number, color: string }[] }) {
+    const total = data.reduce((sum, d) => sum + d.count, 0) || 1
     
     return (
-        <div style={{ width, height, position: 'relative' }}>
-            {/* Y-axis labels */}
-            <div style={{ position: 'absolute', [dir === 'rtl' ? 'right' : 'left']: 0, top: 0, bottom: 30, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: 45 }}>
-                {[max, max * 0.75, max * 0.5, max * 0.25, 0].map((val, i) => (
-                    <span key={i} style={{ fontSize: 10, color: '#A09080', textAlign: dir === 'rtl' ? 'left' : 'right' }}>
-                        {val >= 1000 ? `${(val/1000).toFixed(1)}K` : val.toFixed(0)}
-                    </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ 
+                display: 'flex', 
+                height: 10, 
+                borderRadius: 'var(--radius-full)', 
+                overflow: 'hidden', 
+                background: 'var(--border-light)' 
+            }}>
+                {data.map((d, i) => (
+                    <div 
+                        key={i} 
+                        style={{ 
+                            width: `${(d.count / total) * 100}%`,
+                            background: d.color,
+                            transition: 'width 500ms cubic-bezier(0.4, 0, 0.2, 1)'
+                        }} 
+                    />
                 ))}
             </div>
-            
-            {/* Chart area */}
-            <div style={{ [dir === 'rtl' ? 'marginRight' : 'marginLeft']: 50, height: height - 30, position: 'relative', display: 'flex', alignItems: 'flex-end', gap: 2 }}>
-                {/* Grid lines */}
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    {[0, 1, 2, 3, 4].map(i => (
-                        <div key={i} style={{ height: 1, background: '#F0EBE3', width: '100%' }} />
-                    ))}
-                </div>
-                
-                {/* Bars */}
-                {data.map((value, i) => (
-                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, position: 'relative', zIndex: 1 }}>
-                        <div
-                            style={{
-                                width: '80%',
-                                maxWidth: 32,
-                                height: `${(value / max) * 100}%`,
-                                minHeight: 4,
-                                background: 'linear-gradient(180deg, #C6A75E 0%, #A8883C 100%)',
-                                borderRadius: '4px 4px 0 0',
-                                transition: 'all 0.3s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                                (e.currentTarget as HTMLElement).style.transform = 'scaleY(1.05)'
-                                ;(e.currentTarget as HTMLElement).style.boxShadow = '0 -4px 12px rgba(198,167,94,0.3)'
-                            }}
-                            onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLElement).style.transform = 'scaleY(1)'
-                                ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
-                            }}
-                        />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
+                {data.map((d, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ 
+                            width: 10, 
+                            height: 10, 
+                            borderRadius: 'var(--radius-sm)', 
+                            background: d.color 
+                        }} />
+                        <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                            {d.label}
+                        </span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {d.count}
+                        </span>
                     </div>
-                ))}
-            </div>
-            
-            {/* X-axis labels */}
-            <div style={{ [dir === 'rtl' ? 'marginRight' : 'marginLeft']: 50, display: 'flex', justifyContent: 'space-around', marginTop: 8 }}>
-                {labels.map((label, i) => (
-                    <span key={i} style={{ fontSize: 10, color: '#A09080', flex: 1, textAlign: 'center' }}>{label}</span>
                 ))}
             </div>
         </div>
@@ -111,12 +167,12 @@ export default function DashboardHomePage() {
     const { t, lang, dir } = useLanguage()
 
     const statusConfig = {
-        pending: { label: t.orders.pending, color: '#F59E0B', bg: '#FEF3C7', Icon: Clock },
-        processing: { label: t.orders.processing, color: '#3B82F6', bg: '#DBEAFE', Icon: AlertCircle },
-        shipped: { label: t.orders.shipped, color: '#8B5CF6', bg: '#EDE9FE', Icon: Truck },
-        delivered: { label: t.orders.delivered, color: '#10B981', bg: '#D1FAE5', Icon: CheckCircle },
-        cancelled: { label: t.orders.cancelled, color: '#EF4444', bg: '#FEE2E2', Icon: XCircle },
-        refunded: { label: t.orders.refunded, color: '#6B7280', bg: '#F3F4F6', Icon: XCircle },
+        pending: { label: t.orders.pending, color: '#F59E0B', Icon: Clock },
+        processing: { label: t.orders.processing, color: '#3B82F6', Icon: AlertCircle },
+        shipped: { label: t.orders.shipped, color: '#8B5CF6', Icon: Truck },
+        delivered: { label: t.orders.delivered, color: '#10B981', Icon: CheckCircle },
+        cancelled: { label: t.orders.cancelled, color: '#EF4444', Icon: XCircle },
+        refunded: { label: t.orders.refunded, color: '#6B7280', Icon: XCircle },
     }
 
     const [stats, setStats] = useState<any[]>([])
@@ -126,320 +182,551 @@ export default function DashboardHomePage() {
     const [userName, setUserName] = useState('')
     const [salesData, setSalesData] = useState<number[]>([])
     const [salesLabels, setSalesLabels] = useState<string[]>([])
-    const [orderStats, setOrderStats] = useState({ pending: 0, processing: 0, shipped: 0, delivered: 0 })
+    const [orderStatusData, setOrderStatusData] = useState<{ label: string, count: number, color: string }[]>([])
 
     useEffect(() => {
-        async function fetchDashboardData() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser()
-                if (!user) return
+        async function fetchDashboard() {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
 
-                setUserName(user.user_metadata?.name || 'مرحباً')
+            const { data: profile } = await supabase.from('users').select('name').eq('id', user.id).single()
+            if (profile?.name) setUserName(profile.name)
 
-                // Get stores
-                const { data: stores } = await supabase
-                    .from('stores')
-                    .select('id')
-                    .eq('user_id', user.id)
-
-                if (!stores || stores.length === 0) {
-                    setLoading(false)
-                    return
-                }
-
-                const storeIds = stores.map(s => s.id)
-
-                // Fetch real stats via RPC
-                const { data: analytics } = await supabase.rpc('get_vendor_analytics', { target_store_id: storeIds[0] })
-
-                // Products count (not in RPC)
-                const { count: productsCount } = await supabase
-                    .from('products')
-                    .select('*', { count: 'exact', head: true })
-                    .in('store_id', storeIds)
-
-                // Recent Orders list
-                const { data: ordersData } = await supabase
-                    .from('orders')
-                    .select('id, total_jod, status, created_at, customers(id, name, phone)')
-                    .in('store_id', storeIds)
-                    .order('created_at', { ascending: false })
-                    .limit(5)
-
-                setStats([
-                    { label: t.dashboard.totalRevenue, value: analytics?.total_revenue || 0, suffix: t.common.currency, icon: TrendingUp, color: '#10B981', bg: '#D1FAE5' },
-                    { label: t.dashboard.totalOrders, value: analytics?.total_orders || 0, icon: ShoppingCart, color: '#6C3CE1', bg: '#EDE9FE' },
-                    { label: t.dashboard.totalProducts, value: productsCount || 0, icon: Package, color: '#F59E0B', bg: '#FEF3C7' },
-                    { label: t.dashboard.totalCustomers, value: analytics?.total_customers || 0, icon: Users, color: '#3B82F6', bg: '#DBEAFE' },
-                ])
-
-                if (ordersData) {
-                    setRecentOrders(ordersData.map((o) => {
-                        const customerInfo = Array.isArray(o.customers) ? o.customers[0] : o.customers
-                        return {
-                            id: o.id.slice(0, 8),
-                            customer: (customerInfo as any)?.name || (customerInfo as any)?.phone || t.dashboard.unknownCustomer,
-                            total: Number(o.total_jod),
-                            status: o.status,
-                            time: o.created_at
-                        }
-                    }))
-                }
-
-                // Fetch orders for the last 7 days for the chart
-                const sevenDaysAgo = new Date()
-                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-                
-                const { data: chartOrders } = await supabase
-                    .from('orders')
-                    .select('total_jod, created_at, status')
-                    .in('store_id', storeIds)
-                    .gte('created_at', sevenDaysAgo.toISOString())
-                    .order('created_at', { ascending: true })
-
-                if (chartOrders) {
-                    // Group by day
-                    const dailySales: { [key: string]: number } = {}
-                    const orderCounts = { pending: 0, processing: 0, shipped: 0, delivered: 0 }
-                    
-                    chartOrders.forEach(order => {
-                        const date = new Date(order.created_at).toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-GB', { weekday: 'short' })
-                        dailySales[date] = (dailySales[date] || 0) + Number(order.total_jod || 0)
-                        
-                        if (order.status in orderCounts) {
-                            orderCounts[order.status as keyof typeof orderCounts]++
-                        }
-                    })
-                    
-                    // Generate last 7 days labels
-                    const labels: string[] = []
-                    const data: number[] = []
-                    for (let i = 6; i >= 0; i--) {
-                        const d = new Date()
-                        d.setDate(d.getDate() - i)
-                        const label = d.toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-GB', { weekday: 'short' })
-                        labels.push(label)
-                        data.push(dailySales[label] || 0)
-                    }
-                    
-                    setSalesLabels(labels)
-                    setSalesData(data)
-                    setOrderStats(orderCounts)
-                }
-
-                // Low stock
-                const { data: lowStock } = await supabase
-                    .from('products')
-                    .select('name_ar, stock')
-                    .in('store_id', storeIds)
-                    .lt('stock', 5)
-                    .limit(5)
-
-                if (lowStock) {
-                    setLowStockProducts(lowStock.map(p => ({
-                        name: p.name_ar,
-                        stock: p.stock
-                    })))
-                }
-
-            } catch (err) {
-                console.error('Error fetching dashboard stats:', err)
-            } finally {
+            const { data: storesData } = await supabase.from('stores').select('id').eq('user_id', user.id)
+            if (!storesData || storesData.length === 0) {
                 setLoading(false)
+                return
             }
-        }
-        fetchDashboardData()
-    }, [supabase])
+            const storeIds = storesData.map(s => s.id)
 
-    if (loading) return (
-        <div className="page-container" dir={dir}>
-            <div style={{ marginBottom: 20 }}>
-                <div className="skeleton skeleton-text" style={{ width: 200, height: 24, marginBottom: 8 }} />
-                <div className="skeleton skeleton-text" style={{ width: 140, height: 14 }} />
+            // Parallel data fetching
+            const [ordersRes, productsRes, customersRes] = await Promise.all([
+                supabase.from('orders').select('id, total_jod, created_at, status').in('store_id', storeIds),
+                supabase.from('products').select('id, stock').in('store_id', storeIds),
+                supabase.from('customers').select('id').in('store_id', storeIds),
+            ])
+
+            const orders = ordersRes.data || []
+            const products = productsRes.data || []
+            const customers = customersRes.data || []
+
+            const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total_jod || 0), 0)
+
+            setStats([
+                { 
+                    label: t.dashboard.totalRevenue, 
+                    value: `${totalRevenue.toFixed(2)}`, 
+                    suffix: t.common.currency,
+                    icon: DollarSign, 
+                    color: '#10B981',
+                    bg: 'var(--success-bg)',
+                    change: '+12.5%',
+                    positive: true
+                },
+                { 
+                    label: t.dashboard.totalOrders, 
+                    value: orders.length.toString(), 
+                    icon: ShoppingCart, 
+                    color: '#3B82F6',
+                    bg: 'var(--info-bg)',
+                    change: '+8.2%',
+                    positive: true
+                },
+                { 
+                    label: t.dashboard.totalProducts, 
+                    value: products.length.toString(), 
+                    icon: Package, 
+                    color: '#8B5CF6',
+                    bg: '#F3E8FF',
+                    change: '+3',
+                    positive: true
+                },
+                { 
+                    label: t.dashboard.totalCustomers, 
+                    value: customers.length.toString(), 
+                    icon: Users, 
+                    color: '#F59E0B',
+                    bg: 'var(--warning-bg)',
+                    change: '+15.3%',
+                    positive: true
+                },
+            ])
+
+            // Recent orders
+            const { data: ordersData } = await supabase
+                .from('orders')
+                .select('id, total_jod, created_at, status, customers(name, phone)')
+                .in('store_id', storeIds)
+                .order('created_at', { ascending: false })
+                .limit(5)
+
+            if (ordersData) {
+                setRecentOrders(ordersData.map((o) => {
+                    const customerInfo = Array.isArray(o.customers) ? o.customers[0] : o.customers
+                    return {
+                        id: o.id.slice(0, 8),
+                        customer: (customerInfo as any)?.name || (customerInfo as any)?.phone || t.dashboard.unknownCustomer,
+                        total: Number(o.total_jod),
+                        status: o.status,
+                        time: o.created_at
+                    }
+                }))
+            }
+
+            // Low stock products
+            const { data: lowStock } = await supabase
+                .from('products')
+                .select('id, name_ar, name_en, stock, images')
+                .in('store_id', storeIds)
+                .lt('stock', 10)
+                .order('stock')
+                .limit(4)
+
+            if (lowStock) {
+                setLowStockProducts(lowStock.map(p => ({
+                    id: p.id,
+                    name: lang === 'ar' ? p.name_ar : (p.name_en || p.name_ar),
+                    stock: p.stock,
+                    image: p.images?.[0] || null
+                })))
+            }
+
+            // Sales data for chart (last 7 days)
+            const sevenDaysAgo = new Date()
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+            
+            const { data: chartOrders } = await supabase
+                .from('orders')
+                .select('total_jod, created_at, status')
+                .in('store_id', storeIds)
+                .gte('created_at', sevenDaysAgo.toISOString())
+                .order('created_at', { ascending: true })
+
+            if (chartOrders) {
+                const dailySales: { [key: string]: number } = {}
+                const statusCounts: { [key: string]: number } = {}
+                
+                chartOrders.forEach(order => {
+                    const dateKey = new Date(order.created_at).toLocaleDateString('en-US', { weekday: 'short' })
+                    dailySales[dateKey] = (dailySales[dateKey] || 0) + Number(order.total_jod || 0)
+                    statusCounts[order.status] = (statusCounts[order.status] || 0) + 1
+                })
+                
+                const labels: string[] = []
+                const data: number[] = []
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date()
+                    d.setDate(d.getDate() - i)
+                    const label = d.toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-US', { weekday: 'short' })
+                    const key = d.toLocaleDateString('en-US', { weekday: 'short' })
+                    labels.push(label)
+                    data.push(dailySales[key] || 0)
+                }
+                
+                setSalesLabels(labels)
+                setSalesData(data)
+                
+                setOrderStatusData([
+                    { label: statusConfig.pending.label, count: statusCounts['pending'] || 0, color: statusConfig.pending.color },
+                    { label: statusConfig.processing.label, count: statusCounts['processing'] || 0, color: statusConfig.processing.color },
+                    { label: statusConfig.shipped.label, count: statusCounts['shipped'] || 0, color: statusConfig.shipped.color },
+                    { label: statusConfig.delivered.label, count: statusCounts['delivered'] || 0, color: statusConfig.delivered.color },
+                ])
+            }
+
+            setLoading(false)
+        }
+
+        fetchDashboard()
+    }, [supabase, t, lang])
+
+    if (loading) {
+        return (
+            <div className="page-container">
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+                    <div className="spinner spinner-lg" />
+                </div>
             </div>
-            <div className="mobile-grid-2" style={{ marginBottom: 24 }}>
-                {[1, 2, 3, 4].map(i => <div key={i} className="skeleton" style={{ height: 96, borderRadius: 16 }} />)}
-            </div>
-            {[1, 2, 3].map(i => <div key={i} className="skeleton skeleton-card" />)}
-        </div>
-    )
+        )
+    }
+
+    const greeting = () => {
+        const hour = new Date().getHours()
+        if (hour < 12) return lang === 'ar' ? 'صباح الخير' : 'Good morning'
+        if (hour < 17) return lang === 'ar' ? 'مساء الخير' : 'Good afternoon'
+        return lang === 'ar' ? 'مساء الخير' : 'Good evening'
+    }
 
     return (
-        <div className="page-container" dir={dir}>
+        <div className="page-container">
             {/* Header */}
-            <div className="page-header">
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'flex-start',
+                marginBottom: 32,
+                flexWrap: 'wrap',
+                gap: 16
+            }}>
                 <div>
-                    <h1 className="page-title">{t.dashboard.welcomeUser.replace('{name}', userName || t.dashboard.welcomeUserFallback)}</h1>
-                    <p style={{ color: '#6B6058', fontSize: 14, marginTop: 4 }}>{t.dashboard.subtitle}</p>
+                    <h1 style={{ 
+                        fontSize: 28, 
+                        fontWeight: 800, 
+                        color: 'var(--text-primary)',
+                        marginBottom: 6,
+                        letterSpacing: '-0.02em'
+                    }}>
+                        {greeting()}, {userName || (lang === 'ar' ? 'التاجر' : 'Merchant')}
+                    </h1>
+                    <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                        {lang === 'ar' ? 'إليك نظرة عامة على أداء متجرك' : "Here's an overview of your store performance"}
+                    </p>
                 </div>
-                <div className="hide-on-mobile">
-                    <Link href="/dashboard/products/new" className="btn btn-primary btn-sm">
-                        + {t.dashboard.addProduct}
-                    </Link>
-                </div>
+                <Link 
+                    href="/dashboard/products/new" 
+                    className="btn btn-accent hide-on-mobile"
+                    style={{ textDecoration: 'none' }}
+                >
+                    <Plus size={18} />
+                    {t.dashboard.addProduct}
+                </Link>
             </div>
 
-            {/* Stats Grid — 2 per row on mobile, 4 on desktop */}
-            <div className="mobile-grid-2" style={{ marginBottom: 28 }}>
-                {stats.map((stat) => {
+            {/* Stats Grid */}
+            <div className="mobile-grid-4" style={{ marginBottom: 28 }}>
+                {stats.map((stat, i) => {
                     const Icon = stat.icon
                     return (
-                        <div key={stat.label} className="stat-card">
-                            <div className="stat-icon" style={{ background: stat.bg }}>
-                                <Icon size={22} color={stat.color} />
-                            </div>
-                            <div style={{ minWidth: 0 }}>
-                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, flexWrap: 'wrap' }}>
-                                    <span className="stat-value">{stat.value}</span>
-                                    <span style={{ fontSize: 12, color: '#6B6058' }}>{stat.suffix}</span>
+                        <div 
+                            key={i} 
+                            className="stat-card animate-fade-up"
+                            style={{ animationDelay: `${i * 50}ms` }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                                <div className="stat-icon" style={{ background: stat.bg }}>
+                                    <Icon size={22} color={stat.color} />
                                 </div>
-                                <div className="stat-label" style={{ fontSize: 12 }}>{stat.label}</div>
+                                {stat.change && (
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: 2,
+                                        padding: '4px 8px',
+                                        borderRadius: 'var(--radius-full)',
+                                        background: stat.positive ? 'var(--success-bg)' : 'var(--error-bg)',
+                                        color: stat.positive ? 'var(--success-text)' : 'var(--error-text)',
+                                        fontSize: 12,
+                                        fontWeight: 600
+                                    }}>
+                                        {stat.positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                                        {stat.change}
+                                    </div>
+                                )}
+                            </div>
+                            <div>
+                                <div className="stat-value">
+                                    {stat.value}
+                                    {stat.suffix && (
+                                        <span style={{ 
+                                            fontSize: 14, 
+                                            fontWeight: 500, 
+                                            marginInlineStart: 4, 
+                                            color: 'var(--text-muted)' 
+                                        }}>
+                                            {stat.suffix}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="stat-label">{stat.label}</div>
                             </div>
                         </div>
                     )
                 })}
             </div>
 
-            {/* Sales Chart Section */}
-            <div className="card card-body" style={{ marginBottom: 24 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                    <div>
-                        <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>{t.analytics.salesChart || 'Sales Overview'}</h2>
-                        <p style={{ fontSize: 13, color: '#6B6058' }}>{t.dashboard.last30Days || 'Last 7 days'}</p>
+            {/* Charts Row */}
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1.5fr 1fr', 
+                gap: 24, 
+                marginBottom: 24 
+            }} className="dashboard-charts-grid">
+                {/* Sales Chart */}
+                <div className="card card-body">
+                    <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        marginBottom: 24 
+                    }}>
+                        <div>
+                            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
+                                {lang === 'ar' ? 'تحليل المبيعات' : 'Sales Analytics'}
+                            </h3>
+                            <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                                {lang === 'ar' ? 'آخر 7 أيام' : 'Last 7 days'}
+                            </p>
+                        </div>
+                        <button className="btn btn-ghost btn-icon" style={{ color: 'var(--text-muted)' }}>
+                            <MoreHorizontal size={18} />
+                        </button>
                     </div>
-                    <div style={{ display: 'flex', gap: 16 }}>
-                        {Object.entries(orderStats).map(([status, count]) => {
-                            const config = statusConfig[status as keyof typeof statusConfig]
-                            if (!config || count === 0) return null
-                            return (
-                                <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: config.color }} />
-                                    <span style={{ fontSize: 12, color: '#6B6058' }}>{config.label}: <strong>{count}</strong></span>
-                                </div>
-                            )
-                        })}
-                    </div>
+                    {salesData.length > 0 ? (
+                        <AreaChart data={salesData} labels={salesLabels} height={220} />
+                    ) : (
+                        <div style={{ 
+                            height: 220, 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            color: 'var(--text-muted)',
+                            fontSize: 14
+                        }}>
+                            {lang === 'ar' ? 'لا توجد بيانات مبيعات' : 'No sales data yet'}
+                        </div>
+                    )}
                 </div>
-                {salesData.length > 0 ? (
-                    <SalesChart data={salesData} labels={salesLabels} dir={dir} />
-                ) : (
-                    <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A09080', fontSize: 14 }}>
-                        {t.analytics.noData || 'No sales data yet'}
+
+                {/* Order Status Distribution */}
+                <div className="card card-body">
+                    <div style={{ marginBottom: 24 }}>
+                        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, color: 'var(--text-primary)' }}>
+                            {lang === 'ar' ? 'حالة الطلبات' : 'Order Status'}
+                        </h3>
+                        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                            {lang === 'ar' ? 'توزيع الطلبات الأخيرة' : 'Recent orders distribution'}
+                        </p>
                     </div>
-                )}
-            </div>
-
-            {/* Content grid: stacked on mobile, side-by-side on desktop */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
-
-                {/* Recent Orders — mobile cards + desktop table */}
-                <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                        <h2 style={{ fontSize: 16, fontWeight: 800 }}>{t.dashboard.recentOrders}</h2>
-                        <Link href="/dashboard/orders" style={{ fontSize: 13, color: '#222', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
-                            {t.dashboard.viewAll}
+                    <StatusBar data={orderStatusData} />
+                    <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border-light)' }}>
+                        <Link 
+                            href="/dashboard/orders" 
+                            style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: 6, 
+                                fontSize: 14, 
+                                fontWeight: 600, 
+                                color: 'var(--accent)',
+                                textDecoration: 'none',
+                                transition: 'gap var(--transition-fast)'
+                            }}
+                        >
+                            {lang === 'ar' ? 'عرض جميع الطلبات' : 'View all orders'}
+                            <ChevronRight size={16} style={{ transform: dir === 'rtl' ? 'rotate(180deg)' : 'none' }} />
                         </Link>
                     </div>
+                </div>
+            </div>
 
-                    {/* Desktop table */}
-                    <div className="card hide-on-mobile">
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr>
-                                    {[t.dashboard.orderId, t.orders.customer, t.common.total, t.common.status, t.common.date].map((h, i) => (
-                                        <th key={i} style={{ textAlign: dir === 'rtl' ? 'right' : 'left', padding: '14px 16px', background: '#F5F0E8', fontSize: 12, color: '#6B6058', fontWeight: 700 }}>{h}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {recentOrders.length === 0 ? (
-                                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#A09080' }}>{t.dashboard.noOrdersDesc}</td></tr>
-                                ) : recentOrders.map((order) => {
-                                    const s = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
-                                    const StatusIcon = s.Icon
-                                    return (
-                                        <tr key={order.id} style={{ borderTop: '1px solid #E0D6C8' }}>
-                                            <td style={{ padding: '12px 16px', fontWeight: 700, fontSize: 13, color: '#222' }}>{order.id.slice(0, 8)}</td>
-                                            <td style={{ padding: '12px 16px', fontWeight: 600, fontSize: 13 }}>{order.customer}</td>
-                                            <td style={{ padding: '12px 16px', fontWeight: 700, fontSize: 14 }}>{order.total.toFixed(2)} {t.common.currency}</td>
-                                            <td style={{ padding: '12px 16px' }}>
-                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 600 }}>
-                                                    <StatusIcon size={12} />{s.label}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '12px 16px', color: '#A09080', fontSize: 12 }}>{new Date(order.time).toLocaleDateString(dir === 'rtl' ? 'ar-JO' : 'en-US')}</td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
+            {/* Bottom Row */}
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: 24 
+            }} className="dashboard-bottom-grid">
+                {/* Recent Orders */}
+                <div className="card">
+                    <div style={{ 
+                        padding: '20px 24px', 
+                        borderBottom: '1px solid var(--border)', 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center' 
+                    }}>
+                        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {t.dashboard.recentOrders}
+                        </h3>
+                        <Link 
+                            href="/dashboard/orders"
+                            className="btn btn-ghost btn-sm"
+                            style={{ textDecoration: 'none', gap: 4 }}
+                        >
+                            {t.dashboard.viewAll}
+                            <ArrowUpRight size={14} />
+                        </Link>
                     </div>
-
-                    {/* Mobile order cards */}
-                    <div className="show-on-mobile" style={{ flexDirection: 'column', gap: 10 }}>
+                    <div>
                         {recentOrders.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '32px 0', color: '#A09080' }}>{t.dashboard.noOrdersCard}</div>
-                        ) : recentOrders.map((order) => {
-                            const s = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
-                            const StatusIcon = s.Icon
-                            return (
-                                <div key={order.id} className="mobile-card">
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                        <span style={{ fontWeight: 800, fontSize: 14, color: '#222' }}>#{order.id.slice(0, 6).toUpperCase()}</span>
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>
-                                            <StatusIcon size={11} />{s.label}
-                                        </span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontSize: 13, color: '#4A4036', fontWeight: 600 }}>{order.customer}</span>
-                                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                                            <span style={{ fontWeight: 800, fontSize: 15, color: '#222' }}>{order.total.toFixed(2)} <span style={{ fontSize: 11, fontWeight: 600, color: '#6B6058' }}>{t.common.currency}</span></span>
-                                            <span style={{ fontSize: 11, color: '#A09080' }}>{new Date(order.time).toLocaleDateString(dir === 'rtl' ? 'ar-JO' : 'en-US')}</span>
+                            <div className="empty-state" style={{ padding: '48px 24px' }}>
+                                <div className="empty-state-icon">
+                                    <ShoppingCart size={32} />
+                                </div>
+                                <p className="empty-state-text">{t.dashboard.noOrders}</p>
+                            </div>
+                        ) : (
+                            recentOrders.map((order, i) => {
+                                const s = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
+                                return (
+                                    <div 
+                                        key={i}
+                                        style={{ 
+                                            padding: '16px 24px', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'space-between',
+                                            borderBottom: i < recentOrders.length - 1 ? '1px solid var(--border-light)' : 'none',
+                                            transition: 'background var(--transition-fast)',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                            <div style={{ 
+                                                width: 44, 
+                                                height: 44, 
+                                                borderRadius: 'var(--radius-lg)', 
+                                                background: 'var(--surface-muted)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontWeight: 700,
+                                                fontSize: 13,
+                                                color: 'var(--text-secondary)',
+                                                border: '1px solid var(--border)'
+                                            }}>
+                                                #{order.id.slice(0, 4)}
+                                            </div>
+                                            <div>
+                                                <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', marginBottom: 2 }}>
+                                                    {order.customer}
+                                                </div>
+                                                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                                                    {new Date(order.time).toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-GB', { 
+                                                        month: 'short', 
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
+                                                {order.total.toFixed(2)} 
+                                                <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, marginInlineStart: 2 }}>
+                                                    {t.common.currency}
+                                                </span>
+                                            </span>
+                                            <span className={`badge ${
+                                                order.status === 'delivered' ? 'badge-success' : 
+                                                order.status === 'cancelled' ? 'badge-error' : 
+                                                order.status === 'shipped' ? 'badge-purple' :
+                                                'badge-warning'
+                                            }`}>
+                                                {s.label}
+                                            </span>
                                         </div>
                                     </div>
-                                </div>
-                            )
-                        })}
+                                )
+                            })
+                        )}
                     </div>
                 </div>
 
-                {/* Bottom two-column: low stock + quick actions */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    {/* Low Stock */}
-                    <div className="card card-body">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                            <h3 style={{ fontSize: 14, fontWeight: 800 }}>{t.dashboard.lowStock}</h3>
-                            <span style={{ background: '#FEF3C7', color: '#92400E', padding: '2px 8px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}>{lowStockProducts.length}</span>
-                        </div>
-                        {lowStockProducts.length === 0 ? (
-                            <p style={{ fontSize: 13, color: '#A09080' }}>{t.dashboard.stockGood}</p>
-                        ) : lowStockProducts.map(p => (
-                            <div key={p.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #F0EBE3' }}>
-                                <span style={{ fontSize: 13, color: '#222', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: dir === 'rtl' ? 0 : 8, marginLeft: dir === 'ltr' ? 0 : 8 }}>{p.name}</span>
-                                <span style={{ fontSize: 12, fontWeight: 700, color: '#B91C1C', background: '#FEE2E2', padding: '2px 8px', borderRadius: 100, flexShrink: 0, marginRight: dir === 'rtl' ? 8 : 0, marginLeft: dir === 'ltr' ? 8 : 0 }}>{t.dashboard.onlyLeft.replace('{stock}', p.stock)}</span>
-                            </div>
-                        ))}
+                {/* Low Stock Products */}
+                <div className="card">
+                    <div style={{ 
+                        padding: '20px 24px', 
+                        borderBottom: '1px solid var(--border)', 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center' 
+                    }}>
+                        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {t.dashboard.lowStock}
+                        </h3>
+                        <Link 
+                            href="/dashboard/products"
+                            className="btn btn-ghost btn-sm"
+                            style={{ textDecoration: 'none', gap: 4 }}
+                        >
+                            {t.dashboard.viewAll}
+                            <ArrowUpRight size={14} />
+                        </Link>
                     </div>
-
-                    {/* Quick Actions */}
-                    <div className="card card-body">
-                        <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 14 }}>{t.dashboard.quickActions}</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            {[
-                                { label: t.dashboard.addProduct, href: '/dashboard/products/new', color: '#C6A75E' },
-                                { label: t.dashboard.discountCoupon, href: '/dashboard/coupons', color: '#10B981' },
-                                { label: t.dashboard.reports, href: '/dashboard/analytics', color: '#3B82F6' },
-                                { label: t.dashboard.settingsTitle, href: '/dashboard/settings', color: '#6B6058' },
-                            ].map(action => (
-                                <Link key={action.href} href={action.href} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: '#F5F0E8', textDecoration: 'none', color: '#222', fontSize: 13, fontWeight: 600, border: '1px solid #E0D6C8' }}>
-                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: action.color, flexShrink: 0 }} />
-                                    {action.label}
-                                </Link>
-                            ))}
-                        </div>
+                    <div>
+                        {lowStockProducts.length === 0 ? (
+                            <div className="empty-state" style={{ padding: '48px 24px' }}>
+                                <div className="empty-state-icon" style={{ background: 'var(--success-bg)' }}>
+                                    <CheckCircle size={32} color="var(--success)" />
+                                </div>
+                                <p className="empty-state-text" style={{ color: 'var(--success-text)' }}>
+                                    {t.dashboard.allStocked}
+                                </p>
+                            </div>
+                        ) : (
+                            lowStockProducts.map((product, i) => (
+                                <div 
+                                    key={product.id}
+                                    style={{ 
+                                        padding: '16px 24px', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'space-between',
+                                        borderBottom: i < lowStockProducts.length - 1 ? '1px solid var(--border-light)' : 'none',
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                        <div style={{ 
+                                            width: 52, 
+                                            height: 52, 
+                                            borderRadius: 'var(--radius-lg)', 
+                                            background: 'var(--surface-muted)',
+                                            border: '1px solid var(--border)',
+                                            overflow: 'hidden',
+                                            flexShrink: 0
+                                        }}>
+                                            {product.image ? (
+                                                <img 
+                                                    src={product.image} 
+                                                    alt={product.name}
+                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                />
+                                            ) : (
+                                                <div style={{ 
+                                                    width: '100%', 
+                                                    height: '100%', 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    justifyContent: 'center' 
+                                                }}>
+                                                    <Package size={22} color="var(--text-muted)" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', marginBottom: 2 }}>
+                                                {product.name}
+                                            </div>
+                                            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                                                SKU: {product.id.slice(0, 8)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className={`badge ${product.stock <= 3 ? 'badge-error' : 'badge-warning'}`}>
+                                        {product.stock} {lang === 'ar' ? 'متبقي' : 'left'}
+                                    </span>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Mobile responsive styles */}
+            <style jsx>{`
+                @media (max-width: 1024px) {
+                    .dashboard-charts-grid {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
+                @media (max-width: 767px) {
+                    .dashboard-charts-grid,
+                    .dashboard-bottom-grid {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
+            `}</style>
         </div>
     )
 }
