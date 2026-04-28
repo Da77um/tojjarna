@@ -2,25 +2,11 @@
 
 import Link from 'next/link'
 import {
-  Store,
-  ShoppingBag,
-  BarChart3,
-  Globe,
-  Shield,
-  Star,
-  Package,
-  Users,
-  TrendingUp,
-  Smartphone,
-  CreditCard,
-  MessageCircle,
-  Menu,
-  X,
-  CheckCircle,
-  ArrowLeft,
-  ChevronLeft,
-  Sparkles,
-  Zap,
+  Store, ShoppingBag, BarChart3, Globe, Shield, Star,
+  Package, Users, TrendingUp, Smartphone, CreditCard,
+  MessageCircle, Menu, X, CheckCircle, ArrowLeft, ArrowRight,
+  Sparkles, Zap, ChevronRight, Play, Check, LayoutDashboard,
+  Palette, ShoppingCart, Truck, Bell, LifeBuoy,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -29,451 +15,418 @@ import { useLanguage } from '@/i18n/LanguageContext'
 
 const features = [
   {
-    icon: Store,
-    title: 'متجر احترافي في دقائق',
-    description: 'أنشئ متجرك بسهولة دون أي خبرة تقنية، مع قوالب عصرية وتخصيص كامل',
+    icon: LayoutDashboard,
+    color: '#6C3CE1',
+    bg: '#EDE9FB',
+    title: 'لوحة تحكم ذكية',
+    description: 'أدر مبيعاتك وطلباتك وعملاءك من مكان واحد بتصميم بسيط وسهل الاستخدام',
+  },
+  {
+    icon: Palette,
+    color: '#F97316',
+    bg: '#FEF0E6',
+    title: 'تصميم متجرك بنفسك',
+    description: 'محرر مرئي احترافي يتيح لك تخصيص ألوان وخطوط وأقسام متجرك دون أي كود',
   },
   {
     icon: CreditCard,
-    title: 'مدفوعات آمنة متعددة',
-    description: 'استقبل الدفع عند الاستلام، البطاقات الائتمانية، Apple Pay وGoogle Pay',
+    color: '#16A34A',
+    bg: '#DCFCE7',
+    title: 'دفع بكل الطرق',
+    description: 'الدفع عند الاستلام، بطاقات ائتمانية، Apple Pay، Google Pay ودفع آمن',
   },
   {
     icon: BarChart3,
-    title: 'تحليلات ذكية',
-    description: 'تابع مبيعاتك وأرباحك وأفضل منتجاتك من لوحة تحكم واحدة',
-  },
-  {
-    icon: Smartphone,
-    title: 'تصميم عربي متوافق',
-    description: 'كل صفحاتك محسّنة للجوال بالكامل مع دعم كامل للغة العربية',
+    color: '#2563EB',
+    bg: '#DBEAFE',
+    title: 'تحليلات في الوقت الفعلي',
+    description: 'تابع أرباحك وأفضل منتجاتك وسلوك عملاءك بتقارير يومية وأسبوعية',
   },
   {
     icon: MessageCircle,
+    color: '#059669',
+    bg: '#D1FAE5',
     title: 'إشعارات واتساب وSMS',
-    description: 'أرسل إشعارات الطلبات تلقائياً لعملائك عبر واتساب والرسائل القصيرة',
+    description: 'أرسل تأكيدات الطلبات وتنبيهات التوصيل لعملائك تلقائياً',
   },
   {
     icon: Globe,
-    title: 'نطاق احترافي',
-    description: 'احصل على رابط متجر فريد وأضف نطاقك الخاص لتعزيز هويتك التجارية',
+    color: '#7C3AED',
+    bg: '#EDE9FE',
+    title: 'نطاق خاص بك',
+    description: 'احصل على رابط متجر فريد وأضف نطاقك الخاص لتعزيز علامتك التجارية',
+  },
+]
+
+const steps = [
+  { num: '01', title: 'سجّل مجاناً', desc: 'أنشئ حسابك في ثوانٍ بدون بطاقة ائتمان' },
+  { num: '02', title: 'أضف منتجاتك', desc: 'ارفع صورك وأسعارك وابدأ تنظيم كتالوجك' },
+  { num: '03', title: 'خصّص متجرك', desc: 'اختر ألوانك وخطوطك وصمّم صفحتك الرئيسية' },
+  { num: '04', title: 'ابدأ البيع!', desc: 'شارك رابط متجرك واستقبل طلباتك فوراً' },
+]
+
+const testimonials = [
+  {
+    name: 'سارة الزعبي',
+    role: 'صاحبة متجر ملابس يدوية',
+    city: 'عمان',
+    stars: 5,
+    text: 'تجارنا غيّرت حياتي! في أسبوع واحد أصبح لدي متجر احترافي وبدأت أستقبل طلبات يومية. الدعم الفني ممتاز والمنصة سهلة جداً.',
+    avatar: 'س',
+    color: '#6C3CE1',
+  },
+  {
+    name: 'محمد حداد',
+    role: 'تاجر إلكترونيات',
+    city: 'إربد',
+    stars: 5,
+    text: 'أفضل قرار أخذته لمتجري. التحليلات ساعدتني أفهم عملائي وأزيد مبيعاتي 40% خلال شهرين. أنصح كل تاجر بتجربتها.',
+    avatar: 'م',
+    color: '#F97316',
+  },
+  {
+    name: 'نور المصري',
+    role: 'صاحبة متجر عطور',
+    city: 'الزرقاء',
+    stars: 5,
+    text: 'بدأت من الصفر وبدون أي خبرة تقنية. تجارنا أعطتني كل شيء احتاجه: متجر جميل، دفع آمن، وإشعارات واتساب للعملاء.',
+    avatar: 'ن',
+    color: '#16A34A',
   },
 ]
 
 const plans = [
   {
     name: 'المجاني',
-    nameEn: 'Free',
     price: 0,
     period: 'شهرياً',
-    description: 'ابدأ مجاناً وجرّب المنصة',
-    features: ['حتى 10 منتجات', 'طلبات غير محدودة', 'لوحة تحكم أساسية', 'دعم الدفع عند الاستلام'],
+    description: 'ابدأ وجرب المنصة',
+    features: [
+      'حتى 10 منتجات',
+      'طلبات غير محدودة',
+      'لوحة تحكم أساسية',
+      'دفع عند الاستلام',
+      'رابط متجر مجاني',
+    ],
     highlighted: false,
     cta: 'ابدأ مجاناً',
+    color: '#6B7280',
   },
   {
     name: 'الأساسي',
-    nameEn: 'Basic',
     price: 15,
     period: 'شهرياً',
-    description: 'مثالي للمتاجر الصغيرة والمنزلية',
-    features: ['حتى 100 منتج', 'تحليلات المبيعات', 'كوبونات الخصم', 'إشعارات واتساب', 'دعم البطاقات الائتمانية'],
+    description: 'للمتاجر الصغيرة والمنزلية',
+    features: [
+      'حتى 100 منتج',
+      'تحليلات المبيعات',
+      'كوبونات الخصم',
+      'إشعارات واتساب',
+      'دفع بالبطاقة الائتمانية',
+      'دعم فني مباشر',
+    ],
     highlighted: false,
-    cta: 'ابدأ الآن',
+    cta: 'اشترك الآن',
+    color: '#6C3CE1',
   },
   {
     name: 'الاحترافي',
-    nameEn: 'Pro',
     price: 35,
     period: 'شهرياً',
-    description: 'للمتاجر النامية والطموحة',
-    features: ['منتجات غير محدودة', 'تحليلات متقدمة', 'نطاق مخصص مجاني', 'ذكاء اصطناعي للأوصاف', 'Apple Pay & Google Pay', 'أولوية في الدعم الفني'],
+    description: 'للمتاجر المتنامية والمحترفة',
+    features: [
+      'منتجات غير محدودة',
+      'تحليلات متقدمة',
+      'نطاق خاص مجاني',
+      'Apple Pay & Google Pay',
+      'محرر ثيمات متقدم',
+      'تعدد الفروع',
+      'أولوية في الدعم الفني',
+    ],
     highlighted: true,
     cta: 'ابدأ التجربة',
+    color: '#F97316',
+    badge: 'الأكثر شعبية',
   },
-]
-
-const testimonials = [
-  {
-    name: 'سارة الأحمد',
-    role: 'صاحبة متجر عبايات — عمّان',
-    avatar: 'س',
-    rating: 5,
-    text: 'تجربتي مع المنصة غيّرت مسار عملي. طلباتي تضاعفت خلال شهرين وأصبح لدي متجر بمستوى احترافي حقيقي.',
-  },
-  {
-    name: 'محمد الزعبي',
-    role: 'تاجر إلكترونيات — الزرقاء',
-    avatar: 'م',
-    rating: 5,
-    text: 'سهولة الاستخدام لا مثيل لها. أضفت 200 منتج وبدأت أستقبل طلبات في نفس اليوم من الإطلاق.',
-  },
-  {
-    name: 'رنا حداد',
-    role: 'صانعة حلويات — اربد',
-    avatar: 'ر',
-    rating: 5,
-    text: 'الدعم الفني رائع والتواصل مع العملاء عبر واتساب سهّل عملي بشكل لم أتوقعه.',
-  },
-]
-
-const stats = [
-  { label: 'متجر نشط', value: '2,500+', icon: Store },
-  { label: 'طلب شهرياً', value: '50,000+', icon: ShoppingBag },
-  { label: 'نسبة الرضا', value: '98%', icon: Star },
 ]
 
 export default function LandingPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activePlans, setActivePlans] = useState(plans)
+  const { t, dir } = useLanguage()
+  const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [plansData, setPlansData] = useState(plans)
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
-    async function fetchPlans() {
-      const supabase = createClient()
-      const { data } = await supabase.from('plans').select('*').eq('is_active', true).order('sort_order', { ascending: true })
-      if (data && data.length > 0) {
-        setActivePlans(data.map(p => ({
-          name: p.name_ar,
-          nameEn: p.name_en,
-          price: p.price_jod,
-          period: 'شهرياً',
-          description: p.name_en?.toLowerCase() === 'pro' || p.price_jod > 20 ? 'للمتاجر النامية والطموحة' : (p.price_jod > 0 ? 'مثالي للمتاجر الصغيرة والمنزلية' : 'ابدأ مجاناً وجرّب المنصة'),
-          features: p.features || [],
-          highlighted: p.name_en?.toLowerCase() === 'pro' || p.price_jod >= 30,
-          cta: p.price_jod > 0 ? 'ابدأ الآن' : 'ابدأ مجاناً',
-        })))
-      }
+    const fetchPlans = async () => {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase.from('plans').select('*').eq('is_active', true).order('sort_order')
+        if (data && data.length) {
+          setPlansData(prev => prev.map((p, i) => data[i] ? { ...p, price: data[i].price_jod ?? p.price } : p))
+        }
+      } catch { /* use static fallback */ }
     }
     fetchPlans()
   }, [])
 
-  const { dir } = useLanguage()
+  const Arrow = dir === 'rtl' ? ArrowLeft : ArrowRight
+  const ChevronDir = dir === 'rtl' ? ChevronRight : ChevronRight
 
   return (
-    <div dir={dir} style={{ background: '#EFE8DD', minHeight: '100vh', fontFamily: 'Tajawal, Inter, sans-serif' }}>
+    <div dir={dir} style={{ fontFamily: dir === 'rtl' ? 'Tajawal, sans-serif' : 'Inter, sans-serif', background: '#F7F8FA' }}>
 
-      {/* ===== NAVBAR ===== */}
-      <nav style={{
-        background: scrolled ? 'rgba(239,232,221,0.96)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        borderBottom: scrolled ? '1px solid #E0D6C8' : '1px solid transparent',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        transition: 'all 0.35s ease',
+      {/* ── NAVBAR ── */}
+      <header style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
+        background: scrolled ? 'rgba(255,255,255,0.96)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(16px)' : 'none',
+        borderBottom: scrolled ? '1px solid #E5E7EB' : '1px solid transparent',
+        transition: 'all 0.25s ease',
       }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 28px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
 
           {/* Logo */}
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 10,
-              background: '#222222',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(34,34,34,0.25)',
-            }}>
-              <Store size={20} color="#C6A75E" />
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #6C3CE1, #9333EA)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(108,60,225,0.3)' }}>
+              <Store size={18} color="#fff" />
             </div>
-            <span style={{ fontSize: 22, fontWeight: 900, color: '#111111', letterSpacing: '-0.5px' }}>تجارنا</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>تجارنا</span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: 36, color: '#6B6058', fontSize: 15, fontWeight: 600 }}>
-            <a href="#features" style={{ color: 'inherit', textDecoration: 'none' }}>المميزات</a>
-            <a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>الأسعار</a>
-            <a href="#testimonials" style={{ color: 'inherit', textDecoration: 'none' }}>آراء العملاء</a>
-            <LanguageSwitcher compact />
-          </div>
+          {/* Desktop nav */}
+          <nav className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+            {[['الميزات', '#features'], ['الأسعار', '#pricing'], ['الشهادات', '#testimonials']].map(([label, href]) => (
+              <a key={href} href={href} style={{ color: '#374151', fontWeight: 600, fontSize: 15, textDecoration: 'none', transition: 'color 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#6C3CE1')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#374151')}>
+                {label}
+              </a>
+            ))}
+          </nav>
 
-          {/* CTA Buttons */}
-          <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/login" id="login-btn" style={{
-              padding: '9px 22px', borderRadius: 10, fontWeight: 700, fontSize: 14,
-              color: '#111111', textDecoration: 'none', border: '1.5px solid #D0C8BC',
-              background: 'transparent',
-              transition: 'all 0.2s ease',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#222222'; (e.currentTarget as HTMLAnchorElement).style.color = 'white'; (e.currentTarget as HTMLAnchorElement).style.borderColor = '#222222' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = '#111111'; (e.currentTarget as HTMLAnchorElement).style.borderColor = '#D0C8BC' }}
-            >
+          {/* CTA */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <LanguageSwitcher compact />
+            <Link href="/login" className="hide-on-mobile" style={{ padding: '8px 18px', borderRadius: 8, fontWeight: 600, fontSize: 14, color: '#374151', border: '1.5px solid #E5E7EB', background: 'transparent', textDecoration: 'none', transition: 'all 0.15s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#6C3CE1'; (e.currentTarget as HTMLAnchorElement).style.color = '#6C3CE1' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLAnchorElement).style.color = '#374151' }}>
               تسجيل الدخول
             </Link>
-            <Link href="/register" id="register-btn" style={{
-              padding: '9px 22px', borderRadius: 10, fontWeight: 800, fontSize: 14,
-              background: '#C6A75E', color: '#111111', textDecoration: 'none',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 16px rgba(198,167,94,0.3)',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#A8883C'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#C6A75E'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)' }}
-            >
-              انشئ متجرك مجاناً
+            <Link href="/register" style={{ padding: '8px 20px', borderRadius: 8, fontWeight: 700, fontSize: 14, color: '#fff', background: '#6C3CE1', textDecoration: 'none', boxShadow: '0 4px 12px rgba(108,60,225,0.25)', transition: 'all 0.15s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#5A2FCC'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#6C3CE1'; (e.currentTarget as HTMLAnchorElement).style.transform = 'none' }}>
+              ابدأ مجاناً
             </Link>
+            {/* Mobile menu */}
+            <button onClick={() => setMenuOpen(!menuOpen)} className="show-on-mobile" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, color: '#374151' }}>
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            id="mobile-menu-toggle"
-            className="show-on-mobile"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#111111', display: 'none' }}
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div style={{ background: '#EFE8DD', borderTop: '1px solid #E0D6C8', padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <a href="#features" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }} onClick={() => setMobileMenuOpen(false)}>المميزات</a>
-            <a href="#pricing" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }} onClick={() => setMobileMenuOpen(false)}>الأسعار</a>
-            <div style={{ padding: '8px 0', borderTop: '1px solid #E0D6C8', borderBottom: '1px solid #E0D6C8' }}>
-              <LanguageSwitcher />
+        {/* Mobile menu drawer */}
+        {menuOpen && (
+          <div style={{ background: '#fff', borderTop: '1px solid #E5E7EB', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {[['الميزات', '#features'], ['الأسعار', '#pricing'], ['الشهادات', '#testimonials']].map(([label, href]) => (
+              <a key={href} href={href} onClick={() => setMenuOpen(false)} style={{ padding: '10px 0', color: '#374151', fontWeight: 600, fontSize: 15, textDecoration: 'none', borderBottom: '1px solid #F1F2F6' }}>{label}</a>
+            ))}
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <Link href="/login" style={{ flex: 1, textAlign: 'center', padding: '10px', borderRadius: 8, border: '1.5px solid #E5E7EB', color: '#374151', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>دخول</Link>
+              <Link href="/register" style={{ flex: 1, textAlign: 'center', padding: '10px', borderRadius: 8, background: '#6C3CE1', color: '#fff', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>ابدأ مجاناً</Link>
             </div>
-            <Link href="/login" style={{ color: '#111111', textDecoration: 'none', fontWeight: 700, fontSize: 16 }}>تسجيل الدخول</Link>
-            <Link href="/register" id="mobile-reg-btn" style={{ background: '#C6A75E', color: '#111111', padding: '12px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 800, textAlign: 'center', fontSize: 16 }}>انشئ متجرك مجاناً</Link>
           </div>
         )}
-      </nav>
+      </header>
 
-      {/* ===== HERO ===== */}
-      <section style={{
-        background: 'linear-gradient(160deg, #1C1C1C 0%, #2A2A2A 60%, #1A1A1A 100%)',
-        minHeight: '90vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-        padding: '80px 24px',
-      }}>
-        {/* Subtle background ornament */}
-        <div style={{ position: 'absolute', top: '10%', left: '-80px', width: 400, height: 400, background: 'radial-gradient(circle, rgba(198,167,94,0.12) 0%, transparent 70%)', borderRadius: '50%' }} />
-        <div style={{ position: 'absolute', bottom: '5%', right: '-100px', width: 500, height: 500, background: 'radial-gradient(circle, rgba(198,167,94,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
+      {/* ── HERO ── */}
+      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden', background: 'linear-gradient(145deg, #4A22B8 0%, #6C3CE1 45%, #8B5CF6 100%)', paddingTop: 64 }}>
+        {/* Background blobs */}
+        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 600, height: 600, background: 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-15%', left: '-8%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
 
-        <div style={{ maxWidth: 840, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 24px', display: 'grid', gridTemplateColumns: 'auto', gap: 48, alignItems: 'center', position: 'relative' }}>
+          <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+            {/* Eyebrow */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.25)', borderRadius: 100, padding: '6px 16px', marginBottom: 28 }}>
+              <Sparkles size={14} color="#F97316" />
+              <span style={{ color: '#FDBA74', fontSize: 13, fontWeight: 700 }}>منصة التجارة الإلكترونية #1 في الأردن</span>
+            </div>
 
-          {/* Eyebrow label */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'rgba(198,167,94,0.12)', border: '1px solid rgba(198,167,94,0.3)',
-            padding: '6px 18px', borderRadius: 50, marginBottom: 32,
-          }}>
-            <Sparkles size={14} color="#C6A75E" />
-            <span style={{ color: '#C6A75E', fontSize: 13, fontWeight: 700, letterSpacing: '0.06em' }}>أبرز منصة تجارة إلكترونية في الأردن</span>
-          </div>
+            <h1 style={{ fontSize: 'clamp(36px, 6vw, 64px)', fontWeight: 900, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.03em', marginBottom: 24 }}>
+              أطلق متجرك الاحترافي{' '}
+              <span style={{ color: '#F97316' }}>في دقائق</span>
+            </h1>
 
-          {/* Main headline */}
-          <h1 style={{
-            fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 900, color: '#FFFFFF',
-            lineHeight: 1.15, marginBottom: 24, letterSpacing: '-0.02em',
-          }}>
-            أطلق متجرك الإلكتروني
-            <br />
-            <span style={{ color: '#C6A75E' }}>بمستوى عالمي</span>
-          </h1>
+            <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)', lineHeight: 1.8, marginBottom: 40, maxWidth: 480, margin: '0 auto 40px' }}>
+              منصة تجارنا تمنحك كل ما تحتاجه لبيع منتجاتك أونلاين — من المتجر الاحترافي إلى المدفوعات والتوصيل وتحليلات المبيعات.
+            </p>
 
-          <p style={{
-            fontSize: 'clamp(16px, 2.2vw, 20px)', color: 'rgba(255,255,255,0.6)',
-            maxWidth: 600, margin: '0 auto 44px', lineHeight: 1.75,
-          }}>
-            منصة تجارنا تمنحك كل أدوات البيع الاحترافية — من متجر جاهز، إلى مدفوعات آمنة، وتحليلات دقيقة. كل ذلك بنقرة واحدة.
-          </p>
-
-          {/* CTA Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <Link href="/register" id="hero-cta-primary" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              background: '#C6A75E', color: '#111111',
-              padding: '16px 40px', borderRadius: 12,
-              fontWeight: 900, fontSize: 17, textDecoration: 'none',
-              boxShadow: '0 8px 28px rgba(198,167,94,0.35)',
-              transition: 'all 0.25s ease',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#B8963A'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#C6A75E'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)' }}
-            >
-              ابدأ مجاناً الآن
-              <ChevronLeft size={18} />
-            </Link>
-            <Link href="/login" id="hero-cta-secondary" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              color: 'rgba(255,255,255,0.75)', border: '1.5px solid rgba(255,255,255,0.2)',
-              padding: '16px 36px', borderRadius: 12,
-              fontWeight: 700, fontSize: 16, textDecoration: 'none',
-              transition: 'all 0.25s ease',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.5)'; (e.currentTarget as HTMLAnchorElement).style.color = 'white' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.75)' }}
-            >
-              تسجيل الدخول
-            </Link>
-          </div>
-
-          {/* Social proof */}
-          <div style={{ marginTop: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
-            {stats.map(s => (
-              <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 'clamp(22px,3vw,32px)', fontWeight: 900, color: '#C6A75E', lineHeight: 1 }}>{s.value}</div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 6, fontWeight: 500 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== FEATURES ===== */}
-      <section id="features" style={{ padding: '100px 24px', background: '#EFE8DD' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>مميزات المنصة</p>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>كل ما تحتاجه في منصة واحدة</h2>
-            <div style={{ width: 48, height: 3, background: '#C6A75E', borderRadius: 2, margin: '0 auto' }} />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
-            {features.map((f, i) => (
-              <div key={i} className="card-luxury" style={{
-                padding: 32, background: '#FFFFFF', borderRadius: 16,
-                border: '1px solid #E0D6C8', transition: 'all 0.3s ease',
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
+              <Link href="/register" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '14px 32px', borderRadius: 10, background: '#F97316', color: '#fff',
+                fontWeight: 800, fontSize: 16, textDecoration: 'none',
+                boxShadow: '0 8px 24px rgba(249,115,22,0.35)',
+                transition: 'all 0.2s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 20px 48px rgba(34,34,34,0.1)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 1px 4px rgba(34,34,34,0.06)' }}
-              >
-                <div style={{
-                  width: 52, height: 52, borderRadius: 14,
-                  background: '#EFE8DD', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  marginBottom: 20,
-                }}>
-                  <f.icon size={24} color="#C6A75E" />
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 12px 32px rgba(249,115,22,0.45)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'none'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 24px rgba(249,115,22,0.35)' }}>
+                <Zap size={18} />
+                ابدأ مجاناً الآن
+              </Link>
+              <Link href="/login" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '14px 28px', borderRadius: 10, background: 'rgba(255,255,255,0.12)', color: '#fff',
+                fontWeight: 700, fontSize: 16, textDecoration: 'none', border: '1.5px solid rgba(255,255,255,0.25)',
+                transition: 'all 0.2s',
+              }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.2)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.12)' }}>
+                تسجيل الدخول
+              </Link>
+            </div>
+
+            {/* Stats bar */}
+            <div style={{ display: 'flex', gap: 32, justifyContent: 'center', flexWrap: 'wrap', paddingTop: 40, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+              {[
+                { value: '+2,500', label: 'متجر نشط' },
+                { value: '+50K', label: 'طلب شهرياً' },
+                { value: '98%', label: 'رضا التجار' },
+              ].map(s => (
+                <div key={s.label} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: '#F97316', direction: 'ltr' }}>{s.value}</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{s.label}</div>
                 </div>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#111111', marginBottom: 10, letterSpacing: '-0.01em' }}>{f.title}</h3>
-                <p style={{ color: '#6B6058', fontSize: 15, lineHeight: 1.7 }}>{f.description}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURES ── */}
+      <section id="features" style={{ padding: '96px 24px', background: '#F7F8FA' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EDE9FB', borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
+              <Sparkles size={13} color="#6C3CE1" />
+              <span style={{ color: '#6C3CE1', fontSize: 13, fontWeight: 700 }}>الميزات</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 14 }}>
+              كل ما تحتاجه في مكان واحد
+            </h2>
+            <p style={{ fontSize: 17, color: '#6B7280', maxWidth: 520, margin: '0 auto' }}>
+              تجارنا مبنية خصيصاً للسوق الأردني مع دعم كامل للعربية والريال والتوصيل المحلي
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+            {features.map((f) => {
+              const Icon = f.icon
+              return (
+                <div key={f.title} className="card hover-lift" style={{ padding: 28 }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: f.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+                    <Icon size={22} color={f.color} />
+                  </div>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>{f.title}</h3>
+                  <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.7 }}>{f.description}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section style={{ padding: '96px 24px', background: '#fff' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#FEF0E6', borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
+              <Zap size={13} color="#F97316" />
+              <span style={{ color: '#F97316', fontSize: 13, fontWeight: 700 }}>كيف تبدأ؟</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 14 }}>
+              أربع خطوات وتبدأ البيع
+            </h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
+            {steps.map((s, i) => (
+              <div key={s.num} style={{ textAlign: 'center', padding: '32px 24px', background: '#F7F8FA', borderRadius: 16, border: '1px solid #E5E7EB', position: 'relative' }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#6C3CE1', letterSpacing: '0.1em', marginBottom: 12, direction: 'ltr' }}>{s.num}</div>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: i === 0 ? '#6C3CE1' : i === 3 ? '#F97316' : '#EDE9FB', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: i === 0 || i === 3 ? '#fff' : '#6C3CE1', fontSize: 22, fontWeight: 900 }}>
+                  {i + 1}
+                </div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>{s.title}</h3>
+                <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6 }}>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== DARK HIGHLIGHT BANNER ===== */}
-      <section style={{
-        background: '#1C1C1C',
-        padding: '80px 24px',
-        textAlign: 'center',
-      }}>
-        <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>جاهز للإطلاق؟</p>
-          <h2 style={{ fontSize: 'clamp(28px,4vw,50px)', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, marginBottom: 20, letterSpacing: '-0.02em' }}>
-            أكثر من 2,500 تاجر أردني<br />يثقون في تجارنا
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 17, marginBottom: 40, lineHeight: 1.7 }}>
-            انضم لأكبر مجتمع تجاري رقمي في الأردن واحكم قبضتك على عملك بأدوات متكاملة وفريق دعم متميز.
-          </p>
-          <Link href="/register" id="banner-cta" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10,
-            background: '#C6A75E', color: '#111111',
-            padding: '15px 40px', borderRadius: 12,
-            fontWeight: 900, fontSize: 16, textDecoration: 'none',
-            boxShadow: '0 8px 28px rgba(198,167,94,0.3)',
-            transition: 'all 0.25s ease',
-          }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#B8963A'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#C6A75E'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)' }}
-          >
-            ابدأ رحلتك التجارية الآن
-            <ChevronLeft size={18} />
-          </Link>
-        </div>
-      </section>
-
-      {/* ===== PRICING ===== */}
-      <section id="pricing" style={{ padding: '100px 24px', background: '#F5F0E8' }}>
-        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-
+      {/* ── PRICING ── */}
+      <section id="pricing" style={{ padding: '96px 24px', background: '#F7F8FA' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>الباقات والأسعار</p>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>شفافية كاملة في التسعير</h2>
-            <div style={{ width: 48, height: 3, background: '#C6A75E', borderRadius: 2, margin: '0 auto' }} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EDE9FB', borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
+              <Star size={13} color="#6C3CE1" />
+              <span style={{ color: '#6C3CE1', fontSize: 13, fontWeight: 700 }}>الأسعار</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 14 }}>
+              باقات تناسب كل متجر
+            </h2>
+            <p style={{ fontSize: 17, color: '#6B7280' }}>بدون رسوم خفية، يمكنك الترقية أو التخفيض في أي وقت</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24, alignItems: 'start' }}>
-            {activePlans.map((plan, i) => (
-              <div key={i} style={{
-                background: plan.highlighted ? '#1C1C1C' : '#FFFFFF',
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, maxWidth: 960, margin: '0 auto' }}>
+            {plansData.map((plan) => (
+              <div key={plan.name} style={{
+                background: plan.highlighted ? 'linear-gradient(135deg, #6C3CE1, #8B5CF6)' : '#fff',
+                border: plan.highlighted ? 'none' : '1px solid #E5E7EB',
                 borderRadius: 20,
-                padding: 36,
-                border: plan.highlighted ? '1px solid #C6A75E' : '1px solid #E0D6C8',
-                boxShadow: plan.highlighted ? '0 20px 60px rgba(34,34,34,0.18)' : '0 4px 20px rgba(34,34,34,0.06)',
+                padding: '32px 28px',
                 position: 'relative',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
-              >
-                {plan.highlighted && (
-                  <div style={{
-                    position: 'absolute', top: -14, right: '50%', transform: 'translateX(50%)',
-                    background: '#C6A75E', color: '#111111',
-                    padding: '5px 18px', borderRadius: 50, fontSize: 12, fontWeight: 900,
-                    letterSpacing: '0.06em', whiteSpace: 'nowrap',
-                  }}>
-                    ⭐ الأكثر شعبية
+                boxShadow: plan.highlighted ? '0 20px 56px rgba(108,60,225,0.25)' : '0 1px 3px rgba(15,23,42,0.06)',
+                transform: plan.highlighted ? 'scale(1.03)' : 'none',
+              }}>
+                {plan.badge && (
+                  <div style={{ position: 'absolute', top: -12, insetInlineStart: '50%', transform: 'translateX(-50%)', background: '#F97316', color: '#fff', padding: '4px 16px', borderRadius: 100, fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(249,115,22,0.35)' }}>
+                    {plan.badge}
                   </div>
                 )}
 
-                <div style={{ marginBottom: 24 }}>
-                  <h3 style={{ fontSize: 20, fontWeight: 900, color: plan.highlighted ? '#FFFFFF' : '#111111', marginBottom: 6 }}>{plan.name}</h3>
-                  <p style={{ color: plan.highlighted ? 'rgba(255,255,255,0.5)' : '#6B6058', fontSize: 14 }}>{plan.description}</p>
+                <div style={{ marginBottom: 8 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: plan.highlighted ? 'rgba(255,255,255,0.85)' : '#6B7280' }}>{plan.name}</span>
                 </div>
-
-                <div style={{ marginBottom: 28 }}>
-                  <span style={{ fontSize: 52, fontWeight: 900, color: plan.highlighted ? '#C6A75E' : '#111111', lineHeight: 1 }}>
-                    {plan.price === 0 ? 'مجاني' : plan.price}
-                  </span>
-                  {plan.price > 0 && (
-                    <span style={{ fontSize: 15, color: plan.highlighted ? 'rgba(255,255,255,0.5)' : '#6B6058', marginRight: 6 }}>
-                      د.أ / {plan.period}
-                    </span>
-                  )}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 6 }}>
+                  <span style={{ fontSize: 42, fontWeight: 900, color: plan.highlighted ? '#fff' : '#0F172A', direction: 'ltr' }}>{plan.price}</span>
+                  <span style={{ fontSize: 16, color: plan.highlighted ? 'rgba(255,255,255,0.7)' : '#6B7280', fontWeight: 600 }}>د.أ / {plan.period}</span>
                 </div>
+                <p style={{ fontSize: 14, color: plan.highlighted ? 'rgba(255,255,255,0.75)' : '#6B7280', marginBottom: 28 }}>{plan.description}</p>
 
-                <div style={{ borderTop: plan.highlighted ? '1px solid rgba(255,255,255,0.1)' : '1px solid #E8E0D5', paddingTop: 24, marginBottom: 28 }}>
-                  {plan.features.map((feat, fi) => (
-                    <div key={fi} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
-                      <CheckCircle size={16} color="#C6A75E" style={{ flexShrink: 0, marginTop: 3 }} />
-                      <span style={{ color: plan.highlighted ? 'rgba(255,255,255,0.8)' : '#4A4440', fontSize: 14, lineHeight: 1.5 }}>{feat}</span>
-                    </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {plan.features.map(f => (
+                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: plan.highlighted ? 'rgba(255,255,255,0.92)' : '#374151' }}>
+                      <Check size={16} color={plan.highlighted ? '#F97316' : '#16A34A'} style={{ flexShrink: 0 }} />
+                      {f}
+                    </li>
                   ))}
-                </div>
+                </ul>
 
-                <Link href="/register" id={`plan-cta-${i}`} style={{
-                  display: 'block', textAlign: 'center',
-                  background: plan.highlighted ? '#C6A75E' : 'transparent',
-                  color: plan.highlighted ? '#111111' : '#111111',
-                  border: plan.highlighted ? '2px solid #C6A75E' : '2px solid #222222',
-                  padding: '13px 24px', borderRadius: 10,
-                  fontWeight: 800, fontSize: 15, textDecoration: 'none',
-                  transition: 'all 0.2s ease',
-                }}
-                  onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLAnchorElement
-                    if (plan.highlighted) { el.style.background = '#B8963A'; el.style.borderColor = '#B8963A' }
-                    else { el.style.background = '#222222'; el.style.color = 'white' }
-                  }}
-                  onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLAnchorElement
-                    if (plan.highlighted) { el.style.background = '#C6A75E'; el.style.borderColor = '#C6A75E' }
-                    else { el.style.background = 'transparent'; el.style.color = '#111111' }
-                  }}
-                >
+                <Link href="/register" style={{
+                  display: 'block', textAlign: 'center', padding: '12px 24px', borderRadius: 10,
+                  fontWeight: 700, fontSize: 15, textDecoration: 'none',
+                  background: plan.highlighted ? '#F97316' : '#6C3CE1',
+                  color: '#fff',
+                  boxShadow: plan.highlighted ? '0 6px 20px rgba(249,115,22,0.35)' : '0 4px 12px rgba(108,60,225,0.2)',
+                  transition: 'all 0.15s',
+                }}>
                   {plan.cta}
                 </Link>
               </div>
@@ -482,47 +435,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ===== TESTIMONIALS ===== */}
-      <section id="testimonials" style={{ padding: '100px 24px', background: '#EFE8DD' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-
+      {/* ── TESTIMONIALS ── */}
+      <section id="testimonials" style={{ padding: '96px 24px', background: '#fff' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <p style={{ color: '#C6A75E', fontSize: 13, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>آراء تجارنا</p>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,46px)', fontWeight: 900, color: '#111111', letterSpacing: '-0.02em', marginBottom: 16 }}>ماذا يقول عملاؤنا؟</h2>
-            <div style={{ width: 48, height: 3, background: '#C6A75E', borderRadius: 2, margin: '0 auto' }} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#FEF0E6', borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
+              <Star size={13} color="#F97316" />
+              <span style={{ color: '#F97316', fontSize: 13, fontWeight: 700 }}>آراء التجار</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 14 }}>
+              يثق بنا آلاف التجار الأردنيين
+            </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
-            {testimonials.map((t, i) => (
-              <div key={i} style={{
-                background: '#FFFFFF', borderRadius: 16, padding: 32,
-                border: '1px solid #E0D6C8',
-                boxShadow: '0 4px 20px rgba(34,34,34,0.06)',
-                transition: 'transform 0.3s ease',
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
-              >
-                {/* Stars */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+            {testimonials.map((t) => (
+              <div key={t.name} className="card" style={{ padding: 28 }}>
                 <div style={{ display: 'flex', gap: 4, marginBottom: 18 }}>
-                  {[...Array(t.rating)].map((_, si) => <Star key={si} size={16} color="#C6A75E" fill="#C6A75E" />)}
+                  {Array.from({ length: t.stars }).map((_, i) => <Star key={i} size={15} color="#F97316" fill="#F97316" />)}
                 </div>
-
-                <p style={{ color: '#4A4440', fontSize: 15, lineHeight: 1.75, marginBottom: 24, fontStyle: 'italic' }}>
-                  &ldquo;{t.text}&rdquo;
-                </p>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderTop: '1px solid #EDE5D8', paddingTop: 20 }}>
-                  <div style={{
-                    width: 44, height: 44, borderRadius: '50%',
-                    background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#C6A75E', fontWeight: 900, fontSize: 18, flexShrink: 0,
-                  }}>
+                <p style={{ fontSize: 15, color: '#374151', lineHeight: 1.75, marginBottom: 24, fontStyle: 'italic' }}>"{t.text}"</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 20, borderTop: '1px solid #F1F2F6' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: t.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 18, flexShrink: 0 }}>
                     {t.avatar}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 800, color: '#111111', fontSize: 15 }}>{t.name}</div>
-                    <div style={{ color: '#6B6058', fontSize: 13 }}>{t.role}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>{t.name}</div>
+                    <div style={{ fontSize: 13, color: '#6B7280' }}>{t.role} • {t.city}</div>
                   </div>
                 </div>
               </div>
@@ -531,90 +470,73 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ===== FINAL CTA ===== */}
-      <section style={{
-        background: 'linear-gradient(160deg, #1C1C1C 0%, #2A2A2A 100%)',
-        padding: '100px 24px',
-        textAlign: 'center',
-      }}>
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(30px,5vw,56px)', fontWeight: 900, color: '#FFFFFF', marginBottom: 20, lineHeight: 1.2, letterSpacing: '-0.02em' }}>
-            مستعد لتأسيس<br /><span style={{ color: '#C6A75E' }}>إمبراطوريتك التجارية؟</span>
+      {/* ── CTA BANNER ── */}
+      <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #4A22B8, #6C3CE1, #8B5CF6)' }}>
+        <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', marginBottom: 16 }}>
+            جاهز تبدأ متجرك؟
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 18, marginBottom: 44, lineHeight: 1.7 }}>
-            انضم اليوم وابدأ مجاناً. لا كرت بنكي. لا التزامات.
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.8)', marginBottom: 40 }}>
+            انضم لأكثر من 2,500 تاجر أردني يبيعون أونلاين مع تجارنا. التسجيل مجاني تماماً.
           </p>
-          <Link href="/register" id="final-cta" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10,
-            background: '#C6A75E', color: '#111111',
-            padding: '17px 48px', borderRadius: 12,
-            fontWeight: 900, fontSize: 18, textDecoration: 'none',
-            boxShadow: '0 10px 36px rgba(198,167,94,0.35)',
-            transition: 'all 0.25s ease',
+          <Link href="/register" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '16px 40px', borderRadius: 12, background: '#F97316', color: '#fff',
+            fontWeight: 800, fontSize: 17, textDecoration: 'none',
+            boxShadow: '0 8px 28px rgba(249,115,22,0.4)',
+            transition: 'all 0.2s',
           }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#B8963A'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#C6A75E'; (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)' }}
-          >
-            أنشئ متجرك مجاناً
-            <ChevronLeft size={20} />
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 14px 36px rgba(249,115,22,0.5)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'none'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 28px rgba(249,115,22,0.4)' }}>
+            <Zap size={20} />
+            أنشئ متجرك مجاناً الآن
           </Link>
         </div>
       </section>
 
-      {/* ===== FOOTER ===== */}
-      <footer style={{ background: '#111111', color: 'rgba(255,255,255,0.5)', padding: '60px 24px 32px' }}>
+      {/* ── FOOTER ── */}
+      <footer style={{ background: '#0F172A', color: '#9CA3AF', padding: '64px 24px 32px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 40, marginBottom: 48 }}>
-
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 40, marginBottom: 56 }}>
             {/* Brand */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: '#1C1C1C', border: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Store size={18} color="#C6A75E" />
+              <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 16 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#6C3CE1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Store size={18} color="#fff" />
                 </div>
-                <span style={{ color: 'white', fontWeight: 900, fontSize: 20 }}>تجارنا</span>
-              </div>
-              <p style={{ fontSize: 14, lineHeight: 1.75 }}>منصة التجارة الإلكترونية الرائدة للأردنيين. ابنِ متجرك، وابدأ تجارتك.</p>
+                <span style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>تجارنا</span>
+              </Link>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: '#6B7280', maxWidth: 220 }}>
+                منصة التجارة الإلكترونية المخصصة للتجار الأردنيين والشركات الناشئة.
+              </p>
             </div>
 
             {/* Links */}
-            <div>
-              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>المنصة</h4>
-              {['المميزات', 'الأسعار', 'التحليلات', 'الدعم الفني'].map(l => (
-                <div key={l} style={{ marginBottom: 10 }}>
-                  <a href="#" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 14, transition: 'color 0.2s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#C6A75E' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.5)' }}
-                  >{l}</a>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>الشركة</h4>
-              {['من نحن', 'الشركاء', 'الوظائف', 'أخبارنا'].map(l => (
-                <div key={l} style={{ marginBottom: 10 }}>
-                  <a href="#" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 14, transition: 'color 0.2s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#C6A75E' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.5)' }}
-                  >{l}</a>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <h4 style={{ color: 'white', fontWeight: 800, fontSize: 15, marginBottom: 16 }}>قانوني</h4>
-              {['الشروط والأحكام', 'سياسة الخصوصية', 'سياسة الاسترجاع'].map(l => (
-                <div key={l} style={{ marginBottom: 10 }}>
-                  <a href="#" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 14 }}>{l}</a>
-                </div>
-              ))}
-            </div>
+            {[
+              { title: 'المنصة', links: [['الميزات', '#features'], ['الأسعار', '#pricing'], ['الشهادات', '#testimonials']] },
+              { title: 'الحساب', links: [['تسجيل الدخول', '/login'], ['إنشاء حساب', '/register'], ['نسيت كلمة المرور', '/forgot-password']] },
+              { title: 'القانونية', links: [['سياسة الخصوصية', '#'], ['شروط الاستخدام', '#'], ['تواصل معنا', '#']] },
+            ].map(col => (
+              <div key={col.title}>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 14, marginBottom: 16 }}>{col.title}</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {col.links.map(([label, href]) => (
+                    <li key={label}>
+                      <Link href={href} style={{ color: '#6B7280', fontSize: 14, textDecoration: 'none', transition: 'color 0.15s' }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#A78BFA')}
+                        onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}>
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
-          <div style={{ borderTop: '1px solid #222222', paddingTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <span style={{ fontSize: 13 }}>© 2025 تجارنا. جميع الحقوق محفوظة.</span>
-            <span style={{ fontSize: 13, color: '#C6A75E' }}>صُنع بشغف في عمّان، الأردن 🇯🇴</span>
+          <div style={{ borderTop: '1px solid #1E293B', paddingTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <p style={{ fontSize: 13, color: '#4B5563' }}>© 2024 تجارنا. جميع الحقوق محفوظة.</p>
+            <p style={{ fontSize: 13, color: '#4B5563' }}>صُنع بـ ❤️ للتجار الأردنيين</p>
           </div>
         </div>
       </footer>

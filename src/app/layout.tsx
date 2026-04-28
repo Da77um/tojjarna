@@ -24,20 +24,26 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    // dir and lang are set dynamically by LanguageProvider on the client.
-    // Default to RTL Arabic for SSR / first paint.
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+        {/* Inter (LTR / EN) + Tajawal (Arabic RTL) */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+        {/* Material Symbols — kept for legacy icon usage */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body suppressHydrationWarning>
         <LanguageProvider>
           {children}
         </LanguageProvider>
-        <Toaster position="top-center" />
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   )

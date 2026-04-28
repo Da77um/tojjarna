@@ -3,234 +3,187 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, Mail, Lock, Store } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, Store, CheckCircle, TrendingUp, Users, ShoppingBag } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 
+const stats = [
+  { icon: ShoppingBag, value: '+2,500', label: 'متجر نشط' },
+  { icon: TrendingUp, value: '+50K', label: 'طلب شهرياً' },
+  { icon: Users, value: '98%', label: 'رضا التجار' },
+]
+
 export default function LoginPage() {
-    const router = useRouter()
-    const { t, dir } = useLanguage()
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [rememberMe, setRememberMe] = useState(true)
-    const [showPassword, setShowPassword] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
+  const router = useRouter()
+  const { t, dir } = useLanguage()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-    async function handleLogin(e: React.FormEvent) {
-        e.preventDefault()
-        setLoading(true)
-        setError('')
-
-        try {
-            const supabase = createClient()
-            const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
-            if (authError) throw authError
-
-            const { data: profile } = await supabase.from('users').select('role').eq('id', data.user?.id).single()
-            if (profile?.role === 'admin') {
-                router.push('/admin')
-            } else {
-                router.push('/dashboard')
-            }
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : t.auth.loginError
-            setError(message)
-        } finally {
-            setLoading(false)
-        }
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const supabase = createClient()
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      if (authError) throw authError
+      const { data: profile } = await supabase.from('users').select('role').eq('id', data.user?.id).single()
+      router.push(profile?.role === 'admin' ? '/admin' : '/dashboard')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t.auth.loginError)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    return (
-        <div dir={dir} className="mobile-stack" style={{
-            minHeight: '100vh',
-            display: 'flex',
-            background: 'var(--background)',
-            fontFamily: 'Tajawal, Inter, sans-serif',
-        }}>
-            {/* Left: Form */}
-            <div style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '56px 24px',
-            }}>
-                <div className="mobile-full-width" style={{ width: '100%', maxWidth: 420 }}>
+  return (
+    <div dir={dir} style={{ minHeight: '100vh', display: 'flex', fontFamily: dir === 'rtl' ? 'Tajawal, sans-serif' : 'Inter, sans-serif' }}>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 48 }}>
-                        {/* Logo */}
-                        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-                            <div style={{
-                                width: 42, height: 42, borderRadius: 10,
-                                background: 'var(--primary)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                boxShadow: '0 4px 14px rgba(34,34,34,0.2)',
-                            }}>
-                                <Store size={20} color="#C6A75E" />
-                            </div>
-                            <span style={{ fontSize: 22, fontWeight: 900, color: 'var(--text-primary)' }}>تجارنا</span>
-                        </Link>
+      {/* ── Left/Right: Brand Panel ── */}
+      <div className="hide-on-mobile" style={{
+        width: 480, flexShrink: 0,
+        background: 'linear-gradient(145deg, #4A22B8 0%, #6C3CE1 55%, #8B5CF6 100%)',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+        padding: 56, position: 'relative', overflow: 'hidden',
+      }}>
+        {/* Blobs */}
+        <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: 300, height: 300, background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
 
-                        <LanguageSwitcher compact />
-                    </div>
-
-                    {/* Headline */}
-                    <h1 style={{ fontSize: 30, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.02em' }}>
-                        {t.auth.welcomeBack}
-                    </h1>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: 36, fontSize: 15, lineHeight: 1.6 }}>
-                        {t.auth.loginDesc}
-                    </p>
-
-                    <form onSubmit={handleLogin}>
-                        {error && (
-                            <div style={{
-                                background: 'rgba(192,57,43,0.08)',
-                                border: '1px solid rgba(192,57,43,0.25)',
-                                borderRadius: 10, padding: '12px 16px',
-                                color: 'var(--surface)', fontSize: 14, marginBottom: 20,
-                            }}>
-                                {error}
-                            </div>
-                        )}
-
-                        <div className="form-group">
-                            <label className="form-label">{t.auth.email}</label>
-                            <div style={{ position: 'relative' }}>
-                                <Mail size={17} color="var(--text-secondary)" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }} />
-                                <input
-                                    type="email"
-                                    className="form-control"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                    placeholder={t.auth.emailPlaceholder}
-                                    required
-                                    style={{ [dir === 'rtl' ? 'paddingRight' : 'paddingLeft']: 44 }}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                <label className="form-label" style={{ margin: 0 }}>{t.auth.password}</label>
-                                <Link href="/forgot-password" style={{ color: 'var(--text-secondary)', fontSize: 13, textDecoration: 'none', fontWeight: 700, borderBottom: '1px solid var(--text-secondary)' }}>
-                                    {t.auth.forgotPassword}
-                                </Link>
-                            </div>
-                            <div style={{ position: 'relative' }}>
-                                <Lock size={17} color="var(--text-secondary)" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 14 }} />
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    className="form-control"
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
-                                    placeholder={t.auth.passwordPlaceholder}
-                                    required
-                                    style={{ paddingRight: 44, paddingLeft: 44 }}
-                                />
-                                <button
-                                    type="button"
-                                    id="toggle-password-btn"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    style={{
-                                        position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'left' : 'right']: 14,
-                                        background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)',
-                                        display: 'flex', alignItems: 'center',
-                                    }}
-                                >
-                                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
-                            <input
-                                type="checkbox"
-                                id="rememberMe"
-                                checked={rememberMe}
-                                onChange={e => setRememberMe(e.target.checked)}
-                                style={{ width: 18, height: 18, accentColor: 'var(--info)', cursor: 'pointer' }}
-                            />
-                            <label htmlFor="rememberMe" style={{ color: 'var(--text-secondary)', fontSize: 14, cursor: 'pointer' }}>{t.auth.rememberMe}</label>
-                        </div>
-
-                        <button
-                            type="submit"
-                            id="submit-login-btn"
-                            disabled={loading}
-                            style={{
-                                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                                background: 'var(--primary)', color: 'var(--surface)',
-                                border: 'none', padding: '14px 24px', borderRadius: 10,
-                                fontWeight: 800, fontSize: 16, cursor: loading ? 'not-allowed' : 'pointer',
-                                fontFamily: 'inherit', letterSpacing: '0.01em',
-                                opacity: loading ? 0.6 : 1,
-                                transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = 'var(--primary-dark)' }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--primary)' }}
-                        >
-                            {loading ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : t.auth.loginBtn}
-                        </button>
-                    </form>
-
-                    <p style={{ textAlign: 'center', marginTop: 28, color: 'var(--text-secondary)', fontSize: 14 }}>
-                        {t.auth.noAccount}{' '}
-                        <Link href="/register" style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'none', borderBottom: '1.5px solid var(--primary)' }}>
-                            {t.auth.createFreeAccount}
-                        </Link>
-                    </p>
-                </div>
+        <div style={{ position: 'relative', textAlign: 'center', maxWidth: 340 }}>
+          {/* Logo */}
+          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 48 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Store size={24} color="#fff" />
             </div>
+            <span style={{ fontSize: 26, fontWeight: 900, color: '#fff' }}>تجارنا</span>
+          </Link>
 
-            {/* Right: Dark decorative panel */}
-            <div className="hide-on-mobile" style={{
-                flex: 1,
-                background: 'linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 60,
-                position: 'relative',
-                overflow: 'hidden',
-            }}>
-                {/* Background orbs */}
-                <div style={{ position: 'absolute', top: '-10%', left: '-15%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)', borderRadius: '50%' }} />
-                <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: 350, height: 350, background: 'radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
+          <h2 style={{ fontSize: 28, fontWeight: 900, color: '#fff', lineHeight: 1.3, letterSpacing: '-0.02em', marginBottom: 14 }}>
+            متجرك الاحترافي<br />في انتظارك
+          </h2>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, marginBottom: 40 }}>
+            سجّل دخولك وتحكّم في مبيعاتك وطلباتك وعملاءك من مكان واحد.
+          </p>
 
-                <div style={{ position: 'relative', textAlign: 'center', maxWidth: 380 }}>
-                    {/* Icon container */}
-                    <div style={{
-                        width: 88, height: 88, borderRadius: '50%',
-                        background: 'var(--info)', border: '1px solid rgba(255,255,255,0.25)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        margin: '0 auto 32px',
-                    }}>
-                        <Store size={40} color="var(--surface)" />
-                    </div>
-                    <h2 style={{ color: 'var(--surface)', fontSize: 30, fontWeight: 900, marginBottom: 16, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                        {t.auth.storeWaiting}
-                    </h2>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, lineHeight: 1.8 }}>
-                        {t.auth.storeWaitingDesc}
-                    </p>
-
-                    {/* Stat pills */}
-                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
-                        {[{ v: '2,500+', l: t.auth.stores }, { v: '98%', l: t.auth.satisfaction }, { v: '50K+', l: t.auth.ordersPerMonth }].map(s => (
-                            <div key={s.l} style={{
-                                background: 'rgba(198,167,94,0.1)', border: '1px solid rgba(198,167,94,0.2)',
-                                borderRadius: 12, padding: '12px 20px', textAlign: 'center',
-                            }}>
-                                <div style={{ color: 'var(--info)', fontWeight: 900, fontSize: 20, direction: 'ltr' }}>{s.v}</div>
-                                <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: 12, marginTop: 2 }}>{s.l}</div>
-                            </div>
-                        ))}
-                    </div>
+          {/* Stats */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {stats.map(s => {
+              const Icon = s.icon
+              return (
+                <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '14px 18px' }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(249,115,22,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon size={18} color="#F97316" />
+                  </div>
+                  <div style={{ textAlign: dir === 'rtl' ? 'right' : 'left' }}>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', direction: 'ltr' }}>{s.value}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>{s.label}</div>
+                  </div>
                 </div>
-            </div>
+              )
+            })}
+          </div>
         </div>
-    )
+      </div>
+
+      {/* ── Form Side ── */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px', background: '#F7F8FA', overflowY: 'auto' }}>
+        <div style={{ width: '100%', maxWidth: 420 }}>
+
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+            <Link href="/" className="show-on-mobile" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: '#6C3CE1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Store size={16} color="#fff" />
+              </div>
+              <span style={{ fontSize: 18, fontWeight: 900, color: '#0F172A' }}>تجارنا</span>
+            </Link>
+            <LanguageSwitcher compact />
+          </div>
+
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#0F172A', marginBottom: 6, letterSpacing: '-0.02em' }}>
+            {t.auth.welcomeBack}
+          </h1>
+          <p style={{ color: '#6B7280', marginBottom: 32, fontSize: 15, lineHeight: 1.6 }}>
+            {t.auth.loginDesc}
+          </p>
+
+          <form onSubmit={handleLogin}>
+            {error && (
+              <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: '11px 14px', color: '#991B1B', fontSize: 14, marginBottom: 20 }}>
+                {error}
+              </div>
+            )}
+
+            {/* Email */}
+            <div className="form-group">
+              <label className="form-label">{t.auth.email}</label>
+              <div style={{ position: 'relative' }}>
+                <Mail size={16} color="#9CA3AF" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 12, pointerEvents: 'none' }} />
+                <input
+                  type="email"
+                  className="form-control"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder={t.auth.emailPlaceholder}
+                  required
+                  style={{ [dir === 'rtl' ? 'paddingRight' : 'paddingLeft']: 40 }}
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <label className="form-label" style={{ margin: 0 }}>{t.auth.password}</label>
+                <Link href="/forgot-password" style={{ color: '#6C3CE1', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                  {t.auth.forgotPassword}
+                </Link>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <Lock size={16} color="#9CA3AF" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'right' : 'left']: 12, pointerEvents: 'none' }} />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-control"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder={t.auth.passwordPlaceholder}
+                  required
+                  style={{ paddingRight: 40, paddingLeft: 40 }}
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [dir === 'rtl' ? 'left' : 'right']: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', display: 'flex', alignItems: 'center', padding: 4 }}>
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                background: loading ? '#9CA3AF' : '#6C3CE1', color: '#fff',
+                border: 'none', padding: '13px 24px', borderRadius: 10,
+                fontWeight: 700, fontSize: 16, cursor: loading ? 'not-allowed' : 'pointer',
+                fontFamily: 'inherit', boxShadow: loading ? 'none' : '0 4px 14px rgba(108,60,225,0.25)',
+                transition: 'all 0.2s',
+              }}>
+              {loading ? <span className="spinner" style={{ borderTopColor: '#fff', borderColor: 'rgba(255,255,255,0.3)', width: 20, height: 20 }} /> : t.auth.loginBtn}
+            </button>
+          </form>
+
+          <p style={{ textAlign: 'center', marginTop: 24, color: '#6B7280', fontSize: 14 }}>
+            {t.auth.noAccount}{' '}
+            <Link href="/register" style={{ color: '#6C3CE1', fontWeight: 700, textDecoration: 'none' }}>
+              {t.auth.createFreeAccount}
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
 }

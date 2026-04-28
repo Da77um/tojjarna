@@ -4,288 +4,178 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
+import { Search, ShoppingCart, ArrowLeft, ArrowRight, Filter } from 'lucide-react'
+
+const statusMap: Record<string, { label: string; badge: string }> = {
+  pending:    { label: 'قيد الانتظار', badge: 'badge badge-warning' },
+  processing: { label: 'قيد المعالجة', badge: 'badge badge-info' },
+  shipped:    { label: 'تم الشحن',    badge: 'badge badge-purple' },
+  delivered:  { label: 'تم التوصيل',  badge: 'badge badge-success' },
+  cancelled:  { label: 'ملغي',        badge: 'badge badge-error' },
+  refunded:   { label: 'مرتجع',       badge: 'badge badge-gray' },
+}
+
+const tabs = [
+  { key: 'all',        label: 'الكل' },
+  { key: 'pending',    label: 'انتظار' },
+  { key: 'processing', label: 'معالجة' },
+  { key: 'shipped',    label: 'شحن' },
+  { key: 'delivered',  label: 'تم التوصيل' },
+  { key: 'cancelled',  label: 'ملغي' },
+]
 
 export default function OrdersPage() {
-    const supabase = createClient()
-    const { t, lang, dir } = useLanguage()
+  const supabase = createClient()
+  const { dir } = useLanguage()
+  const [search, setSearch] = useState('')
+  const [activeTab, setActiveTab] = useState('all')
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-    const [search, setSearch] = useState('')
-    const [activeTab, setActiveTab] = useState('all')
-    const [orders, setOrders] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
+  const Arrow = dir === 'rtl' ? ArrowLeft : ArrowRight
 
-    const statusConfig = {
-        pending: { label: t.orders.pending || 'Pending', color: 'text-warning', bg: 'bg-warning-container text-on-warning-container', icon: 'schedule' },
-        processing: { label: t.orders.processing || 'Processing', color: 'text-info', bg: 'bg-secondary-container text-on-secondary-container', icon: 'pending_actions' },
-        shipped: { label: t.orders.shipped || 'Shipped', color: 'text-primary', bg: 'bg-tertiary-container text-on-tertiary-container', icon: 'local_shipping' },
-        delivered: { label: t.orders.delivered || 'Delivered', color: 'text-success', bg: 'bg-primary-container text-on-primary-container', icon: 'check_circle' },
-        cancelled: { label: t.orders.cancelled || 'Cancelled', color: 'text-error', bg: 'bg-error-container text-on-error-container', icon: 'cancel' },
-        refunded: { label: t.orders.refunded || 'Refunded', color: 'text-on-surface-variant', bg: 'bg-surface-variant text-on-surface-variant', icon: 'replay' },
+  useEffect(() => {
+    async function fetchOrders() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: stores } = await supabase.from('stores').select('id').eq('user_id', user.id)
+        if (!stores?.length) return
+        const { data } = await supabase
+          .from('orders').select('*').in('store_id', stores.map(s => s.id))
+          .order('created_at', { ascending: false })
+        setOrders(data || [])
+      } catch (err) { console.error(err) }
+      finally { setLoading(false) }
     }
+    fetchOrders()
+  }, [])
 
-    const statusTabs = [
-        { key: 'all', label: t.orders.all || 'All Orders' },
-        { key: 'pending', label: t.orders.pending || 'Pending' },
-        { key: 'processing', label: t.orders.processing || 'Processing' },
-        { key: 'shipped', label: t.orders.shipped || 'Shipped' },
-        { key: 'delivered', label: t.orders.delivered || 'Delivered' },
-        { key: 'cancelled', label: t.orders.cancelled || 'Cancelled' },
-    ]
+  const filtered = orders.filter(o => {
+    const matchSearch = o.customer_name?.toLowerCase().includes(search.toLowerCase())
+      || o.customer_phone?.includes(search)
+      || String(o.order_number).includes(search)
+    const matchTab = activeTab === 'all' || o.status === activeTab
+    return matchSearch && matchTab
+  })
 
-    useEffect(() => {
-        async function fetchOrders() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser()
-                if (!user) return
+  const counts: Record<string, number> = { all: orders.length }
+  orders.forEach(o => { counts[o.status] = (counts[o.status] || 0) + 1 })
 
-                const { data: stores } = await supabase
-                    .from('stores')
-                    .select('id')
-                    .eq('user_id', user.id)
-
-                if (!stores || stores.length === 0) return
-
-                const storeIds = stores.map((s: any) => s.id)
-
-                const { data: ordersData, error } = await supabase
-                    .from('orders')
-                    .select('*')
-                    .in('store_id', storeIds)
-                    .order('created_at', { ascending: false })
-
-                if (error) throw error
-
-                if (ordersData) {
-                    setOrders(ordersData.map((o: any) => ({
-                        id: `#${o.order_number || o.id.slice(0, 6).toUpperCase()}`,
-                        realId: o.id,
-                        customer: o.customer_name,
-                        phone: o.customer_phone,
-                        total: Number(o.total),
-                        status: o.status,
-                        payment: o.payment_method,
-                        date: new Date(o.created_at).toLocaleDateString(lang === 'ar' ? 'ar-JO' : 'en-GB'),
-                        city: o.shipping_address?.city || '-'
-                    })))
-                }
-            } catch (err) {
-                console.error('Error fetching orders:', err)
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchOrders()
-    }, [supabase, lang])
-
-    const filtered = orders.filter((o) => {
-        const matchesTab = activeTab === 'all' || o.status === activeTab
-        const matchesSearch =
-            o.id.includes(search) ||
-            (o.customer || '').toLowerCase().includes(search.toLowerCase()) ||
-            (o.phone || '').includes(search)
-        return matchesTab && matchesSearch
-    })
-
-    const counts: any = {
-        all: orders.length,
-        pending: orders.filter(o => o.status === 'pending').length,
-        processing: orders.filter(o => o.status === 'processing').length,
-        shipped: orders.filter(o => o.status === 'shipped').length,
-        delivered: orders.filter(o => o.status === 'delivered').length,
-        cancelled: orders.filter(o => o.status === 'cancelled').length,
-    }
-
-    if (loading) return (
-        <div className="flex-1 p-4 lg:p-8 space-y-6">
-            <div className="flex gap-4 mb-6">
-                <div className="w-64 h-32 rounded-2xl bg-surface-container-highest animate-pulse"></div>
-                <div className="w-64 h-32 rounded-2xl bg-surface-container-highest animate-pulse"></div>
-            </div>
-            <div className="h-64 rounded-2xl bg-surface-container animate-pulse"></div>
+  return (
+    <div dir={dir} className="page-container" style={{ maxWidth: 1280 }}>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">الطلبات</h1>
+          <p style={{ fontSize: 13, color: '#9CA3AF', marginTop: 2 }}>{orders.length} طلب إجمالاً</p>
         </div>
-    )
+      </div>
 
-    return (
-        <div dir={dir} className="p-4 lg:p-8 space-y-6 max-w-[1440px] mx-auto w-full">
-            
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-on-surface tracking-tight font-h1">{t.orders.title || 'Orders Center'}</h1>
-                    <p className="text-on-surface-variant mt-1 font-manrope">
-                        {orders.length} {t.orders.subtitle || 'total orders processed'}
-                    </p>
-                </div>
-            </div>
+      {/* Tabs */}
+      <div className="chips-row" style={{ marginBottom: 20, flexWrap: 'wrap', gap: 6 }}>
+        {tabs.map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+            className={`chip ${activeTab === tab.key ? 'active' : ''}`}
+            style={{ gap: 6 }}>
+            {tab.label}
+            {counts[tab.key] > 0 && (
+              <span style={{ background: activeTab === tab.key ? 'rgba(255,255,255,0.3)' : '#E5E7EB', borderRadius: 100, padding: '1px 7px', fontSize: 11, fontWeight: 700, color: activeTab === tab.key ? 'inherit' : '#6B7280' }}>
+                {counts[tab.key]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
 
-            {/* Quick Stats Bento */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-2">
-                <div className="bg-warning-container text-on-warning-container rounded-[1.5rem] p-5 shadow-sm border border-warning/20">
-                    <div className="flex justify-between items-start">
-                        <span className="material-symbols-outlined text-[28px]">schedule</span>
-                    </div>
-                    <div className="mt-4">
-                        <p className="text-sm font-semibold opacity-90 uppercase tracking-widest">{t.orders.pending || 'Pending'}</p>
-                        <span className="text-3xl font-extrabold">{counts.pending}</span>
-                    </div>
-                </div>
-                <div className="bg-primary text-on-primary rounded-[1.5rem] p-5 shadow-md shadow-primary/20">
-                    <div className="flex justify-between items-start">
-                        <span className="material-symbols-outlined text-[28px] opacity-90">local_shipping</span>
-                    </div>
-                    <div className="mt-4">
-                        <p className="text-sm font-semibold opacity-80 uppercase tracking-widest">{t.orders.shipped || 'In Transit'}</p>
-                        <span className="text-3xl font-extrabold">{counts.shipped}</span>
-                    </div>
-                </div>
-                <div className="bg-success/10 text-success rounded-[1.5rem] p-5 shadow-sm border border-success/20">
-                    <div className="flex justify-between items-start">
-                        <span className="material-symbols-outlined text-[28px]">task_alt</span>
-                    </div>
-                    <div className="mt-4">
-                        <p className="text-sm font-semibold opacity-90 uppercase tracking-widest text-on-surface-variant">{t.orders.delivered || 'Delivered'}</p>
-                        <span className="text-3xl font-extrabold text-on-surface">{counts.delivered}</span>
-                    </div>
-                </div>
-                <div className="bg-surface-container-lowest text-on-surface rounded-[1.5rem] p-5 shadow-sm border border-surface-variant">
-                    <div className="flex justify-between items-start">
-                        <span className="material-symbols-outlined text-[28px] text-primary">payments</span>
-                    </div>
-                    <div className="mt-4">
-                        <p className="text-sm font-semibold uppercase tracking-widest text-on-surface-variant">Avg. Order</p>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-3xl font-extrabold">
-                                {orders.length ? (orders.reduce((acc, curr) => acc + curr.total, 0) / orders.length).toFixed(0) : 0}
-                            </span>
-                            <span className="text-xs font-bold text-on-surface-variant">JOD</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      {/* Search */}
+      <div className="mobile-search" style={{ maxWidth: 360, marginBottom: 20 }}>
+        <Search size={15} className="search-icon" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="ابحث باسم العميل أو رقم الطلب..." />
+      </div>
 
-            {/* Main Orders Table container */}
-            <div className="bg-surface-container-lowest rounded-[2rem] border border-surface-variant shadow-sm overflow-hidden flex flex-col">
-                
-                <div className="p-4 md:p-6 border-b border-surface-variant flex flex-col gap-4">
-                    
-                    {/* Tabs */}
-                    <div className="flex overflow-x-auto scrollbar-hide pb-2 md:pb-0 gap-8 border-b border-surface-variant">
-                        {statusTabs.map(tab => (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
-                                className={`pb-3 font-semibold text-sm relative transition-colors whitespace-nowrap flex items-center gap-2 ${
-                                    activeTab === tab.key ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
-                                }`}
-                            >
-                                {tab.label}
-                                {counts[tab.key] > 0 && (
-                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                        activeTab === tab.key ? 'bg-primary text-on-primary' : 'bg-surface-variant text-on-surface'
-                                    }`}>
-                                        {counts[tab.key]}
-                                    </span>
-                                )}
-                                {activeTab === tab.key && (
-                                    <div className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-t-full"></div>
-                                )}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Search row */}
-                    <div className="flex justify-between items-center mt-2">
-                        <div className="relative w-full md:max-w-md">
-                            <span className="material-symbols-outlined absolute top-1/2 -translate-y-1/2 left-4 rtl:left-auto rtl:right-4 text-on-surface-variant">search</span>
-                            <input 
-                                type="search" 
-                                placeholder={t.orders.searchPlaceholder || 'Search order ID, Customer...'}
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="w-full bg-surface-container-low/50 border hover:border-outline focus:border-primary border-outline-variant rounded-xl py-2 pl-11 pr-4 rtl:pl-4 rtl:pr-11 text-sm text-on-surface outline-none transition-colors"
-                            />
-                        </div>
-                        <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant rounded-xl text-sm font-semibold hover:bg-surface-variant transition-colors">
-                            <span className="material-symbols-outlined text-[18px]">filter_list</span>
-                            Filter
-                        </button>
-                    </div>
-                </div>
-
-                {/* Table */}
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left rtl:text-right border-collapse min-w-[900px]">
-                        <thead>
-                            <tr className="bg-surface-container-low/30">
-                                <th className="px-6 py-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-32">Order #</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Customer</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Date</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Payment</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right rtl:text-left">Amount</th>
-                                <th className="px-6 py-4"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-surface-variant">
-                            {filtered.length === 0 ? (
-                                <tr>
-                                    <td colSpan={7} className="px-6 py-16 text-center text-on-surface-variant">
-                                        <div className="flex flex-col items-center justify-center">
-                                            <div className="h-16 w-16 bg-surface-variant rounded-full flex items-center justify-center mb-4 text-on-surface-variant">
-                                                <span className="material-symbols-outlined text-[32px]">receipt_long</span>
-                                            </div>
-                                            <h3 className="text-lg font-bold text-on-surface">{t.orders.noOrders || 'No orders found'}</h3>
-                                            <p className="text-sm mt-1">Try adjusting your filters.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : filtered.map(order => {
-                                const status = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending;
-                                return (
-                                    <tr key={order.realId} className="hover:bg-surface-container-low/50 transition-colors group">
-                                        <td className="px-6 py-4">
-                                            <span className="font-bold text-on-surface font-manrope">{order.id}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-bold text-sm text-on-surface">{order.customer}</div>
-                                            <div className="text-xs text-on-surface-variant mt-0.5">{order.city} • <span dir="ltr">{order.phone}</span></div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm font-medium text-on-surface-variant">{order.date}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${status.bg}`}>
-                                                <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>{status.icon}</span>
-                                                {status.label}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`font-mono text-xs font-bold px-2 py-1 rounded ${order.payment === 'cod' ? 'bg-warning/10 text-warning' : 'bg-info/10 text-info'}`}>
-                                                {order.payment === 'cod' ? (t.orders.cod || 'COD') : (t.orders.online || 'Online')}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right rtl:text-left">
-                                            <div className="flex justify-end rtl:justify-start items-baseline gap-1" dir="ltr">
-                                                <span className="text-base font-extrabold text-on-surface">{order.total.toFixed(2)}</span>
-                                                <span className="text-xs font-bold text-on-surface-variant">JOD</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <Link 
-                                                href={`/dashboard/orders/${order.realId}`}
-                                                className="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-primary-container hover:text-on-primary-container transition-all"
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
+      {loading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 68, borderRadius: 12 }} />)}
         </div>
-    )
+      ) : filtered.length === 0 ? (
+        <div className="card" style={{ padding: '64px 24px', textAlign: 'center' }}>
+          <ShoppingCart size={48} color="#E5E7EB" style={{ margin: '0 auto 16px' }} />
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: '#374151', marginBottom: 6 }}>لا توجد طلبات</h3>
+          <p style={{ color: '#9CA3AF', fontSize: 14 }}>ستظهر الطلبات هنا عند بدء العملاء بالشراء</p>
+        </div>
+      ) : (
+        <>
+          {/* Desktop table */}
+          <div className="card table-container hide-on-mobile">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  {['رقم الطلب', 'العميل', 'الحالة', 'طريقة الدفع', 'المبلغ', 'التاريخ', ''].map(h => (
+                    <th key={h} style={{ padding: '12px 16px', textAlign: dir === 'rtl' ? 'right' : 'left', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(o => {
+                  const s = statusMap[o.status] || statusMap.pending
+                  const date = new Date(o.created_at).toLocaleDateString('ar-JO', { year: 'numeric', month: 'short', day: 'numeric' })
+                  const payLabel = o.payment_method === 'cod' ? 'عند الاستلام' : o.payment_method === 'card' ? 'بطاقة' : o.payment_method || '-'
+                  return (
+                    <tr key={o.id} style={{ borderBottom: '1px solid #F7F8FA' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#F7F8FA' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent' }}>
+                      <td style={{ padding: '14px 16px', fontWeight: 700, color: '#6C3CE1', fontSize: 14 }}>#{o.order_number || o.id.slice(0,6).toUpperCase()}</td>
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EDE9FB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6C3CE1', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>
+                            {(o.customer_name || o.customer_phone || '؟')[0]}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{o.customer_name || 'زائر'}</div>
+                            {o.customer_phone && <div style={{ fontSize: 11, color: '#9CA3AF' }}>{o.customer_phone}</div>}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 16px' }}><span className={s.badge}>{s.label}</span></td>
+                      <td style={{ padding: '14px 16px', fontSize: 13, color: '#6B7280' }}>{payLabel}</td>
+                      <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
+                        {Number(o.total).toFixed(2)} <span style={{ fontSize: 11, color: '#9CA3AF' }}>د.أ</span>
+                      </td>
+                      <td style={{ padding: '14px 16px', fontSize: 12, color: '#9CA3AF' }}>{date}</td>
+                      <td style={{ padding: '14px 16px' }}>
+                        <Link href={`/dashboard/orders/${o.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 7, border: '1px solid #E5E7EB', color: '#374151', fontSize: 12, fontWeight: 600, textDecoration: 'none', background: '#fff' }}>
+                          عرض <Arrow size={12} />
+                        </Link>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="show-on-mobile" style={{ flexDirection: 'column', gap: 10 }}>
+            {filtered.map(o => {
+              const s = statusMap[o.status] || statusMap.pending
+              const date = new Date(o.created_at).toLocaleDateString('ar-JO', { month: 'short', day: 'numeric' })
+              return (
+                <Link key={o.id} href={`/dashboard/orders/${o.id}`} className="mobile-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, textDecoration: 'none' }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#6C3CE1' }}>#{o.order_number || o.id.slice(0,6).toUpperCase()}</div>
+                    <div style={{ fontSize: 12, color: '#374151', marginTop: 2, fontWeight: 500 }}>{o.customer_name || 'زائر'}</div>
+                    <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{date}</div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
+                    <span className={s.badge}>{s.label}</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{Number(o.total).toFixed(2)} د.أ</span>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }

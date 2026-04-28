@@ -3,158 +3,177 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/i18n/LanguageContext'
+import { Search, Users, Phone, Mail, ShoppingCart, DollarSign } from 'lucide-react'
 
 export default function CustomersPage() {
-    const supabase = createClient()
-    const { t, dir } = useLanguage()
-    const [search, setSearch] = useState('')
-    const [customers, setCustomers] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
-    const [filter, setFilter] = useState<'all' | 'vip' | 'active'>('all')
+  const supabase = createClient()
+  const { dir } = useLanguage()
+  const [search, setSearch] = useState('')
+  const [customers, setCustomers] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState<'all' | 'vip' | 'new'>('all')
 
-    useEffect(() => {
-        async function fetchCustomers() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser()
-                if (!user) return
-                const { data: stores } = await supabase.from('stores').select('id').eq('user_id', user.id)
-                if (!stores || stores.length === 0) return
-                const { data, error } = await supabase
-                    .from('customers').select('*').in('store_id', stores.map(s => s.id))
-                    .order('created_at', { ascending: false })
-                if (error) throw error
-                setCustomers(data || [])
-            } catch (err) {
-                console.error('Error fetching customers:', err)
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchCustomers()
-    }, [supabase])
+  useEffect(() => {
+    async function fetchCustomers() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: stores } = await supabase.from('stores').select('id').eq('user_id', user.id)
+        if (!stores?.length) return
+        const { data } = await supabase
+          .from('customers').select('*').in('store_id', stores.map(s => s.id))
+          .order('created_at', { ascending: false })
+        setCustomers(data || [])
+      } catch (err) { console.error(err) }
+      finally { setLoading(false) }
+    }
+    fetchCustomers()
+  }, [])
 
-    const filtered = customers.filter(c => {
-        const matchesSearch = c.full_name?.toLowerCase().includes(search.toLowerCase()) || c.phone?.includes(search)
-        if (!matchesSearch) return false
-        
-        if (filter === 'vip') return c.total_spent > 100 // Arbitrary threshold for VIP
-        if (filter === 'active') return c.total_orders > 0
-        return true
-    })
+  const filtered = customers.filter(c => {
+    const matchSearch = c.name?.toLowerCase().includes(search.toLowerCase()) || c.phone?.includes(search) || c.email?.toLowerCase().includes(search.toLowerCase())
+    if (!matchSearch) return false
+    if (filter === 'vip') return (c.total_spent || 0) > 100
+    if (filter === 'new') {
+      const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7)
+      return new Date(c.created_at) > weekAgo
+    }
+    return true
+  })
 
-    if (loading) return (
-        <div className="flex-1 p-4 lg:p-8 space-y-6">
-            <div className="h-32 rounded-2xl bg-surface-container-highest animate-pulse"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map(i => <div key={i} className="h-48 rounded-2xl bg-surface-container animate-pulse"></div>)}
-            </div>
+  const totalRevenue = customers.reduce((sum, c) => sum + (Number(c.total_spent) || 0), 0)
+  const vipCount = customers.filter(c => (c.total_spent || 0) > 100).length
+
+  const tabs = [
+    { key: 'all', label: 'الكل', count: customers.length },
+    { key: 'vip', label: 'VIP', count: vipCount },
+    { key: 'new', label: 'جدد', count: customers.filter(c => { const w = new Date(); w.setDate(w.getDate()-7); return new Date(c.created_at) > w }).length },
+  ]
+
+  return (
+    <div dir={dir} className="page-container" style={{ maxWidth: 1280 }}>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">العملاء</h1>
+          <p style={{ fontSize: 13, color: '#9CA3AF', marginTop: 2 }}>{customers.length} عميل مسجّل</p>
         </div>
-    )
+      </div>
 
-    return (
-        <div dir={dir} className="p-4 lg:p-8 space-y-6 max-w-[1440px] mx-auto w-full">
-            
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-4">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-on-surface tracking-tight font-h1">{t.customers.title || 'Customers Management'}</h1>
-                    <p className="text-on-surface-variant mt-1 font-manrope">
-                        {customers.length} {t.customers.customersInStore || 'Total Profiles'}
-                    </p>
-                </div>
+      {/* Summary cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 24 }}>
+        {[
+          { label: 'إجمالي العملاء', value: customers.length, icon: Users, iconBg: '#EDE9FB', iconColor: '#6C3CE1' },
+          { label: 'عملاء VIP', value: vipCount, icon: Users, iconBg: '#FEF0E6', iconColor: '#F97316' },
+          { label: 'إجمالي الإنفاق', value: `${totalRevenue.toFixed(0)} د.أ`, icon: DollarSign, iconBg: '#DCFCE7', iconColor: '#16A34A' },
+        ].map(s => {
+          const Icon = s.icon
+          return (
+            <div key={s.label} className="stat-card">
+              <div className="stat-icon" style={{ background: s.iconBg }}><Icon size={18} color={s.iconColor} /></div>
+              <div>
+                <div className="stat-label">{s.label}</div>
+                <div className="stat-value" style={{ fontSize: 20 }}>{s.value}</div>
+              </div>
             </div>
+          )
+        })}
+      </div>
 
-            {/* Controls */}
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-surface-container-lowest p-4 rounded-[1.5rem] border border-surface-variant shadow-sm">
-                
-                {/* Search */}
-                <div className="relative w-full md:max-w-md">
-                    <span className="material-symbols-outlined absolute top-1/2 -translate-y-1/2 left-4 rtl:left-auto rtl:right-4 text-on-surface-variant">search</span>
-                    <input 
-                        type="search" 
-                        placeholder={t.customers.searchPlaceholder || 'Search names, phones...'}
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full bg-surface-container-low border hover:border-outline focus:border-primary border-outline-variant rounded-full py-2.5 pl-11 pr-4 rtl:pl-4 rtl:pr-11 text-sm text-on-surface outline-none transition-colors"
-                    />
-                </div>
-
-                {/* Filters */}
-                <div className="flex bg-surface-container-low rounded-full p-1 border border-surface-variant w-full md:w-auto overflow-x-auto">
-                    {[
-                        { id: 'all', label: 'All Customers' },
-                        { id: 'vip', label: 'VIP' },
-                        { id: 'active', label: 'Active' }
-                    ].map(f => (
-                        <button
-                            key={f.id}
-                            onClick={() => setFilter(f.id as any)}
-                            className={`flex-1 md:flex-none px-6 py-1.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
-                                filter === f.id
-                                ? 'bg-white text-on-surface shadow-sm border border-outline-variant'
-                                : 'text-on-surface-variant hover:text-on-surface'
-                            }`}
-                        >
-                            {f.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Grid */}
-            {filtered.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-16 bg-surface-container-lowest rounded-[2rem] border border-surface-variant">
-                    <div className="h-20 w-20 bg-surface-container rounded-full flex items-center justify-center mb-4 text-on-surface-variant">
-                        <span className="material-symbols-outlined text-[40px]">group_off</span>
-                    </div>
-                    <h3 className="text-xl font-bold text-on-surface">{t.customers.noCustomers || 'No customers found'}</h3>
-                    <p className="text-on-surface-variant mt-2">{t.customers.noCustomersDesc || 'Try adjusting your search criteria.'}</p>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filtered.map(customer => {
-                        const isVip = customer.total_spent > 100;
-                        return (
-                            <div key={customer.id} className="bg-surface-container-lowest rounded-3xl border border-surface-variant p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                                {/* Decorator */}
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-fixed to-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                
-                                <div className="relative">
-                                    <div className="w-20 h-20 bg-surface-variant border-2 border-surface-container-highest rounded-full flex items-center justify-center text-2xl font-bold text-primary mb-4 shadow-inner">
-                                        {(customer.full_name || 'U')[0]}
-                                    </div>
-                                    {isVip && (
-                                        <div className="absolute -bottom-2 -right-2 bg-warning text-on-error w-8 h-8 rounded-full flex items-center justify-center shadow-md border-[3px] border-surface-container-lowest" title="VIP Customer">
-                                            <span className="material-symbols-outlined text-[16px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                <h3 className="font-bold text-on-surface text-lg font-h3 mb-1 truncate w-full" title={customer.full_name}>{customer.full_name}</h3>
-                                
-                                <div className="flex items-center gap-1.5 text-on-surface-variant text-sm bg-surface-container-low px-3 py-1 rounded-full mb-6">
-                                    <span className="material-symbols-outlined text-[16px]">call</span>
-                                    <span dir="ltr">{customer.phone}</span>
-                                </div>
-
-                                <div className="w-full grid grid-cols-2 gap-2 border-t border-surface-variant pt-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-xs text-on-surface-variant uppercase font-bold tracking-wider mb-1">Orders</span>
-                                        <span className="text-lg font-extrabold text-on-surface font-manrope">{customer.total_orders || 0}</span>
-                                    </div>
-                                    <div className="flex flex-col border-l border-surface-variant rtl:border-l-0 rtl:border-r pl-2 rtl:pl-0 rtl:pr-2">
-                                        <span className="text-xs text-on-surface-variant uppercase font-bold tracking-wider mb-1">Spent</span>
-                                        <div className="flex items-baseline justify-center gap-1">
-                                            <span className="text-lg font-extrabold text-primary font-manrope">{(customer.total_spent || 0).toFixed(0)}</span>
-                                            <span className="text-[10px] uppercase font-bold text-on-surface-variant">JOD</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            )}
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="mobile-search" style={{ maxWidth: 320, flex: 1, minWidth: 200 }}>
+          <Search size={15} className="search-icon" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="ابحث بالاسم أو الجوال..." />
         </div>
-    )
+        <div className="chips-row">
+          {tabs.map(tab => (
+            <button key={tab.key} onClick={() => setFilter(tab.key as any)} className={`chip ${filter === tab.key ? 'active' : ''}`}>
+              {tab.label}
+              {tab.count > 0 && <span style={{ background: filter === tab.key ? 'rgba(255,255,255,0.3)' : '#E5E7EB', borderRadius: 100, padding: '1px 7px', fontSize: 11, fontWeight: 700 }}>{tab.count}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 14 }} />)}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="card" style={{ padding: '64px 24px', textAlign: 'center' }}>
+          <Users size={48} color="#E5E7EB" style={{ margin: '0 auto 16px' }} />
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: '#374151', marginBottom: 6 }}>لا يوجد عملاء</h3>
+          <p style={{ color: '#9CA3AF', fontSize: 14 }}>سيظهر عملاؤك هنا بعد أول طلب</p>
+        </div>
+      ) : (
+        <>
+          {/* Desktop table */}
+          <div className="card table-container hide-on-mobile">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  {['العميل', 'رقم الجوال', 'البريد الإلكتروني', 'المدينة', 'الطلبات', 'الإنفاق', 'الانضمام'].map(h => (
+                    <th key={h} style={{ padding: '12px 16px', textAlign: dir === 'rtl' ? 'right' : 'left', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(c => (
+                  <tr key={c.id} style={{ borderBottom: '1px solid #F7F8FA' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#F7F8FA' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent' }}>
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#EDE9FB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6C3CE1', fontWeight: 800, fontSize: 14, flexShrink: 0 }}>
+                          {(c.name || c.phone || '؟')[0]}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{c.name || 'بدون اسم'}</div>
+                          {(c.total_spent || 0) > 100 && <span className="badge badge-coral" style={{ fontSize: 10, marginTop: 2 }}>VIP</span>}
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: '14px 16px', fontSize: 13, color: '#374151', direction: 'ltr' }}>{c.phone || '-'}</td>
+                    <td style={{ padding: '14px 16px', fontSize: 13, color: '#374151' }}>{c.email || '-'}</td>
+                    <td style={{ padding: '14px 16px', fontSize: 13, color: '#6B7280' }}>{c.city || '-'}</td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <ShoppingCart size={13} color="#9CA3AF" />
+                        <span style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{c.total_orders || 0}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
+                      {Number(c.total_spent || 0).toFixed(2)} <span style={{ fontSize: 11, color: '#9CA3AF' }}>د.أ</span>
+                    </td>
+                    <td style={{ padding: '14px 16px', fontSize: 12, color: '#9CA3AF' }}>
+                      {new Date(c.created_at).toLocaleDateString('ar-JO', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="show-on-mobile" style={{ flexDirection: 'column', gap: 10 }}>
+            {filtered.map(c => (
+              <div key={c.id} className="mobile-card" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#EDE9FB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6C3CE1', fontWeight: 800, fontSize: 18, flexShrink: 0 }}>
+                  {(c.name || c.phone || '؟')[0]}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{c.name || 'بدون اسم'}</div>
+                  <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{c.phone || c.email || '-'}</div>
+                </div>
+                <div style={{ textAlign: 'end' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{Number(c.total_spent || 0).toFixed(0)} د.أ</div>
+                  <div style={{ fontSize: 11, color: '#9CA3AF' }}>{c.total_orders || 0} طلب</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
