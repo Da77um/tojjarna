@@ -7,12 +7,26 @@ import { useLanguage } from '@/i18n/LanguageContext'
 import {
   TrendingUp, TrendingDown, ShoppingCart, Users, Package,
   DollarSign, Plus, ExternalLink, ArrowLeft, ArrowRight,
-  Clock, CheckCircle, Truck, XCircle, RotateCcw, AlertCircle,
   BarChart3,
 } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
+
+// Desert Luxe palette
+const SAND        = '#C9A96E'
+const SAND_LIGHT  = '#F5EDD8'
+const SAND_DARK   = '#A07840'
+const OBSIDIAN    = '#1A1A1A'
+const ALABASTER   = '#F5F0E8'
+const TERRACOTTA  = '#B85C38'
+const TERRA_LIGHT = '#FAEADE'
+const SAGE        = '#6B7C6B'
+const SAGE_LIGHT  = '#E0E9E0'
+const MUTED       = '#6B6355'
+const BORDER      = '#DDD5C4'
+const SURFACE     = '#FFFFFF'
+const SURFACE_2   = '#EDE8DE'
 
 const statusMap: Record<string, { label: string; badge: string }> = {
   pending:    { label: 'قيد الانتظار', badge: 'badge badge-warning' },
@@ -24,18 +38,18 @@ const statusMap: Record<string, { label: string; badge: string }> = {
 }
 
 const mockChartData = [
-  { day: 'السبت',   revenue: 320 },
-  { day: 'الأحد',   revenue: 480 },
-  { day: 'الاثنين', revenue: 290 },
-  { day: 'الثلاثاء',revenue: 620 },
-  { day: 'الأربعاء',revenue: 540 },
-  { day: 'الخميس', revenue: 780 },
-  { day: 'الجمعة', revenue: 950 },
+  { day: 'السبت',    revenue: 320 },
+  { day: 'الأحد',    revenue: 480 },
+  { day: 'الاثنين',  revenue: 290 },
+  { day: 'الثلاثاء', revenue: 620 },
+  { day: 'الأربعاء', revenue: 540 },
+  { day: 'الخميس',  revenue: 780 },
+  { day: 'الجمعة',  revenue: 950 },
 ]
 
 export default function DashboardHomePage() {
   const supabase = createClient()
-  const { t, dir } = useLanguage()
+  const { dir } = useLanguage()
 
   const [stats, setStats] = useState({ revenue: 0, orders: 0, products: 0, customers: 0 })
   const [recentOrders, setRecentOrders] = useState<any[]>([])
@@ -78,7 +92,6 @@ export default function DashboardHomePage() {
           products: productsRes.count || 0,
           customers: analyticsRes.data?.total_customers || 0,
         })
-
         setRecentOrders(ordersRes.data || [])
       } catch (err) {
         console.error('Dashboard error:', err)
@@ -108,8 +121,8 @@ export default function DashboardHomePage() {
       trend: '+12.5%',
       up: true,
       icon: DollarSign,
-      iconBg: '#EDE9FB',
-      iconColor: '#6C3CE1',
+      iconBg: SAND_LIGHT,
+      iconColor: SAND_DARK,
     },
     {
       label: 'الطلبات',
@@ -117,8 +130,8 @@ export default function DashboardHomePage() {
       trend: '+8',
       up: true,
       icon: ShoppingCart,
-      iconBg: '#FEF0E6',
-      iconColor: '#F97316',
+      iconBg: TERRA_LIGHT,
+      iconColor: TERRACOTTA,
     },
     {
       label: 'العملاء',
@@ -126,8 +139,8 @@ export default function DashboardHomePage() {
       trend: '+5',
       up: true,
       icon: Users,
-      iconBg: '#DCFCE7',
-      iconColor: '#16A34A',
+      iconBg: SAGE_LIGHT,
+      iconColor: SAGE,
     },
     {
       label: 'المنتجات',
@@ -135,40 +148,53 @@ export default function DashboardHomePage() {
       trend: null,
       up: true,
       icon: Package,
-      iconBg: '#DBEAFE',
-      iconColor: '#2563EB',
+      iconBg: SURFACE_2,
+      iconColor: MUTED,
     },
   ]
 
   return (
     <div dir={dir} className="page-container" style={{ maxWidth: 1280 }}>
 
-      {/* ── Greeting banner ── */}
+      {/* ── Greeting banner — obsidian with sand glow ── */}
       <div style={{
-        background: 'linear-gradient(135deg, #4A22B8 0%, #6C3CE1 55%, #8B5CF6 100%)',
+        background: `linear-gradient(135deg, ${OBSIDIAN} 0%, #241C0F 55%, ${OBSIDIAN} 100%)`,
         borderRadius: 20, padding: '28px 32px', marginBottom: 28,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
         position: 'relative', overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(26,26,26,0.18)',
       }}>
-        <div style={{ position: 'absolute', top: '-20%', left: '-5%', width: 250, height: 250, background: 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
+        {/* Sand glow orb */}
+        <div style={{ position: 'absolute', top: '-30%', insetInlineEnd: '5%', width: 300, height: 300, background: 'radial-gradient(circle, rgba(201,169,110,0.18) 0%, transparent 68%)', borderRadius: '50%', pointerEvents: 'none' }} />
+        {/* Geometric arabesque micro-pattern */}
+        <div className="arabesque-bg" style={{ position: 'absolute', inset: 0, opacity: 0.5, pointerEvents: 'none' }} />
+
         <div style={{ position: 'relative' }}>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 4, fontWeight: 600 }}>مرحباً بعودتك 👋</p>
-          <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', marginBottom: 4 }}>
+          <p style={{ fontSize: 12, color: 'rgba(201,169,110,0.7)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            مرحباً بعودتك
+          </p>
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.02em', marginBottom: 4, fontFamily: '"IBM Plex Arabic", "Cairo", sans-serif' }}>
             {userName}
           </h1>
-          {storeName && <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>{storeName}</p>}
+          {storeName && (
+            <p style={{ fontSize: 14, color: 'rgba(245,240,232,0.5)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: SAND, opacity: 0.7 }} />
+              {storeName}
+            </p>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', position: 'relative' }}>
           {storeSlug && (
             <a href={`/store/${storeSlug}`} target="_blank" rel="noreferrer"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 9, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
-              <ExternalLink size={14} />
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, background: 'rgba(245,240,232,0.08)', border: '1px solid rgba(245,240,232,0.15)', color: 'rgba(245,240,232,0.8)', fontSize: 13, fontWeight: 600, textDecoration: 'none', transition: 'all 0.15s' }}>
+              <ExternalLink size={13} />
               عرض المتجر
             </a>
           )}
           <Link href="/dashboard/products/new"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 9, background: '#F97316', color: '#fff', fontSize: 13, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(249,115,22,0.35)' }}>
-            <Plus size={16} />
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, background: SAND, color: OBSIDIAN, fontSize: 13, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 16px rgba(201,169,110,0.4)', transition: 'all 0.15s' }}>
+            <Plus size={15} />
             إضافة منتج
           </Link>
         </div>
@@ -201,14 +227,14 @@ export default function DashboardHomePage() {
       {/* ── Main grid: chart + quick actions ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 280px', gap: 20, marginBottom: 28 }} className="product-form-grid">
 
-        {/* Revenue Chart */}
+        {/* Revenue Chart — sand fill */}
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 2 }}>المبيعات — آخر 7 أيام</h2>
-              <p style={{ fontSize: 13, color: '#9CA3AF' }}>إجمالي إيرادات الأسبوع الماضي</p>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: OBSIDIAN, marginBottom: 2 }}>المبيعات — آخر 7 أيام</h2>
+              <p style={{ fontSize: 13, color: MUTED }}>إجمالي إيرادات الأسبوع الماضي</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, background: '#F7F8FA', fontSize: 12, fontWeight: 600, color: '#6B7280' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, background: SURFACE_2, fontSize: 12, fontWeight: 600, color: MUTED }}>
               <BarChart3 size={14} />
               أسبوعي
             </div>
@@ -217,39 +243,40 @@ export default function DashboardHomePage() {
             <AreaChart data={mockChartData} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6C3CE1" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#6C3CE1" stopOpacity={0} />
+                  <stop offset="5%"  stopColor={SAND} stopOpacity={0.22} />
+                  <stop offset="95%" stopColor={SAND} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F2F6" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={BORDER} vertical={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fill: MUTED }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: MUTED }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, boxShadow: '0 4px 12px rgba(15,23,42,0.08)', fontSize: 13 }}
+                contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, boxShadow: '0 4px 12px rgba(26,26,26,0.08)', fontSize: 13 }}
                 formatter={(val) => [`${val ?? 0} د.أ`, 'المبيعات']}
               />
-              <Area type="monotone" dataKey="revenue" stroke="#6C3CE1" strokeWidth={2} fill="url(#revenueGrad)" dot={false} activeDot={{ r: 5, fill: '#6C3CE1', stroke: '#fff', strokeWidth: 2 }} />
+              <Area type="monotone" dataKey="revenue" stroke={SAND} strokeWidth={2.5} fill="url(#revenueGrad)" dot={false} activeDot={{ r: 5, fill: SAND, stroke: SURFACE, strokeWidth: 2 }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Quick actions */}
+        {/* Quick actions — warm palette */}
         <div className="card" style={{ padding: 20 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>إجراءات سريعة</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: OBSIDIAN, marginBottom: 16 }}>إجراءات سريعة</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
-              { label: 'إضافة منتج جديد', href: '/dashboard/products/new', color: '#6C3CE1', bg: '#EDE9FB' },
-              { label: 'عرض الطلبات الجديدة', href: '/dashboard/orders', color: '#F97316', bg: '#FEF0E6' },
-              { label: 'تصميم المتجر', href: '/dashboard/theme-editor', color: '#16A34A', bg: '#DCFCE7' },
-              { label: 'كوبون جديد', href: '/dashboard/coupons', color: '#2563EB', bg: '#DBEAFE' },
-              { label: 'تقارير المبيعات', href: '/dashboard/analytics', color: '#7C3AED', bg: '#EDE9FE' },
+              { label: 'إضافة منتج جديد',    href: '/dashboard/products/new',   color: SAND_DARK,   bg: SAND_LIGHT   },
+              { label: 'عرض الطلبات الجديدة', href: '/dashboard/orders',         color: TERRACOTTA,  bg: TERRA_LIGHT  },
+              { label: 'تصميم المتجر',        href: '/dashboard/theme-editor',   color: SAGE,        bg: SAGE_LIGHT   },
+              { label: 'كوبون جديد',          href: '/dashboard/coupons',        color: '#7A5A1A',   bg: '#FBF3E0'    },
+              { label: 'تقارير المبيعات',     href: '/dashboard/analytics',      color: MUTED,       bg: SURFACE_2    },
             ].map(a => (
               <Link key={a.href} href={a.href} style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
                 borderRadius: 10, background: a.bg, textDecoration: 'none',
-                color: a.color, fontWeight: 600, fontSize: 13, transition: 'opacity 0.15s',
+                color: a.color, fontWeight: 600, fontSize: 13,
+                transition: 'opacity 0.15s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.opacity = '0.8' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.opacity = '0.75' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.opacity = '1' }}>
                 <Arrow size={14} />
                 {a.label}
@@ -261,12 +288,12 @@ export default function DashboardHomePage() {
 
       {/* ── Recent Orders ── */}
       <div className="card" style={{ marginBottom: 28 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid #F1F2F6' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: `1px solid ${SURFACE_2}` }}>
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A' }}>أحدث الطلبات</h2>
-            <p style={{ fontSize: 13, color: '#9CA3AF', marginTop: 2 }}>آخر {recentOrders.length} طلبات</p>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: OBSIDIAN }}>أحدث الطلبات</h2>
+            <p style={{ fontSize: 13, color: MUTED, marginTop: 2 }}>آخر {recentOrders.length} طلبات</p>
           </div>
-          <Link href="/dashboard/orders" style={{ fontSize: 13, fontWeight: 600, color: '#6C3CE1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Link href="/dashboard/orders" style={{ fontSize: 13, fontWeight: 600, color: SAND_DARK, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
             عرض الكل
             <Arrow size={14} />
           </Link>
@@ -276,35 +303,35 @@ export default function DashboardHomePage() {
         <div className="hide-on-mobile">
           {recentOrders.length === 0 ? (
             <div style={{ padding: '48px 24px', textAlign: 'center' }}>
-              <ShoppingCart size={40} color="#E5E7EB" style={{ margin: '0 auto 12px' }} />
-              <p style={{ color: '#9CA3AF', fontSize: 14 }}>لا توجد طلبات حتى الآن</p>
-              <p style={{ color: '#D1D5DB', fontSize: 12, marginTop: 4 }}>ابدأ بمشاركة رابط متجرك</p>
+              <ShoppingCart size={40} color={BORDER} style={{ margin: '0 auto 12px' }} />
+              <p style={{ color: MUTED, fontSize: 14 }}>لا توجد طلبات حتى الآن</p>
+              <p style={{ color: BORDER, fontSize: 12, marginTop: 4 }}>ابدأ بمشاركة رابط متجرك</p>
             </div>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
                   {['رقم الطلب', 'العميل', 'الحالة', 'المبلغ', 'التاريخ'].map(h => (
-                    <th key={h} style={{ padding: '12px 20px', textAlign: dir === 'rtl' ? 'right' : 'left', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', background: '#F7F8FA', borderBottom: '1px solid #F1F2F6' }}>{h}</th>
+                    <th key={h} style={{ padding: '12px 20px', textAlign: dir === 'rtl' ? 'right' : 'left', fontSize: 11, fontWeight: 600, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', background: SURFACE_2, borderBottom: `1px solid ${BORDER}` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order, i) => {
+                {recentOrders.map((order) => {
                   const s = statusMap[order.status] || statusMap.pending
                   const date = new Date(order.created_at).toLocaleDateString('ar-JO', { month: 'short', day: 'numeric' })
                   return (
-                    <tr key={order.id} style={{ borderBottom: '1px solid #F7F8FA' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#F7F8FA' }}
+                    <tr key={order.id} style={{ borderBottom: `1px solid ${ALABASTER}` }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = SURFACE_2 }}
                       onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent' }}>
                       <td style={{ padding: '14px 20px' }}>
-                        <Link href={`/dashboard/orders/${order.id}`} style={{ fontWeight: 700, color: '#6C3CE1', textDecoration: 'none', fontSize: 14 }}>
+                        <Link href={`/dashboard/orders/${order.id}`} style={{ fontWeight: 700, color: SAND_DARK, textDecoration: 'none', fontSize: 14 }}>
                           #{order.order_number || order.id.slice(0,6).toUpperCase()}
                         </Link>
                       </td>
                       <td style={{ padding: '14px 20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EDE9FB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6C3CE1', fontWeight: 800, fontSize: 12 }}>
+                          <div style={{ width: 32, height: 32, borderRadius: '50%', background: SAND_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', color: SAND_DARK, fontWeight: 800, fontSize: 12 }}>
                             {(order.customer_name || order.customer_phone || '؟')[0]}
                           </div>
                           <span style={{ fontSize: 14, color: '#374151', fontWeight: 500 }}>{order.customer_name || order.customer_phone || 'زائر'}</span>
@@ -313,10 +340,10 @@ export default function DashboardHomePage() {
                       <td style={{ padding: '14px 20px' }}>
                         <span className={s.badge}>{s.label}</span>
                       </td>
-                      <td style={{ padding: '14px 20px', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
-                        {Number(order.total).toFixed(2)} <span style={{ fontSize: 11, fontWeight: 500, color: '#9CA3AF' }}>د.أ</span>
+                      <td style={{ padding: '14px 20px', fontWeight: 700, fontSize: 14, color: OBSIDIAN }}>
+                        {Number(order.total).toFixed(2)} <span style={{ fontSize: 11, fontWeight: 500, color: MUTED }}>د.أ</span>
                       </td>
-                      <td style={{ padding: '14px 20px', fontSize: 13, color: '#9CA3AF' }}>{date}</td>
+                      <td style={{ padding: '14px 20px', fontSize: 13, color: MUTED }}>{date}</td>
                     </tr>
                   )
                 })}
@@ -325,21 +352,22 @@ export default function DashboardHomePage() {
           )}
         </div>
 
-        {/* Mobile cards */}
+        {/* Mobile order cards */}
         <div className="show-on-mobile" style={{ padding: 16, flexDirection: 'column', gap: 10 }}>
           {recentOrders.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#9CA3AF', padding: '32px 0', fontSize: 14 }}>لا توجد طلبات حتى الآن</p>
+            <p style={{ textAlign: 'center', color: MUTED, padding: '32px 0', fontSize: 14 }}>لا توجد طلبات حتى الآن</p>
           ) : recentOrders.map(order => {
             const s = statusMap[order.status] || statusMap.pending
             return (
-              <Link key={order.id} href={`/dashboard/orders/${order.id}`} className="mobile-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, textDecoration: 'none' }}>
+              <Link key={order.id} href={`/dashboard/orders/${order.id}`} className="mobile-card"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, textDecoration: 'none' }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>#{order.order_number || order.id.slice(0,6).toUpperCase()}</div>
-                  <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>{order.customer_name || order.customer_phone || 'زائر'}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: OBSIDIAN }}>#{order.order_number || order.id.slice(0,6).toUpperCase()}</div>
+                  <div style={{ fontSize: 12, color: MUTED, marginTop: 2 }}>{order.customer_name || order.customer_phone || 'زائر'}</div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
                   <span className={s.badge}>{s.label}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{Number(order.total).toFixed(2)} د.أ</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: OBSIDIAN }}>{Number(order.total).toFixed(2)} د.أ</span>
                 </div>
               </Link>
             )
