@@ -168,7 +168,7 @@ export default function DashboardHomePage() {
           <p style={{ fontSize: 12, color: 'rgba(201,169,110,0.6)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             مرحباً بعودتك
           </p>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.02em', marginBottom: 4, fontFamily: '"IBM Plex Arabic", "Cairo", sans-serif' }}>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: '#F5F0E8', letterSpacing: 0, marginBottom: 4, fontFamily: '"IBM Plex Sans Arabic", sans-serif' }}>
             {userName}
           </h1>
           {storeName && (
@@ -206,7 +206,7 @@ export default function DashboardHomePage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="stat-label">{kpi.label}</div>
-                <div className="stat-value" style={{ fontSize: 22, marginTop: 2 }}>{kpi.value}</div>
+                <div className="stat-value" style={{ fontSize: 22, marginTop: 2, letterSpacing: 0 }}>{kpi.value}</div>
                 {kpi.trend && (
                   <div className={`stat-trend ${kpi.up ? 'up' : 'down'}`} style={{ display: 'inline-flex', fontSize: 11, marginTop: 6 }}>
                     {kpi.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}

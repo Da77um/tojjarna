@@ -120,7 +120,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F0E8' }}>
       <div style={{ textAlign: 'center' }}>
         <div className="spinner" style={{ width: 36, height: 36, margin: '0 auto 16px', borderWidth: 3 }} />
-        <p style={{ color: '#6B6355', fontSize: 14, fontFamily: 'Cairo, sans-serif' }}>جاري التحميل...</p>
+        <p style={{ color: '#6B6355', fontSize: 14, fontFamily: '"IBM Plex Sans Arabic", sans-serif', fontWeight: 400 }}>جاري التحميل...</p>
       </div>
     </div>
   )
@@ -140,7 +140,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Store size={16} color="#1A1A1A" />
           </div>
           <div>
-            <span style={{ fontSize: 17, fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.01em', fontFamily: 'IBM Plex Arabic, Cairo, sans-serif' }}>
+            <span style={{ fontSize: 17, fontWeight: 700, color: '#F5F0E8', letterSpacing: 0, fontFamily: '"IBM Plex Sans Arabic", sans-serif' }}>
               تجارنا
             </span>
           </div>
@@ -279,7 +279,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )
 
   return (
-    <div dir={dir} style={{ fontFamily: dir === 'rtl' ? '"Cairo", "IBM Plex Arabic", sans-serif' : '"DM Sans", sans-serif', minHeight: '100vh', background: '#F5F0E8' }}>
+    <div dir={dir} style={{ fontFamily: '"IBM Plex Sans Arabic", sans-serif', minHeight: '100vh', background: '#F5F0E8' }}>
 
       {/* ── Desktop Sidebar (obsidian) ── */}
       <aside className="hide-on-mobile sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
