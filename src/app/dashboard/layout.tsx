@@ -132,12 +132,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Logo */}
       <div style={{ padding: '20px 16px', borderBottom: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          {/* Sand diamond logo mark */}
           <div style={{
             width: 34, height: 34, borderRadius: 8,
-            background: 'linear-gradient(135deg, #C9A96E, #A07840)',
+            background: '#C9A96E',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(201,169,110,0.35)',
           }}>
             <Store size={16} color="#1A1A1A" />
           </div>
@@ -166,7 +164,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           }}>
           <div style={{
             width: 36, height: 36, borderRadius: 8,
-            background: activeStore ? 'linear-gradient(135deg, #C9A96E, #A07840)' : '#2E2E2E',
+            background: activeStore ? '#C9A96E' : '#2E2E2E',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#1A1A1A', fontWeight: 800, fontSize: 15, flexShrink: 0,
           }}>
@@ -265,7 +263,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 10px 4px', marginTop: 6, borderTop: '1px solid #2A2A2A' }}>
           <div style={{
             width: 32, height: 32, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #C9A96E, #A07840)',
+            background: '#C9A96E',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#1A1A1A', fontWeight: 800, fontSize: 13, flexShrink: 0,
           }}>
@@ -296,7 +294,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             position: 'absolute', top: 0, bottom: 0,
             [dir === 'rtl' ? 'right' : 'left']: 0,
             width: 280, background: '#1A1A1A',
-            boxShadow: '0 0 60px rgba(26,26,26,0.5)',
+            borderInlineEnd: '1px solid #282828',
             display: 'flex', flexDirection: 'column',
             overflowY: 'auto',
           }}>
@@ -311,12 +309,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* ── Top bar (alabaster) ── */}
         <header style={{
           height: 60,
-          background: 'rgba(245,240,232,0.95)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid #DDD5C4',
+          background: '#F4EFE6',
+          borderBottom: '1px solid #D8D0C0',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0 24px', position: 'sticky', top: 0, zIndex: 50,
-          boxShadow: '0 1px 4px rgba(26,26,26,0.06)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button
@@ -344,10 +340,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               )}
             </button>
 
-            {/* User avatar — sand gradient */}
             <div style={{
               width: 34, height: 34, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #C9A96E, #A07840)',
+              background: '#C9A96E',
+              border: '1px solid #B8924A',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#1A1A1A', fontWeight: 800, fontSize: 13, cursor: 'pointer',
             }}>

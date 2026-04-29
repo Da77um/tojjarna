@@ -13,20 +13,20 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 
-// Desert Luxe palette
+// Desert Luxe palette — must match globals.css tokens
 const SAND        = '#C9A96E'
-const SAND_LIGHT  = '#F5EDD8'
-const SAND_DARK   = '#A07840'
+const SAND_LIGHT  = '#F0E6D0'
+const SAND_DARK   = '#8C6A30'
 const OBSIDIAN    = '#1A1A1A'
-const ALABASTER   = '#F5F0E8'
+const ALABASTER   = '#F4EFE6'
 const TERRACOTTA  = '#B85C38'
-const TERRA_LIGHT = '#FAEADE'
-const SAGE        = '#6B7C6B'
-const SAGE_LIGHT  = '#E0E9E0'
-const MUTED       = '#6B6355'
-const BORDER      = '#DDD5C4'
+const TERRA_LIGHT = '#F5DDD4'
+const SAGE        = '#5C7060'
+const SAGE_LIGHT  = '#D8E5D8'
+const MUTED       = '#6A6050'
+const BORDER      = '#D8D0C0'
 const SURFACE     = '#FFFFFF'
-const SURFACE_2   = '#EDE8DE'
+const SURFACE_2   = '#EBE5DA'
 
 const statusMap: Record<string, { label: string; badge: string }> = {
   pending:    { label: 'قيد الانتظار', badge: 'badge badge-warning' },
@@ -156,21 +156,16 @@ export default function DashboardHomePage() {
   return (
     <div dir={dir} className="page-container" style={{ maxWidth: 1280 }}>
 
-      {/* ── Greeting banner — obsidian with sand glow ── */}
+      {/* ── Greeting banner — flat obsidian ── */}
       <div style={{
-        background: `linear-gradient(135deg, ${OBSIDIAN} 0%, #241C0F 55%, ${OBSIDIAN} 100%)`,
-        borderRadius: 20, padding: '28px 32px', marginBottom: 28,
+        background: OBSIDIAN,
+        borderRadius: 16, padding: '28px 32px', marginBottom: 28,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
-        position: 'relative', overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(26,26,26,0.18)',
+        border: '1px solid #282828',
       }}>
-        {/* Sand glow orb */}
-        <div style={{ position: 'absolute', top: '-30%', insetInlineEnd: '5%', width: 300, height: 300, background: 'radial-gradient(circle, rgba(201,169,110,0.18) 0%, transparent 68%)', borderRadius: '50%', pointerEvents: 'none' }} />
-        {/* Geometric arabesque micro-pattern */}
-        <div className="arabesque-bg" style={{ position: 'absolute', inset: 0, opacity: 0.5, pointerEvents: 'none' }} />
 
-        <div style={{ position: 'relative' }}>
-          <p style={{ fontSize: 12, color: 'rgba(201,169,110,0.7)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <div>
+          <p style={{ fontSize: 12, color: 'rgba(201,169,110,0.6)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             مرحباً بعودتك
           </p>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: '#F5F0E8', letterSpacing: '-0.02em', marginBottom: 4, fontFamily: '"IBM Plex Arabic", "Cairo", sans-serif' }}>
@@ -184,7 +179,7 @@ export default function DashboardHomePage() {
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', position: 'relative' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {storeSlug && (
             <a href={`/store/${storeSlug}`} target="_blank" rel="noreferrer"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, background: 'rgba(245,240,232,0.08)', border: '1px solid rgba(245,240,232,0.15)', color: 'rgba(245,240,232,0.8)', fontSize: 13, fontWeight: 600, textDecoration: 'none', transition: 'all 0.15s' }}>
@@ -193,7 +188,7 @@ export default function DashboardHomePage() {
             </a>
           )}
           <Link href="/dashboard/products/new"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, background: SAND, color: OBSIDIAN, fontSize: 13, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 16px rgba(201,169,110,0.4)', transition: 'all 0.15s' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, background: SAND, color: OBSIDIAN, fontSize: 13, fontWeight: 700, textDecoration: 'none', transition: 'background 0.14s ease' }}>
             <Plus size={15} />
             إضافة منتج
           </Link>
@@ -251,7 +246,7 @@ export default function DashboardHomePage() {
               <XAxis dataKey="day" tick={{ fontSize: 11, fill: MUTED }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: MUTED }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, boxShadow: '0 4px 12px rgba(26,26,26,0.08)', fontSize: 13 }}
+                contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, fontSize: 13 }}
                 formatter={(val) => [`${val ?? 0} د.أ`, 'المبيعات']}
               />
               <Area type="monotone" dataKey="revenue" stroke={SAND} strokeWidth={2.5} fill="url(#revenueGrad)" dot={false} activeDot={{ r: 5, fill: SAND, stroke: SURFACE, strokeWidth: 2 }} />
