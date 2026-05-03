@@ -28,9 +28,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* IBM Plex Sans Arabic — global font for Arabic + Latin */}
+        {/* Tojjarna Design System fonts: Tajawal (Arabic) + Inter (Latin) + JetBrains Mono (code/numbers) */}
         <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
         {/* Material Symbols — kept for legacy icon usage */}
