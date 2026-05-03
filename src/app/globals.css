@@ -3,7 +3,7 @@
 /* ============================================================
    Tojjarna Design System — globals.css
    Black · Gold · Cream
-   Tajawal (AR) · Inter (EN) · JetBrains Mono (code)
+   IBM Plex Sans Arabic
    ============================================================ */
 
 @theme inline {
@@ -93,12 +93,12 @@
   --spacing-gutter:        24px;
 
   /* ── Fonts ── */
-  --font-arabic:  'Tajawal', sans-serif;
-  --font-latin:   'Inter', sans-serif;
-  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
-  --font-stack:   'Tajawal', 'Inter', sans-serif;
-  --font-primary: 'Tajawal', 'Inter', sans-serif;
-  --font-sans:    'Tajawal', 'Inter', sans-serif;
+  --font-arabic:  'IBM Plex Sans Arabic', sans-serif;
+  --font-latin:   'IBM Plex Sans Arabic', sans-serif;
+  --font-mono:    'IBM Plex Sans Arabic', ui-monospace, monospace;
+  --font-stack:   'IBM Plex Sans Arabic', sans-serif;
+  --font-primary: 'IBM Plex Sans Arabic', sans-serif;
+  --font-sans:    'IBM Plex Sans Arabic', sans-serif;
 
   /* ── Transitions ── */
   --transition:      all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -185,12 +185,12 @@
   --transition-slow: all 0.4s cubic-bezier(0.4,0,0.2,1);
 
   /* ── Fonts ── */
-  --font-arabic:  'Tajawal', sans-serif;
-  --font-latin:   'Inter', sans-serif;
-  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
-  --font-stack:   'Tajawal', 'Inter', sans-serif;
-  --font-primary: 'Tajawal', 'Inter', sans-serif;
-  --font-sans:    'Tajawal', 'Inter', sans-serif;
+  --font-arabic:  'IBM Plex Sans Arabic', sans-serif;
+  --font-latin:   'IBM Plex Sans Arabic', sans-serif;
+  --font-mono:    'IBM Plex Sans Arabic', ui-monospace, monospace;
+  --font-stack:   'IBM Plex Sans Arabic', sans-serif;
+  --font-primary: 'IBM Plex Sans Arabic', sans-serif;
+  --font-sans:    'IBM Plex Sans Arabic', sans-serif;
 
   /* ── Sidebar ── */
   --color-sidebar-bg:          #1A1A1A;
